@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.component.AppConfiguration;
 import org.zanata.sync.dao.JobStatusDAO;
 import org.zanata.sync.dao.Repository;
+import org.zanata.sync.dao.SyncWorkConfigDAO;
 import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.events.ResourceReadyEvent;
@@ -66,6 +67,8 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @WithRequestScope
     public void onStartUp(@Observes ResourceReadyEvent resourceReadyEvent) {
+        // TODO pahuang investigate why PostConstruct is not invoked
+        appConfiguration.init();
         log.info("=====================================================");
         log.info("=====================================================");
         log.info("=================Zanata Sync starts==================");

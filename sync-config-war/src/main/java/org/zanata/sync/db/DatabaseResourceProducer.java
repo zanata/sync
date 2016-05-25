@@ -54,7 +54,7 @@ public class DatabaseResourceProducer {
 
     public void onStartUp(@Observes @Initialized ServletContext servletContext) {
         try {
-            datasource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/DataSource");
+            datasource = (DataSource) new InitialContext().lookup("java:jboss/datasources/ExampleDS");
         } catch (Exception e) {
             log.error("Error while initialising the database connection pool", e);
             throw new IllegalStateException("Error while initialising the database connection pool", e);

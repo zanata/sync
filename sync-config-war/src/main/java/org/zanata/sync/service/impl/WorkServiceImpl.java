@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import org.quartz.SchedulerException;
 import org.zanata.sync.dao.Repository;
+import org.zanata.sync.dao.SyncWorkConfigDAO;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobType;

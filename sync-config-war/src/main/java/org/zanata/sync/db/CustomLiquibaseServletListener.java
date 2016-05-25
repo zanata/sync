@@ -44,31 +44,31 @@ public class CustomLiquibaseServletListener extends LiquibaseServletListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        try {
-            InitialContext context = new InitialContext();
-
-            ServletValueContainer servletValueContainer =
-                    new ServletValueContainer(
-                            servletContextEvent.getServletContext(), context);
-            LiquibaseConfiguration.getInstance().init(servletValueContainer);
-
-            String dataSourceStr =
-                    (String) servletValueContainer.getValue(
-                        "liquibase.datasource");
-            Preconditions.checkState(!Strings.isNullOrEmpty(dataSourceStr),
-                "liquibase.datasource is not set");
-
-            ComboPooledDataSource dataSource = (ComboPooledDataSource) context.lookup(dataSourceStr);
-            dataSource.setDriverClass(Driver.class.getName());
-
-            String dbFile = AppConfiguration.getDBFilePathFromSystemProp();
-
-            log.info("h2 database file path: {}", dbFile);
-            dataSource.setJdbcUrl("jdbc:h2:" + dbFile + ";AUTO_SERVER=TRUE");
-        } catch (Exception e) {
-            log.error("Error while initialising the database connection pool", e);
-            throw new IllegalStateException("Error while initialising the database connection pool", e);
-        }
+//        try {
+//            InitialContext context = new InitialContext();
+//
+//            ServletValueContainer servletValueContainer =
+//                    new ServletValueContainer(
+//                            servletContextEvent.getServletContext(), context);
+//            LiquibaseConfiguration.getInstance().init(servletValueContainer);
+//
+//            String dataSourceStr =
+//                    (String) servletValueContainer.getValue(
+//                        "liquibase.datasource");
+//            Preconditions.checkState(!Strings.isNullOrEmpty(dataSourceStr),
+//                "liquibase.datasource is not set");
+//
+//            ComboPooledDataSource dataSource = (ComboPooledDataSource) context.lookup(dataSourceStr);
+//            dataSource.setDriverClass(Driver.class.getName());
+//
+////            String dbFile = AppConfiguration.getDBFilePathFromSystemProp();
+////
+////            log.info("h2 database file path: {}", dbFile);
+////            dataSource.setJdbcUrl("jdbc:h2:" + dbFile + ";AUTO_SERVER=TRUE");
+//        } catch (Exception e) {
+//            log.error("Error while initialising the database connection pool", e);
+//            throw new IllegalStateException("Error while initialising the database connection pool", e);
+//        }
         super.contextInitialized(servletContextEvent);
     }
 }

@@ -80,6 +80,9 @@ public class PluginsServiceImpl implements PluginsService {
         log.info("available plugins for {} - {}", pluginAnnotation,
                 repoPluginClasses);
 
+        if (repoPluginClasses == null) {
+            return pluginBuilder.build();
+        }
         for (String cls : repoPluginClasses) {
             Class<? extends P> entity =
                     (Class<? extends P>) cl.loadClass(cls);
