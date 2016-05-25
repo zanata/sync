@@ -1,0 +1,48 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:c="http://java.sun.com/jsf/composite/component"
+  template="/WEB-INF/includes/template.xhtml">
+
+  <f:metadata>
+    <f:viewParam name="original" value="#{zanataSignIn.originalRequest}" />
+  </f:metadata>
+
+  <ui:define name="content">
+    <div class="l__wrapper">
+      <div class="g--centered">
+        <div class="g__item w--1-2-m w--3-8-l w--1-2">
+          <p class="txt--meta l--push-all-0">
+            <a href="/home.jsf">#{msg['jsf.home']}</a>
+          </p>
+          <h1>#{msg['jsf.signInWithZanata']}</h1>
+          <h:form styleClass="l--push-bottom-0">
+            <div class="form__item">
+              <label>#{msg['jsf.zanataProductionServers']}</label>
+              <h:selectOneMenu value="#{zanataSignIn.selectedUrl}">
+                <f:selectItems value="#{zanataSignIn.productionServerUrls}" var="option"
+                  itemLabel="#{option}" itemValue="#{option}"/>
+              </h:selectOneMenu>
+            </div>
+
+            <div class="form__item">
+              <c:textfield componentId="zanataUrl" value="#{zanataSignIn.url}"
+                styleClass="form__item"
+                label="#{msg['jsf.enterZanataUrl']}" maxlength="100"
+                hasError="#{zanataSignIn.hasError()}"
+                errorMessage="#{zanataSignIn.getErrorMessage()}"/>
+            </div>
+
+            <h:commandButton action="#{zanataSignIn.signIn}"
+              value="#{msg['jsf.goToThisServer']}"
+              styleClass="button--primary button--full"/>
+          </h:form>
+
+        </div>
+      </div>
+    </div>
+  </ui:define>
+</ui:composition>

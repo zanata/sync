@@ -1,0 +1,17 @@
+<beans
+  xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+      http://xmlns.jcp.org/xml/ns/javaee
+      http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd" bean-discovery-mode="annotated">
+  <alternatives>
+    <class>org.zanata.sync.dao.SyncWorkConfigDAO</class>
+  </alternatives>
+  <decorators>
+    <class>org.zanata.sync.dao.SyncWorkConfigSerializerEncryptionDecorator</class>
+  </decorators>
+  <interceptors>
+    <class>org.zanata.sync.interceptor.WithRequestScopeInterceptor</class>
+    <class>org.apache.deltaspike.security.impl.extension.SecurityInterceptor</class>
+  </interceptors>
+</beans>

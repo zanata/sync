@@ -1,0 +1,118 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsf/composite/component"
+  template="/WEB-INF/includes/template.xhtml">
+
+  <ui:define name="content">
+    <h:form styleClass="l--push-buttom-0">
+      <a4j:jsFunction name="cancelJob"
+        action="#{indexController.cancelRunningJob(id, type)}" limitRender="true"
+        render="running-jobs-content">
+        <a4j:param name="val1" assignTo="#{id}"/>
+        <a4j:param name="val2" assignTo="#{type}"/>
+      </a4j:jsFunction>
+
+      <a4j:poll id="running-jobs-poll" interval="10000"
+        render="running-jobs-content, main-content" limitRender="true"/>
+    </h:form>
+
+    <div class="l__wrapper">
+      <div class="g">
+        <div class="g__item w--1-m w--3-8-l w--1-4 l--push-bottom-half">
+          <h1>#{msg['Application.name']}</h1>
+          <h:panelGroup layout="block" styleClass="l--push-top-quarter panel" id="running-jobs-content">
+            <ui:fragment rendered="#{empty indexController.runningJobs}">
+              <p class="txt--meta l--pad-all-half">#{msg['jsp.noRunningJobs']}</p>
+            </ui:fragment>
+            <ui:fragment rendered="#{not empty indexController.runningJobs}">
+              <ul class="list--panel">
+                <ui:repeat value="#{indexController.runningJobs}" var="job">
+                  <li class="l--pad-all-quarter" id="running-#{job.key}">
+                    <a href="/work/home.jsf?id=#{job.workId}">
+                      <div class="list__item__content">
+                        <div class="list__item__info">
+                          <span>#{job.name} - #{job.type}</span>
+                          <span class="list__item__meta">#{job.description}</span>
+                        </div>
+                        <div class="list__item__actions">
+                          <div class="bx--inline-block  loader--mini is-active">
+                            <span class="loader__spinner">
+                              <span></span><span></span><span></span>
+                            </span>
+                          </div>
+                          <button class="button--small button--danger loader" onclick="cancelJob('#{job.workId}','#{job.type}')"
+                            title="#{msg['jsf.job.cancel.button.title']}">
+                            <span class="loader__label">
+                              <i class="i i--cancel"></i>
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                </ui:repeat>
+              </ul>
+            </ui:fragment>
+          </h:panelGroup>
+        </div>
+
+        <div class="g__item w--1-m w--5-8-l w--3-4">
+          <h:panelGroup layout="block" styleClass="panel" id="main-content">
+            <div class="panel__header">
+              <div class="panel__header__actions">
+                <div class="dropdown dropdown--header dropdown--small dropdown--right js-dropdown">
+                  <a class="dropdown__toggle js-dropdown__toggle" href="#">
+                    <i class="i i--arrow-down dropdown__toggle__icon"></i>
+                    <i class="i i--ellipsis"></i>
+                  </a>
+                  <ul class="dropdown__content js-dropdown__content" role="content" aria-labelledby="dropdownContent">
+                    <li>
+                      <a href="/work/new.jsf" class="i__item--right" >
+                        #{msg['jsf.newWork']} <i class="i i--plus i__item__icon"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <h2 class="panel__heading">
+                #{msg['jsp.works.title']}
+              </h2>
+            </div>
+
+            <ui:fragment rendered="#{empty indexController.allWork}">
+              <div class="l--pad-all-half">
+                <p class="txt--meta">#{msg['jsp.noWorks']}</p>
+                <a href="/work/new.jsf" class="button button--primary">#{msg['jsf.newWork']}</a>
+              </div>
+            </ui:fragment>
+            <ui:fragment rendered="#{not empty indexController.allWork}">
+              <ul class="list--panel">
+                <ui:repeat value="#{indexController.allWork}" var="work">
+                  <li class="l--pad-all-quarter">
+                    <a href="/work/home.jsf?id=#{work.id}">
+                      <div class="list__item__content">
+                        <div class="list__item__info">
+                          <h3 class="list__title">#{work.name}</h3>
+                          <span class="list__item__meta">#{work.description}</span>
+                        </div>
+                        <div class="list__item__actions txt--meta">
+                          <c:workstatus jobStatus="#{work.syncToRepoJob.lastJobStatus}" type="REPO_SYNC"/>
+                          <c:workstatus jobStatus="#{work.syncToTransServerJob.lastJobStatus}" type="SERVER_SYNC"/>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                </ui:repeat>
+              </ul>
+            </ui:fragment>
+          </h:panelGroup>
+        </div>
+      </div>
+    </div>
+  </ui:define>
+</ui:composition>

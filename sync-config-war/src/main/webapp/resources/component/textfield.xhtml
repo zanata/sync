@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:composite="http://java.sun.com/jsf/composite"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<composite:interface>
+  <composite:attribute name="componentId" type="java.lang.String"
+    shortDescription="id of the text field" required="true"/>
+
+  <composite:attribute name="value" type="java.lang.String"
+    shortDescription="String value of the input" required="true"/>
+
+  <composite:attribute name="label" type="java.lang.String"
+    shortDescription="display text of checkbox" required="true"/>
+
+  <composite:attribute name="tooltip" type="java.lang.String"
+    shortDescription="tooltip for the text field"/>
+
+  <composite:attribute name="placeholder" type="java.lang.String"
+    shortDescription="placeholder for the text field"/>
+
+  <composite:attribute name="errorMessage" type="java.lang.String"
+    shortDescription="error messages"/>
+
+  <composite:attribute name="maxlength" type="java.lang.Integer"
+    shortDescription="maxlength for the input field" default="-1"/>
+
+  <composite:attribute name="hasError" type="java.lang.Boolean"
+    shortDescription="if this text shows error" default="false"/>
+
+  <composite:attribute name="disabled" type="java.lang.Boolean"
+    shortDescription="readonly text field" default="false"/>
+
+  <composite:attribute name="masked" type="java.lang.Boolean"
+    shortDescription="mask the field" default="false"/>
+
+  <composite:attribute name="labelStyle" type="java.lang.String"
+    shortDescription="css style for label"/>
+
+  <composite:attribute name="styleClass" type="java.lang.String"
+    shortDescription="css style for wrapper"/>
+
+</composite:interface>
+
+<composite:implementation>
+  <div
+    class="#{cc.attrs.hasError ? 'form__item--error' : ''} #{cc.attrs.styleClass}" title="#{cc.attrs.tooltip}" id="#{cc.attrs.componentId}">
+    <h:outputLabel for="input" styleClass="#{cc.attrs.labelStyle}"><h:outputText value="#{cc.attrs.label}" escape="false"/></h:outputLabel>
+
+    <h:inputSecret maxlength="#{cc.attrs.maxlength}" pt:placeholder="#{cc.attrs.placeholder}" id="inputsecret" disabled="#{cc.attrs.disabled}"
+      styleClass="l--push-bottom-quarter #{cc.attrs.disabled ? 'is-disabled' : ''}" value="#{cc.attrs.value}" rendered="#{cc.attrs.masked}"/>
+
+    <h:inputText maxlength="#{cc.attrs.maxlength}" pt:placeholder="#{cc.attrs.placeholder}" id="input" disabled="#{cc.attrs.disabled}"
+      styleClass="l--push-bottom-quarter #{cc.attrs.disabled ? 'is-disabled' : ''}" value="#{cc.attrs.value}" rendered="#{not cc.attrs.masked}"/>
+    <h:message for="input" styleClass="l--pad-all-quarter" errorClass="message--danger" />
+    <ui:fragment rendered="#{cc.attrs.hasError}">
+      <span class="l--pad-all-quarter message--danger">#{cc.attrs.errorMessage}</span>
+    </ui:fragment>
+
+    <composite:insertChildren/>
+  </div>
+</composite:implementation>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:composite="http://java.sun.com/jsf/composite"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html">
+
+  <composite:interface>
+    <composite:attribute name="jobStatus" type="org.zanata.sync.model.JobStatus"
+      shortDescription="status for the job" required="true"/>
+
+    <composite:attribute name="type" type="java.lang.String"
+      shortDescription="type of job. 'REPO_SYNC' or 'SERVER_SYNC'" required="true" />
+
+    <composite:attribute name="styleClass" type="java.lang.String"
+      shortDescription="styleClass for component"/>
+
+    <composite:attribute name="displayType" type="java.lang.String" default="inline"
+      shortDescription="'block or inline', default is 'inline'"/>
+  </composite:interface>
+
+  <composite:implementation>
+    <ui:param name="title" value="#{cc.attrs.jobStatus eq null ? 'none': msg.format('jsf.job.status.title', cc.attrs.jobStatus.status.name())}"/>
+    <ui:param name="statusClass" value="txt--neutral"/>
+
+    <ui:fragment rendered="#{cc.attrs.jobStatus.status.name() eq 'RUNNING'}">
+      <ui:param name="statusClass" value="txt--unsure"/>
+    </ui:fragment>
+    <ui:fragment rendered="#{cc.attrs.jobStatus.status.name() eq 'ERROR'}">
+      <ui:param name="statusClass" value="txt--danger"/>
+    </ui:fragment>
+    <ui:fragment rendered="#{cc.attrs.jobStatus.status.name() eq 'COMPLETE'}">
+      <ui:param name="statusClass" value="txt--success"/>
+    </ui:fragment>
+    <ui:fragment rendered="#{cc.attrs.jobStatus.status.name() eq 'PAUSE'}">
+      <ui:param name="statusClass" value="txt--neutral"/>
+    </ui:fragment>
+    <ui:fragment rendered="#{cc.attrs.jobStatus.status.name() eq 'NORMAL'}">
+      <ui:param name="statusClass" value=""/>
+    </ui:fragment>
+
+    <div title="#{title}" class="#{statusClass} #{cc.attrs.styleClass}">
+      <h:panelGroup styleClass="txt--meta #{cc.attrs.displayType eq 'block' ? 'bx--block' : 'bx--inline-block'}" rendered="#{cc.attrs.type eq 'REPO_SYNC'}">
+        #{msg['jsf.work.field.syncToRepo.title']}
+      </h:panelGroup>
+      <h:panelGroup styleClass="txt--meta #{cc.attrs.displayType eq 'block' ? 'bx--block' : 'bx--inline-block'}" rendered="#{cc.attrs.type eq 'SERVER_SYNC'}">
+        #{msg['jsf.work.field.syncToServer.title']}
+      </h:panelGroup>
+      <span class="txt--meta bx--inline-block #{cc.attrs.displayType eq 'block' ? '' : 'l--push-left-quarter'}">
+        <i class="i i--clock bx--inline-block"></i>
+        <h:panelGroup rendered="#{cc.attrs.jobStatus.lastEndTime ne null}" styleClass="l--push-left-quarter bx--inline-block">
+          #{cc.attrs.jobStatus.lastEndTime}
+        </h:panelGroup>
+        <h:panelGroup rendered="#{cc.attrs.jobStatus.lastEndTime eq null}" styleClass="l--push-left-quarter bx--inline-block">
+          #{msg['jsf.job.status.none']}
+        </h:panelGroup>
+      </span>
+    </div>
+  </composite:implementation>
+</html>

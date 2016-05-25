@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.zanata</groupId>
+    <groupId>org.zanata.sync</groupId>
     <artifactId>zsync</artifactId>
     <version>1.0</version>
   </parent>
@@ -13,8 +13,252 @@
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <slf4j.version>1.7.13</slf4j.version>
+    <logback.version>1.1.3</logback.version>
+    <deltaspike.version>1.5.1</deltaspike.version>
+    <resteasy.version>3.0.12.Final</resteasy.version>
   </properties>
+
+
   <dependencies>
+    <dependency>
+      <groupId>org.zanata.sync</groupId>
+      <artifactId>sync-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- CDI -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- deltaspike-->
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-api</artifactId>
+      <version>${deltaspike.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-impl</artifactId>
+      <version>${deltaspike.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-servlet-module-api</artifactId>
+      <version>${deltaspike.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-servlet-module-impl</artifactId>
+      <version>${deltaspike.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.cdictrl</groupId>
+      <artifactId>deltaspike-cdictrl-api</artifactId>
+      <version>${deltaspike.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.cdictrl</groupId>
+      <artifactId>deltaspike-cdictrl-weld</artifactId>
+      <version>${deltaspike.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-security-module-api</artifactId>
+      <version>${deltaspike.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-security-module-impl</artifactId>
+      <version>${deltaspike.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- JSF -->
+    <dependency>
+      <groupId>org.jboss.spec.javax.faces</groupId>
+      <artifactId>jboss-jsf-api_2.1_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-impl</artifactId>
+      <version>2.1.28</version>
+    </dependency>
+    <dependency>
+      <groupId>org.richfaces</groupId>
+      <artifactId>richfaces</artifactId>
+      <version>4.5.11.Final</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.el</groupId>
+          <artifactId>jboss-el-api_3.0_spec</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- JAXRS -->
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>jaxrs-api</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-cdi</artifactId>
+      <version>${resteasy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.ws.rs</groupId>
+          <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-multipart-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.oltu.oauth2</groupId>
+      <artifactId>org.apache.oltu.oauth2.client</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+
+    <!-- TODO pahuang revisit this -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.191</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.15</version>
+    </dependency>
+
+    <!-- beans validation -->
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>4.3.2.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.7.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>2.2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.servlet</groupId>
+      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <version>3.4.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.scannotation</groupId>
+      <artifactId>scannotation</artifactId>
+      <version>1.0.3</version>
+    </dependency>
+
+<!-- TODO pahuang zanata plugin. revisit this -->
+    <dependency>
+      <groupId>org.zanata</groupId>
+      <artifactId>zanata-client-commands</artifactId>
+      <version>3.8.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javassist</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.bull.javamelody</groupId>
+      <artifactId>javamelody-core</artifactId>
+      <version>1.58.0</version>
+    </dependency>
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <!--jboss also has this-->
+      <!--<scope>provided</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

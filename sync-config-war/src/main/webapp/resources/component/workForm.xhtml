@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:composite="http://java.sun.com/jsf/composite"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsf/composite/component">
+
+  <composite:interface>
+    <composite:attribute name="id" type="java.lang.String" default="inline"
+      shortDescription="id of this component"/>
+
+    <composite:attribute name="styleClass" type="java.lang.String" default=""
+      shortDescription="css styleClass for the parent element"/>
+
+    <composite:attribute name="actionClass" type="org.zanata.sync.controller.HasFormController"
+      shortDescription="HasFormController class" required="true"/>
+
+    <composite:attribute name="submitText" type="java.lang.String" default="#{msg['jsf.work.button.save']}"
+      shortDescription="submit button text"/>
+  </composite:interface>
+
+  <composite:implementation>
+    <h:form id="#{cc.attrs.id}" styleClass="#{cc.attrs.styleClass}">
+      <div class="g__item">
+        <c:textfield componentId="name" value="#{cc.attrs.actionClass.form.name}"
+          styleClass="form__item"
+          label="#{msg['jsf.work.field.name']}" maxlength="100"
+          hasError="#{cc.attrs.actionClass.hasError('name')}"
+          errorMessage="#{cc.attrs.actionClass.getErrorMessage('name')}"/>
+
+        <c:textarea componentId="description"
+          value="#{cc.attrs.actionClass.form.description}"
+          styleClass="form__item"
+          label="#{msg['jsf.work.field.description']}"
+          hasError="#{cc.attrs.actionClass.hasError('description')}"
+          errorMessage="#{cc.attrs.actionClass.getErrorMessage('description')}"/>
+
+        <div class="l--push-top-1">
+          <h2 class="heading--secondary">
+            <h:selectBooleanCheckbox styleClass="txt--mini" id="enableSyncToServer"
+              value="#{cc.attrs.actionClass.form.syncToServerEnabled}" onchange="enableSection(jQuery(this))"/> #{msg['jsf.work.field.syncToServer.settings']}
+          </h2>
+          <div class="form__item">
+            <label>#{msg['jsf.work.field.cron.label']}</label>
+            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncToServerCron}">
+              <f:selectItems value="#{cc.attrs.actionClass.supportedIntervals}" var="cronType"
+                itemLabel="#{cronType.display}" itemValue="#{cronType}"/>
+            </h:selectOneMenu>
+          </div>
+
+          <div class="form__item">
+            <label>#{msg['jsf.work.field.syncType']}</label>
+            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncToServerOption}">
+              <f:selectItems value="#{cc.attrs.actionClass.syncOptions}" var="option"
+                itemLabel="#{option.label}" itemValue="#{option.key}"/>
+            </h:selectOneMenu>
+          </div>
+        </div>
+
+        <div class="l--push-top-1">
+          <h2 class="heading--secondary">
+            <h:selectBooleanCheckbox styleClass="txt--mini" id="enableSyncToRepo"
+              value="#{cc.attrs.actionClass.form.syncToRepoEnabled}" onchange="enableSection(jQuery(this))"/> #{msg['jsf.world.field.syncToRepo.settings']}
+          </h2>
+          <div class="form__item">
+            <label>#{msg['jsf.work.field.cron.label']}</label>
+            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncToRepoCron}">
+              <f:selectItems value="#{cc.attrs.actionClass.supportedIntervals}" var="cronType"
+                itemLabel="#{cronType.display}" itemValue="#{cronType}"/>
+            </h:selectOneMenu>
+          </div>
+
+          <div class="form__item">
+            <label>#{msg['jsf.work.field.syncType']}</label>
+            <div class="heading--secondary txt--meta">Only allows translations to be pushed to source repository</div>
+          </div>
+        </div>
+
+        <div class="l--push-top-1">
+          <h2 class="heading--secondary">
+            #{msg['jsf.work.field.sourceRepoSettings']}
+          </h2>
+
+          <h:selectOneMenu value="#{cc.attrs.actionClass.form.srcRepoPluginName}">
+            <f:selectItems value="#{cc.attrs.actionClass.repoExecutors}" var="plugin"
+              itemLabel="#{plugin.getName()}"
+              itemValue="#{plugin.getClass().getName()}"/>
+            <a4j:ajax event="change" render="selectedSrcPlugin"/>
+          </h:selectOneMenu>
+
+          <h:panelGroup layout="block" id="selectedSrcPlugin">
+            <ui:fragment rendered="#{cc.attrs.actionClass.selectedSrcPlugin ne null}">
+              <div
+                class="txt--meta l--push-v-quarter">#{cc.attrs.actionClass.selectedSrcPlugin.getDescription()}</div>
+              <hr class="l--push-top-quarter"/>
+              <div class="form__item">
+                <ui:repeat value="#{cc.attrs.actionClass.selectedSrcPluginFields}"
+                  var="srcRepoField">
+                  <ui:param name="key"
+                    value="#{cc.attrs.actionClass.form.getRepoSettingsPrefix()}#{srcRepoField.key}"/>
+                  <ui:fragment rendered="#{srcRepoField.type eq 'TEXT'}">
+                    <c:textfield componentId="#{key}"
+                      label="#{srcRepoField.label}"
+                      value="#{cc.attrs.actionClass.form.srcRepoPluginConfig[srcRepoField.key]}"
+                      styleClass="form__item" tooltip="#{srcRepoField.tooltip}"
+                      placeholder="#{srcRepoField.placeholder}"
+                      masked="#{srcRepoField.masked}"
+                      hasError="#{cc.attrs.actionClass.hasError(key)}"
+                      errorMessage="#{cc.attrs.actionClass.getErrorMessage(key)}">
+                    </c:textfield>
+                  </ui:fragment>
+                  <ui:fragment rendered="#{srcRepoField.type eq 'CHECKBOX'}">
+                    <c:checkbox componentId="#{key}" styleClass="form__item"
+                      value="#{cc.attrs.actionClass.form.srcRepoPluginConfig[srcRepoField.key]}"
+                      label="#{srcRepoField.label}"
+                      tooltip="#{srcRepoField.tooltip}"/>
+                  </ui:fragment>
+                </ui:repeat>
+              </div>
+            </ui:fragment>
+          </h:panelGroup>
+        </div>
+
+        <div class="l--push-top-1">
+
+          <div class="form__item l--push-top-1">
+            <h:commandButton styleClass="button button--primary button--full"
+              value="#{cc.attrs.submitText}"
+              action="#{cc.attrs.actionClass.onSubmit()}">
+            </h:commandButton>
+          </div>
+        </div>
+      </div>
+    </h:form>
+  </composite:implementation>
+
+</html>
