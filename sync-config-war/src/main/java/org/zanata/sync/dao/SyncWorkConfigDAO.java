@@ -20,18 +20,15 @@
  */
 package org.zanata.sync.dao;
 
-import java.sql.Connection;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.zanata.sync.model.SyncWorkConfig;
-import com.google.common.collect.Lists;
 
 
 /**
@@ -40,64 +37,33 @@ import com.google.common.collect.Lists;
 @Alternative
 @RequestScoped
 public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
-    @Inject
-    private Connection connection;
 
     @Inject
     private SyncWorkConfigSerializer serializer;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Override
     public Optional<SyncWorkConfig> load(Long id) {
-       /* DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
-
-        Record record = dslContext.select().from(SYNC_WORK_CONFIG_TABLE).where(
-                SYNC_WORK_CONFIG_TABLE.ID.equal(id)).fetchOne();
-        if (record != null) {
-            String yaml = record.getValue(SYNC_WORK_CONFIG_TABLE.YAML);
-            return Optional.of(serializer.fromYaml(yaml));
-        }*/
-        return Optional.empty();
+        SyncWorkConfig syncWorkConfig =
+                entityManager.find(SyncWorkConfig.class, id);
+        return Optional.ofNullable(syncWorkConfig);
     }
 
     @Override
     public void persist(SyncWorkConfig config) {
-        /*DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
-
-        if (config.getId() == null) {
-            SyncWorkConfigTableRecord savedRecord =
-                    dslContext.insertInto(SYNC_WORK_CONFIG_TABLE,
-                            SYNC_WORK_CONFIG_TABLE.NAME,
-                            SYNC_WORK_CONFIG_TABLE.DESCRIPTION,
-                            SYNC_WORK_CONFIG_TABLE.CREATEDDATE,
-                            SYNC_WORK_CONFIG_TABLE.YAML)
-                            .values(config.getName(), config.getDescription(),
-                                    new Timestamp(new Date().getTime()), "")
-                            .returning(SYNC_WORK_CONFIG_TABLE.ID)
-                            .fetchOne();
-            // we have to get back the id first then marshall it to yaml
-            config.setId(savedRecord.getId());
-            dslContext.update(SYNC_WORK_CONFIG_TABLE)
-                    .set(SYNC_WORK_CONFIG_TABLE.YAML, serializer.toYaml(config))
-                    .where(SYNC_WORK_CONFIG_TABLE.ID.equal(config.getId()))
-                    .execute();
-        } else {
-            dslContext.update(SYNC_WORK_CONFIG_TABLE)
-                    .set(SYNC_WORK_CONFIG_TABLE.NAME, config.getName())
-                    .set(SYNC_WORK_CONFIG_TABLE.DESCRIPTION, config.getDescription())
-                    .set(SYNC_WORK_CONFIG_TABLE.YAML, serializer.toYaml(config))
-                    .where(SYNC_WORK_CONFIG_TABLE.ID.equal(config.getId()))
-                    .execute();
-        }*/
+        entityManager.persist(config);
     }
 
     @Override
     public boolean delete(Long id) {
-       /* DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
-
-        int execute = dslContext.deleteFrom(SYNC_WORK_CONFIG_TABLE)
-                .where(SYNC_WORK_CONFIG_TABLE.ID.equal(id))
-                .execute();
-        return execute == 1;*/
+        SyncWorkConfig syncWorkConfig =
+                entityManager.find(SyncWorkConfig.class, id);
+        if (syncWorkConfig != null) {
+            entityManager.remove(syncWorkConfig);
+            return true;
+        }
         return false;
     }
 
@@ -110,17 +76,8 @@ public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
 
     @Override
     public List<SyncWorkConfig> getAll() {
-        /*DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
-
-        Result<Record> result =
-                dslContext.select().from(SYNC_WORK_CONFIG_TABLE).fetch();
-
-        List<SyncWorkConfig> syncWorkConfigs =
-                result.stream().map(r -> serializer
-                        .fromYaml(r.getValue(SYNC_WORK_CONFIG_TABLE.YAML)))
-                        .collect(
-                                Collectors.toList());
-        return syncWorkConfigs;*/
-        return Lists.newArrayList();
+        return entityManager
+                .createQuery("from SyncWorkConfig order by createdDate",
+                        SyncWorkConfig.class).getResultList();
     }
 }

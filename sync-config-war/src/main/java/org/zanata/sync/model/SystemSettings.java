@@ -2,28 +2,51 @@ package org.zanata.sync.model;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.Access;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import static javax.persistence.AccessType.FIELD;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Getter
-@Setter
-@NoArgsConstructor
+@Entity
+@Table(name = "System_Settings_table")
+@Access(FIELD)
 public class SystemSettings implements Serializable {
-    @NotEmpty
-    private String dataPath;
+    public static final String FIELDS_NEED_ENCRYPTION = "fields.need.encryption";
 
-    @NotNull
-    private List<String> fieldsNeedEncryption = Lists.newArrayList("apiKey");
+    @Id
+    @GeneratedValue
+    private Long id;
 
-    public void updateSettings(List<String> fieldsNeedEncryption) {
-        this.fieldsNeedEncryption = fieldsNeedEncryption;
+    @Version
+    private int version;
+
+    private String key;
+
+    private String value;
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setSetting(String key, String value) {
+        this.key = key;
+        this.value = value;
     }
 }

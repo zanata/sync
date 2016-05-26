@@ -50,7 +50,7 @@ public class TransServerSyncJob extends SyncJob {
             log.info("No plugin in job. Skipping." + syncWorkConfig.toString());
             return;
         }
-        if(syncWorkConfig.getSyncToServerConfig() == null) {
+        if (!syncWorkConfig.isSyncToServerEnabled()) {
             log.info("SyncToServer is disabled. Skipping." + syncWorkConfig.toString());
             return;
         }
@@ -77,7 +77,7 @@ public class TransServerSyncJob extends SyncJob {
                 "Pushing files to server from " + destDir,
                 JobStatusType.RUNNING);
             transServerExecutor.pushToServer(destDir,
-                syncWorkConfig.getSyncToServerConfig().getOption());
+                syncWorkConfig.getSyncToZanataOption());
 
             updateProgress(syncWorkConfig.getId(), 75,
                 "Cleaning directory: " + destDir, JobStatusType.RUNNING);

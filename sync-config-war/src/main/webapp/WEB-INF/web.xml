@@ -34,7 +34,7 @@
 
   <!-- listeners -->
   <listener>
-    <listener-class>org.zanata.sync.db.CustomLiquibaseServletListener</listener-class>
+    <listener-class>liquibase.integration.servlet.LiquibaseServletListener</listener-class>
   </listener>
 
   <listener>

@@ -36,9 +36,6 @@ public class AdminController implements Serializable {
     private Messages msg;
 
     @Getter
-    private String dataDir;
-
-    @Getter
     @Setter
     private boolean deleteJobDir;
 
@@ -50,16 +47,16 @@ public class AdminController implements Serializable {
 
     @PostConstruct
     public void init() {
-        dataDir = appConfiguration.getDataPath();
         fieldsNeedEncryption =
             StringUtils.join(appConfiguration.getFieldsNeedEncryption(), ',');
     }
 
     public String saveChanges() {
         validate();
-        appConfiguration.updateSettingsAndSave(deleteJobDir, ImmutableList
-            .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
-                .split(fieldsNeedEncryption)));
+        // TODO pahuang fix up admin controller
+//        appConfiguration.updateSettingsAndSave(ImmutableList
+//            .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
+//                .split(fieldsNeedEncryption)));
 
         FacesMessage message = new FacesMessage(SEVERITY_INFO,
                 msg.get("jsf.admin.settings.saved.message"), "");

@@ -76,11 +76,9 @@ public class SchedulerServiceImpl implements SchedulerService {
         log.info("== build: {}-{}",
                 appConfiguration.getBuildVersion(),
                 appConfiguration.getBuildInfo());
-        log.info("== data directory: {}", appConfiguration.getDataPath());
         log.info("== repo directory: {}", appConfiguration.getRepoDir());
         log.info("== fields to encrypt: {}",
                 appConfiguration.getFieldsNeedEncryption());
-        log.info("== database path: {}", appConfiguration.getDBFilePath());
         log.info("=====================================================");
         log.info("=====================================================");
 

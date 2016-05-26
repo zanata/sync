@@ -24,8 +24,6 @@ public class JobStatusDAO {
     private static final Logger log =
             LoggerFactory.getLogger(JobStatusDAO.class);
 
-    @Inject
-    private Connection connection;
 
     public JobStatusList getJobStatusList(SyncWorkConfig config, JobType type) {
         /*DSLContext dslContext = DSL.using(connection, SQLDialect.H2);

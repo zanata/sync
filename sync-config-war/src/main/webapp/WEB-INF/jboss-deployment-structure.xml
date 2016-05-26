@@ -17,7 +17,6 @@
     <dependencies>
 
       <!-- start of unsupported modules -->
-      <!-- needed by arquillian test -->
       <module name="com.h2database.h2" />
       <!-- end of unsupported modules -->
 
@@ -30,9 +29,11 @@
       <!--<module name="javax.interceptor.api" />-->
       <!--<module name="javax.servlet.api" />-->
       <!--<module name="javax.transaction.api"/>-->
-      <!--<module name="javax.validation.api" />-->
+      <module name="javax.validation.api" />
       <!--&lt;!&ndash; not needed for wildfly: &ndash;&gt;-->
-      <!--<module name="org.hibernate.validator" />-->
+      <module name="org.hibernate" />
+      <module name="org.hibernate.commons-annotations" />
+      <module name="org.hibernate.validator" />
       <module name="org.slf4j" />
     </dependencies>
   </deployment>

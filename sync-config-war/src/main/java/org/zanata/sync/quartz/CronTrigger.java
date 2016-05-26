@@ -34,6 +34,7 @@ import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.plugin.zanata.Plugin;
 import org.zanata.sync.service.PluginsService;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -108,12 +109,12 @@ public class CronTrigger {
             String cronExp;
             Class jobClass;
             if (type.equals(JobType.REPO_SYNC)
-                    && syncWorkConfig.getSyncToRepoConfig() != null) {
-                cronExp = syncWorkConfig.getSyncToRepoConfig().getCron();
+                    && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToRepoCron())) {
+                cronExp = syncWorkConfig.getSyncToRepoCron();
                 jobClass = RepoSyncJob.class;
             } else if (type.equals(JobType.SERVER_SYNC)
-                    && syncWorkConfig.getSyncToServerConfig() != null) {
-                cronExp = syncWorkConfig.getSyncToServerConfig().getCron();
+                    && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
+                cronExp = syncWorkConfig.getSyncToZanataCron();
                 jobClass = TransServerSyncJob.class;
             } else {
                 return Optional.empty();

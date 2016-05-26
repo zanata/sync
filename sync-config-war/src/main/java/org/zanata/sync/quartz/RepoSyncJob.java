@@ -25,6 +25,7 @@ import java.io.File;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.common.plugin.TranslationServerExecutor;
 import org.zanata.sync.model.JobStatusType;
@@ -51,7 +52,7 @@ public class RepoSyncJob extends SyncJob {
                 syncWorkConfig.toString());
             return;
         }
-        if (syncWorkConfig.getSyncToRepoConfig() == null) {
+        if (!syncWorkConfig.isSyncToRepoEnabled()) {
             log.info("SyncToRepo is disabled. Skipping."
                     + syncWorkConfig.toString());
             return;
@@ -79,8 +80,9 @@ public class RepoSyncJob extends SyncJob {
                 "Pulling files from translation server to " + destDir,
                 JobStatusType.RUNNING);
 
+            // we only sync translation to source repo
             transServerExecutor.pullFromServer(destDir,
-                syncWorkConfig.getSyncToRepoConfig().getOption());
+                    SyncOption.TRANSLATIONS);
 
             if (interrupted) {
                 return;
@@ -88,7 +90,7 @@ public class RepoSyncJob extends SyncJob {
             updateProgress(syncWorkConfig.getId(), 60,
                 "Commits to repository from " + destDir, JobStatusType.RUNNING);
             srcExecutor.pushToRepo(destDir,
-                syncWorkConfig.getSyncToRepoConfig().getOption());
+                SyncOption.TRANSLATIONS);
 
             updateProgress(syncWorkConfig.getId(), 80,
                 "Cleaning directory: " + destDir, JobStatusType.RUNNING);
