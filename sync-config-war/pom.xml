@@ -28,6 +28,11 @@
       <artifactId>sync-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.zanata.sync</groupId>
+      <artifactId>git-plugin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- CDI -->
     <dependency>
       <groupId>javax.enterprise</groupId>
@@ -205,6 +210,12 @@
           <artifactId>validation-api</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- TODO pahuang revisit this -->

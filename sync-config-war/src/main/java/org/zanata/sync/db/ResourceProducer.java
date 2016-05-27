@@ -20,10 +20,13 @@
  */
 package org.zanata.sync.db;
 
-import java.sql.SQLException;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
@@ -32,6 +35,7 @@ import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.events.ResourceReadyEvent;
@@ -40,10 +44,8 @@ import org.zanata.sync.events.ResourceReadyEvent;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @ApplicationScoped
-public class DatabaseResourceProducer {
-    private static final Logger log = LoggerFactory.getLogger(DatabaseResourceProducer.class);
-
-    private DataSource datasource;
+public class ResourceProducer {
+    private static final Logger log = LoggerFactory.getLogger(ResourceProducer.class);
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -52,15 +54,29 @@ public class DatabaseResourceProducer {
     private Event<ResourceReadyEvent> resourceReadyEvent;
 
     public void onStartUp(@Observes @Initialized ServletContext servletContext) {
-        try {
-            datasource = (DataSource) new InitialContext().lookup("java:jboss/datasources/ExampleDS");
-        } catch (Exception e) {
-            log.error("Error while initialising the database connection pool", e);
-            throw new IllegalStateException("Error while initialising the database connection pool", e);
-        }
-        log.info("Database connection pool initialized successfully: {}", entityManager);
         resourceReadyEvent.fire(new ResourceReadyEvent());
     }
 
-
+//    @Produces
+//    @RequestScoped
+//    @Default
+//    protected EntityManager entityManager() {
+//        return entityManager;
+//    }
+//
+//    protected void onDispose(@Disposes EntityManager entityManager) {
+//        if (entityManager.isOpen()) {
+//            Session session = entityManager.unwrap(Session.class);
+//            // sometimes EntityManager.isOpen() returns true when the Session
+//            // is actually closed, so we ask the Session too
+//            if (session.isOpen()) {
+//                log.debug("___________ closing EntityManager: {}", entityManager);
+//                entityManager.close();
+//            } else {
+//                log.debug("Session is not open");
+//            }
+//        } else {
+//            log.debug("EntityManager is not open");
+//        }
+//    }
 }

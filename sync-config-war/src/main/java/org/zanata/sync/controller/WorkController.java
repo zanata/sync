@@ -19,6 +19,7 @@ import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
 import org.zanata.sync.service.PluginsService;
+import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,15 @@ public class WorkController extends HasFormController {
     @Inject
     private Messages msg;
 
-    @Getter
-    @Setter
     private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     private SyncWorkConfig syncWorkConfig;
 

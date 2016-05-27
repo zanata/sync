@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.model.JobStatus;
@@ -55,6 +56,7 @@ public class JobStatusDAO {
         return new Date(timestamp.getTime());
     }
 
+    @Transactional
     public void saveJobStatus(SyncWorkConfig config, JobType type, JobStatus jobStatus) {
         /*DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
 

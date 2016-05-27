@@ -22,18 +22,21 @@ package org.zanata.sync.dao;
 
 import java.util.List;
 import java.util.Optional;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.zanata.sync.model.SyncWorkConfig;
 
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@RequestScoped
+@Stateless
 public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
 
     @Inject
@@ -50,11 +53,13 @@ public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
     }
 
     @Override
+    @TransactionAttribute
     public void persist(SyncWorkConfig config) {
         entityManager.persist(config);
     }
 
     @Override
+    @TransactionAttribute
     public boolean delete(Long id) {
         SyncWorkConfig syncWorkConfig =
                 entityManager.find(SyncWorkConfig.class, id);

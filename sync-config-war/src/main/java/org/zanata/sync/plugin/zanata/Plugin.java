@@ -21,7 +21,7 @@ import org.zanata.sync.plugin.zanata.service.impl.ZanataSyncServiceImpl;
 public class Plugin extends TranslationServerExecutor {
 
     private final String name = "Zanata Server";
-    private final String description = Messages.getString("plugin.description");
+    private final String description = Messages.getString("zanata.plugin.description");
     private final ZanataSyncServiceImpl zanataSyncService;
 
     private PushOptionsImpl pushOptions;

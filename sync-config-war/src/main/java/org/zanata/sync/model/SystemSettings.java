@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Access;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -27,7 +28,7 @@ public class SystemSettings implements Serializable {
     public static final String FIELDS_NEED_ENCRYPTION = "fields.need.encryption";
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Version

@@ -58,8 +58,8 @@ public class NewWorkController extends HasFormController {
         FacesMessage message = new FacesMessage(SEVERITY_INFO,
             msg.get("jsf.newWork.created.message"), "");
         facesContext.addMessage(null, message);
-        facesContext.getExternalContext().redirect("/home.jsf");
-        return "";
+//        facesContext.getExternalContext().redirect("/home.jsf");
+        return "/home.jsf?faces-redirect=true";
     }
 
     @Override
