@@ -23,7 +23,6 @@ package org.zanata.sync.dao;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -34,7 +33,6 @@ import org.zanata.sync.model.SyncWorkConfig;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Alternative
 @RequestScoped
 public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
 

@@ -109,8 +109,6 @@ public class ZanataSignIn {
 
     private String appRoot() {
         String contextPath = request.getContextPath();
-        contextPath =
-                Strings.isNullOrEmpty(contextPath) ? "" : "/" + contextPath;
         String scheme = request.getScheme();
         int serverPort = request.getServerPort();
         String serverName = request.getServerName();

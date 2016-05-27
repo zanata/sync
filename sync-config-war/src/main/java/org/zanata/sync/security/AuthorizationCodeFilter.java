@@ -64,9 +64,7 @@ public class AuthorizationCodeFilter implements Filter {
             writer.println(e.getError() + ":" +  e.getDescription());
             writer.flush();
             writer.close();
-            return;
         }
-        chain.doFilter(request, response);
     }
 
     @Override

@@ -61,7 +61,7 @@ public class CronTrigger {
             scheduler.getListenerManager()
                     .addTriggerListener(triggerListener);
         }
-        scheduler.start();;
+        scheduler.start();
     }
 
     public Optional<TriggerKey> scheduleMonitorForRepoSync(SyncWorkConfig syncWorkConfig)

@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 public final class Messages {
-    private static final String BASENAME = "org.zanata.sync.plugin.zanata.messages";
+    private static final String BASENAME = "messages";
     private static ResourceBundle resourceBundle =
         ResourceBundle.getBundle(BASENAME);
 

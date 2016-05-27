@@ -67,8 +67,6 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @WithRequestScope
     public void onStartUp(@Observes ResourceReadyEvent resourceReadyEvent) {
-        // TODO pahuang investigate why PostConstruct is not invoked
-        appConfiguration.init();
         log.info("=====================================================");
         log.info("=====================================================");
         log.info("=================Zanata Sync starts==================");

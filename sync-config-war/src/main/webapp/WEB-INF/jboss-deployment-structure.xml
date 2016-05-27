@@ -20,15 +20,16 @@
       <module name="com.h2database.h2" />
       <!-- end of unsupported modules -->
 
+      <module name="javax.annotation.api" />
       <!-- not needed for wildfly: -->
-      <!--<module name="javax.ejb.api" />-->
-      <!--<module name="javax.inject.api" />-->
-      <!--<module name="javax.el.api" />-->
-      <!--<module name="javax.faces.api" />-->
+      <module name="javax.ejb.api" />
+      <module name="javax.inject.api" />
+      <module name="javax.el.api" />
+      <module name="javax.faces.api" />
       <!--&lt;!&ndash; not needed for wildfly: &ndash;&gt;-->
-      <!--<module name="javax.interceptor.api" />-->
-      <!--<module name="javax.servlet.api" />-->
-      <!--<module name="javax.transaction.api"/>-->
+      <module name="javax.interceptor.api" />
+      <module name="javax.servlet.api" />
+      <module name="javax.transaction.api"/>
       <module name="javax.validation.api" />
       <!--&lt;!&ndash; not needed for wildfly: &ndash;&gt;-->
       <module name="org.hibernate" />
