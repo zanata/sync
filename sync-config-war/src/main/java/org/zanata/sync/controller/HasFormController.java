@@ -56,7 +56,7 @@ public abstract class HasFormController implements Serializable {
         if(!getRepoExecutors().isEmpty()) {
             selectedSrcPlugin = getRepoExecutors().get(0);
         }
-        selectedServerPlugin = new Plugin(null);
+        selectedServerPlugin = new Plugin();
     }
 
     public List<RepoExecutor> getRepoExecutors() {

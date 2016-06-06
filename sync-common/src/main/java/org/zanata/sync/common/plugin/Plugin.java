@@ -30,8 +30,4 @@ public interface Plugin extends Serializable {
      */
     void initFields();
 
-    default <F extends Field> F getField(String key) {
-        return (F) getFields().get(key);
-    }
-
 }

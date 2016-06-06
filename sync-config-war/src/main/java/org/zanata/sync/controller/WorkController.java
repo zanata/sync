@@ -3,6 +3,8 @@ package org.zanata.sync.controller;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -29,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Named("workController")
 @Slf4j
-@ViewScoped
+@RequestScoped
 public class WorkController extends HasFormController {
 
     @Inject
@@ -61,12 +63,12 @@ public class WorkController extends HasFormController {
 
     public SyncWorkForm getForm() {
         if(form == null) {
-            form = syncWorkConfigBuilderImpl.buildForm(getSyncWorkConfig());
+            form = syncWorkConfigBuilderImpl.buildForm(getSyncWorkConfig(id));
         }
         return form;
     }
 
-    public SyncWorkConfig getSyncWorkConfig() {
+    public SyncWorkConfig getSyncWorkConfig(String id) {
         if(syncWorkConfig == null) {
             Response response = workResourceImpl.getWork(id, "");
             syncWorkConfig = (SyncWorkConfig)response.getEntity();
@@ -74,11 +76,11 @@ public class WorkController extends HasFormController {
         return syncWorkConfig;
     }
 
-    public void triggerSyncToRepoJob() {
+    public void triggerSyncToRepoJob(String id) {
         jobResource.triggerJob(id, JobType.REPO_SYNC);
     }
 
-    public void triggerSyncToServerJob() {
+    public void triggerSyncToServerJob(String id) {
         jobResource.triggerJob(id, JobType.SERVER_SYNC);
     }
 
@@ -86,12 +88,12 @@ public class WorkController extends HasFormController {
         return isJobRunning(JobType.REPO_SYNC);
     }
 
-    public JobStatus getRepoSyncStatus() {
+    public JobStatus getRepoSyncStatus(String id) {
         Response response = jobResource.getJobStatus(id, JobType.REPO_SYNC);
         return (JobStatus)response.getEntity();
     }
 
-    public JobStatus getServerSyncStatus() {
+    public JobStatus getServerSyncStatus(String id) {
         Response response = jobResource.getJobStatus(id, JobType.SERVER_SYNC);
         return (JobStatus)response.getEntity();
     }
@@ -100,7 +102,7 @@ public class WorkController extends HasFormController {
         return isJobRunning(JobType.SERVER_SYNC);
     }
 
-    public void deleteWork() throws IOException {
+    public void deleteWork(String id) throws IOException {
         workResourceImpl.deleteWork(id);
         FacesContext.getCurrentInstance().getExternalContext()
             .redirect("/home.jsf");

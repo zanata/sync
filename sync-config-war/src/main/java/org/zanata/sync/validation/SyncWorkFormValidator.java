@@ -79,10 +79,7 @@ public class SyncWorkFormValidator {
 
     private Map<String, String> validateTransFields(
             Map<String, String> config) {
-        TranslationServerExecutor executor = new org.zanata.sync.plugin.zanata.Plugin(null);
-        if(executor == null) {
-            return new HashMap<>();
-        }
+        TranslationServerExecutor executor = new org.zanata.sync.plugin.zanata.Plugin();
         return validateFields(config, executor, SyncWorkForm.transSettingsPrefix);
     }
 

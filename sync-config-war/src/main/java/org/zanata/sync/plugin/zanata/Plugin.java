@@ -1,18 +1,13 @@
 package org.zanata.sync.plugin.zanata;
 
-import java.io.File;
+import java.util.Collections;
 import java.util.Map;
 
-import org.zanata.client.commands.pull.PullOptionsImpl;
-import org.zanata.client.commands.push.PushOptionsImpl;
 import org.zanata.sync.common.annotation.TranslationServerPlugin;
 import org.zanata.sync.common.model.Field;
 import org.zanata.sync.common.model.FieldType;
-import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.common.plugin.TranslationServerExecutor;
 import org.zanata.sync.common.validator.StringValidator;
-import org.zanata.sync.plugin.zanata.exception.ZanataSyncException;
-import org.zanata.sync.plugin.zanata.service.impl.ZanataSyncServiceImpl;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
@@ -20,21 +15,15 @@ import org.zanata.sync.plugin.zanata.service.impl.ZanataSyncServiceImpl;
 @TranslationServerPlugin
 public class Plugin extends TranslationServerExecutor {
 
-    private final String name = "Zanata Server";
+    private static final String name = "Zanata Server";
     private final String description = Messages.getString("zanata.plugin.description");
-    private final ZanataSyncServiceImpl zanataSyncService;
-
-    private PushOptionsImpl pushOptions;
-    private PullOptionsImpl pullOptions;
 
     public Plugin(Map<String, String> fields) {
         super(fields);
-        pushOptions = new PushOptionsImpl();
-        pullOptions = new PullOptionsImpl();
-        zanataSyncService =
-            new ZanataSyncServiceImpl(pullOptions, pushOptions,
-                this.fields.get("username").getValue(),
-                this.fields.get("apiKey").getValue());
+    }
+
+    public Plugin() {
+        super(Collections.emptyMap());
     }
 
     @Override
@@ -70,30 +59,4 @@ public class Plugin extends TranslationServerExecutor {
         return fields;
     }
 
-    @Override
-    public void pullFromServer(File dir, SyncOption syncOption) throws
-        ZanataSyncException {
-        if (syncOption.equals(SyncOption.BOTH)) {
-            pullOptions.setPullType("both");
-        } else if (syncOption.equals(SyncOption.SOURCE)) {
-            pullOptions.setPullType("source");
-        } else {
-            pullOptions.setPullType("trans");
-        }
-
-        zanataSyncService.pullFromZanata(dir.toPath());
-    }
-
-    @Override
-    public void pushToServer(File dir, SyncOption syncOption)
-        throws ZanataSyncException {
-        if (syncOption.equals(SyncOption.BOTH)) {
-            pushOptions.setPushType("both");
-        } else if (syncOption.equals(SyncOption.SOURCE)) {
-            pushOptions.setPushType("source");
-        } else {
-            pushOptions.setPushType("trans");
-        }
-        zanataSyncService.pushToZanata(dir.toPath());
-    }
 }

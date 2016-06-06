@@ -2,10 +2,7 @@ package org.zanata.sync.common.plugin;
 
 import lombok.Getter;
 import org.zanata.sync.common.model.Field;
-import org.zanata.sync.common.model.SyncOption;
-import org.zanata.sync.common.exception.RepoSyncException;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,20 +27,4 @@ public abstract class RepoExecutor implements Plugin {
         }
     }
 
-    /**
-     * Clone from source repository
-     *
-     * @param dir - directory to clone to
-     */
-    public abstract void cloneRepo(File dir) throws RepoSyncException;
-
-    /**
-     * Push changes to source repository
-     *
-     * @param dir - directory to push from
-     * @param syncOption - source only, translations only, or both
-     * @return push successful
-     */
-    public abstract void pushToRepo(File dir, SyncOption syncOption) throws
-        RepoSyncException;
 }

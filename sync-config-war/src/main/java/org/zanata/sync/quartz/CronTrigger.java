@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
 import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -64,18 +65,18 @@ public class CronTrigger {
         scheduler.start();
     }
 
-    public Optional<TriggerKey> scheduleMonitorForRepoSync(SyncWorkConfig syncWorkConfig)
+    public void scheduleMonitorForRepoSync(SyncWorkConfig syncWorkConfig)
             throws SchedulerException {
-        return scheduleMonitor(syncWorkConfig, JobType.REPO_SYNC);
+        scheduleMonitor(syncWorkConfig, JobType.REPO_SYNC);
     }
 
-    public Optional<TriggerKey> scheduleMonitorForServerSync(SyncWorkConfig syncWorkConfig)
+    public void scheduleMonitorForServerSync(SyncWorkConfig syncWorkConfig)
             throws SchedulerException {
-        return scheduleMonitor(syncWorkConfig, JobType.SERVER_SYNC);
+        scheduleMonitor(syncWorkConfig, JobType.SERVER_SYNC);
     }
 
     private JobDetail buildJobDetail(SyncWorkConfig syncWorkConfig, JobKey key,
-            Class jobClass, String cronExp, boolean isEnabled) {
+            Class<? extends Job> jobClass, String cronExp, boolean isEnabled) {
         JobBuilder builder = JobBuilder
                 .newJob(jobClass)
                 .withIdentity(key)
@@ -96,28 +97,27 @@ public class CronTrigger {
         return false;
     }
 
-    private <J extends SyncJob> Optional<TriggerKey> scheduleMonitor(
+    private void scheduleMonitor(
             SyncWorkConfig syncWorkConfig, JobType type)
                     throws SchedulerException {
         JobKey jobKey = type.toJobKey(syncWorkConfig.getId());
         boolean isEnabled = isJobEnabled(syncWorkConfig, type);
 
         if (scheduler.checkExists(jobKey)) {
-            return Optional.empty();
+            return;
         }
         try {
             String cronExp;
-            Class jobClass;
+            Class<SyncJob> jobClass = SyncJob.class;
             if (type.equals(JobType.REPO_SYNC)
                     && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToRepoCron())) {
                 cronExp = syncWorkConfig.getSyncToRepoCron();
-                jobClass = RepoSyncJob.class;
             } else if (type.equals(JobType.SERVER_SYNC)
                     && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
                 cronExp = syncWorkConfig.getSyncToZanataCron();
-                jobClass = TransServerSyncJob.class;
             } else {
-                return Optional.empty();
+                // impossible
+                return;
             }
 
             JobDetail jobDetail =
@@ -125,9 +125,6 @@ public class CronTrigger {
                     isEnabled);
 
             jobDetail.getJobDataMap().put("value", syncWorkConfig);
-            jobDetail.getJobDataMap()
-                    .put("basedir", type.baseWorkDir(
-                            appConfiguration.getRepoDir()));
             jobDetail.getJobDataMap().put("jobType", type);
 
             jobDetail.getJobDataMap()
@@ -150,14 +147,12 @@ public class CronTrigger {
                 Trigger trigger = buildTrigger(cronExp, syncWorkConfig.getId(),
                     type, isEnabled);
                 scheduler.scheduleJob(jobDetail, trigger);
-                return Optional.of(trigger.getKey());
+            } else {
+                scheduler.addJob(jobDetail, false);
             }
-            scheduler.addJob(jobDetail, false);
-            return Optional.empty();
         } catch (UnableLoadPluginException e) {
             log.error("Unable to load plugin", e.getMessage());
         }
-        return Optional.empty();
     }
 
     public JobStatus getTriggerStatus(Long id,
@@ -225,7 +220,7 @@ public class CronTrigger {
         scheduler.triggerJob(key);
     }
 
-    private <J extends SyncJob> Trigger buildTrigger(String cronExp,
+    private Trigger buildTrigger(String cronExp,
         Long id, JobType type, boolean isEnabled) {
         TriggerBuilder builder = TriggerBuilder
             .newTrigger()
