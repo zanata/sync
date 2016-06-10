@@ -17,14 +17,14 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
         return new SyncWorkConfig(syncWorkForm.getId(),
             syncWorkForm.getName(),
             syncWorkForm.getDescription(),
-                syncWorkForm.getSyncToServerCron().getExpression(),
+                syncWorkForm.getSyncToZanataCron().getExpression(),
                 syncWorkForm.getSyncToRepoCron().getExpression(),
-                syncWorkForm.getSyncToServerOption(),
+                syncWorkForm.getSyncOption(),
                 syncWorkForm.getSrcRepoPluginConfig(),
             syncWorkForm.getSrcRepoPluginName(),
             syncWorkForm.getTransServerPluginConfig(),
             syncWorkForm.getEncryptionKey(),
-            syncWorkForm.isSyncToServerEnabled(),
+            syncWorkForm.isSyncToZanataEnabled(),
             syncWorkForm.isSyncToRepoEnabled());
     }
 
@@ -43,8 +43,8 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
             syncWorkConfig.getTransServerPluginConfig());
 
         if (!Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
-            form.setSyncToServerOption(syncWorkConfig.getSyncToZanataOption());
-            form.setSyncToServerCron(
+            form.setSyncOption(syncWorkConfig.getSyncToZanataOption());
+            form.setSyncToZanataCron(
                     CronType.getTypeFromExpression(
                             syncWorkConfig.getSyncToZanataCron()));
         }
@@ -55,7 +55,7 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
         }
 
         form.setSyncToRepoEnabled(syncWorkConfig.isSyncToRepoEnabled());
-        form.setSyncToServerEnabled(syncWorkConfig.isSyncToServerEnabled());
+        form.setSyncToZanataEnabled(syncWorkConfig.isSyncToServerEnabled());
         return form;
     }
 }

@@ -41,11 +41,11 @@
         <div class="l--push-top-1">
           <h2 class="heading--secondary">
             <h:selectBooleanCheckbox styleClass="txt--mini" id="enableSyncToServer"
-              value="#{cc.attrs.actionClass.form.syncToServerEnabled}" onchange="enableSection(jQuery(this))"/> #{msg['jsf.work.field.syncToServer.settings']}
+              value="#{cc.attrs.actionClass.form.syncToZanataEnabled}" onchange="enableSection(jQuery(this))"/> #{msg['jsf.work.field.syncToServer.settings']}
           </h2>
           <div class="form__item">
             <label>#{msg['jsf.work.field.cron.label']}</label>
-            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncToServerCron}">
+            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncToZanataCron}">
               <f:selectItems value="#{cc.attrs.actionClass.supportedIntervals}" var="cronType"
                 itemLabel="#{cronType.display}" itemValue="#{cronType}"/>
             </h:selectOneMenu>
@@ -53,7 +53,7 @@
 
           <div class="form__item">
             <label>#{msg['jsf.work.field.syncType']}</label>
-            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncToServerOption}">
+            <h:selectOneMenu value="#{cc.attrs.actionClass.form.syncOption}">
               <f:selectItems value="#{cc.attrs.actionClass.syncOptions}" var="option"
                 itemLabel="#{option.label}" itemValue="#{option.key}"/>
             </h:selectOneMenu>

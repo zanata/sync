@@ -29,7 +29,22 @@ import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
 
 /**
+ *
  * This class abstracts the communication between this server and the job server.
+ * Payload in the job server expects following fields:
+ * <pre>
+ *  <ul>
+ *      <li>srcRepoUrl</li>
+ *      <li>srcRepoUsername</li>
+ *      <li>srcRepoSecret</li>
+ *      <li>srcRepoBranch</li>
+ *      <li>syncToZanataOption=source|trans|both</li>
+ *      <li>srcRepoType=git|anything else we may support in the future</li>
+ *      <li>zanataUrl</li>
+ *      <li>zanataUsername</li>
+ *      <li>zanataSecret</li>
+ *   </ul>
+ * </pre>
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class JobExecutor {

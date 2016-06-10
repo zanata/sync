@@ -1,3 +1,9 @@
-The OpenShift `jbossas` cartridge documentation can be found at:
+TODO:
 
-https://github.com/openshift/origin-server/tree/master/cartridges/openshift-origin-cartridge-jbossas/README.md
+- remove jsf
+- remove jsf backed beans (controller)
+- maybe consider use container provided jaxrs?
+- include frontend into the build
+- frontend should use fields from the server?
+- cleanup
+

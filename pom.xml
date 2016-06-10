@@ -79,5 +79,6 @@
     <module>sync-config-war</module>
     <module>sync-common</module>
     <module>git-plugin</module>
+    <module>frontend</module>
   </modules>
 </project>

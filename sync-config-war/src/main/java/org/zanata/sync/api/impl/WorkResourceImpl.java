@@ -4,7 +4,14 @@ import java.net.URI;
 import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
@@ -26,7 +33,10 @@ import org.zanata.sync.validation.SyncWorkFormValidator;
  */
 
 @RequestScoped
-public class WorkResourceImpl implements WorkResource {
+@Path("/work")
+@Produces("application/json")
+@Consumes("application/json")
+public class WorkResourceImpl {
     private static final Logger log =
             LoggerFactory.getLogger(WorkResourceImpl.class);
 
@@ -42,7 +52,7 @@ public class WorkResourceImpl implements WorkResource {
     @Inject
     private SyncWorkConfigBuilder syncWorkConfigBuilder;
 
-    @Override
+    @GET
     public Response
             getWork(@QueryParam(value = "id") @DefaultValue("") String id,
                     @QueryParam(value = "type") @DefaultValue("") String type) {
@@ -62,7 +72,7 @@ public class WorkResourceImpl implements WorkResource {
         }
     }
 
-    @Override
+    @POST
     public Response createWork(SyncWorkForm form) {
         Map<String, String> errors = formValidator.validateJobForm(form);
         if (!errors.isEmpty()) {
@@ -82,7 +92,7 @@ public class WorkResourceImpl implements WorkResource {
         return Response.created(URI.create("")).entity(errors).build();
     }
 
-    @Override
+    @PUT
     public Response updateWork(SyncWorkForm form) {
         if(form.getId() == null) {
             return createWork(form);
@@ -105,7 +115,7 @@ public class WorkResourceImpl implements WorkResource {
         return Response.created(URI.create("")).entity(errors).build();
     }
 
-    @Override
+    @DELETE
     public Response deleteWork(String id) {
         try {
             workServiceImpl.deleteWork(new Long(id));

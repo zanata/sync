@@ -34,10 +34,10 @@ public class SyncWorkForm implements Serializable {
     private String description;
 
     @Setter
-    private CronType syncToServerCron;
+    private CronType syncToZanataCron;
 
     @Setter
-    private SyncOption syncToServerOption = SyncOption.SOURCE;
+    private SyncOption syncOption = SyncOption.SOURCE;
 
     @Setter
     private CronType syncToRepoCron;
@@ -69,7 +69,7 @@ public class SyncWorkForm implements Serializable {
     private Map<String, String> transServerPluginConfig = new HashMap<>();
 
     @Setter
-    private boolean syncToServerEnabled = true;
+    private boolean syncToZanataEnabled = true;
 
     @Setter
     private boolean syncToRepoEnabled = true;

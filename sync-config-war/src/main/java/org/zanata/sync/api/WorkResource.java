@@ -16,8 +16,7 @@ import org.zanata.sync.controller.SyncWorkForm;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Path(APIResource.WORK_ROOT)
-@Produces("application/json")
+
 public interface WorkResource {
 
     /**
@@ -40,7 +39,6 @@ public interface WorkResource {
      * @return - Map<String, String> of fieldKey, and error messages
      */
     @POST
-    @Consumes("application/json")
     public Response createWork(SyncWorkForm form);
 
     /**

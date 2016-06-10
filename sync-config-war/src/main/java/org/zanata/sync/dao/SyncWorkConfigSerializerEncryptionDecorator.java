@@ -7,10 +7,10 @@ import javax.decorator.Decorator;
 import javax.decorator.Delegate;
 import javax.inject.Inject;
 
-import org.apache.commons.io.Charsets;
 import org.zanata.sync.component.AppConfiguration;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.util.EncryptionUtil;
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 
 /**
