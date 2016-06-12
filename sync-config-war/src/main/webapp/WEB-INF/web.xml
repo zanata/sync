@@ -8,7 +8,7 @@
 
   <!-- Welcome page -->
   <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
   <!--
@@ -47,19 +47,6 @@
     <!--<res-type>javax.sql.DataSource</res-type>-->
     <!--<res-auth>Container</res-auth>-->
   <!--</resource-ref>-->
-
-  <!-- JSF mapping -->
-  <servlet>
-    <servlet-name>Faces Servlet</servlet-name>
-    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <!-- Map these files with JSF -->
-  <servlet-mapping>
-    <servlet-name>Faces Servlet</servlet-name>
-    <url-pattern>*.jsf</url-pattern>
-  </servlet-mapping>
 
 <!--  <servlet>
     <servlet-name>rest-ws</servlet-name>
@@ -103,18 +90,4 @@
     <listener-class>net.bull.javamelody.SessionListener</listener-class>
   </listener>
 
-  <!-- disable richfaces styling-->
-  <context-param>
-    <param-name>org.richfaces.enableControlSkinning</param-name>
-    <param-value>false</param-value>
-  </context-param>
-
-  <security-constraint>
-    <display-name>Restrict raw XHTML Documents</display-name>
-    <web-resource-collection>
-      <web-resource-name>XHTML</web-resource-name>
-      <url-pattern>*.xhtml</url-pattern>
-    </web-resource-collection>
-    <auth-constraint />
-  </security-constraint>
 </web-app>

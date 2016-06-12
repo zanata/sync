@@ -1,13 +1,14 @@
 import React from 'react';
 import { render } from 'react-dom'
-import {Router, browserHistory} from 'react-router';
-import routes from './lib/routes';
-import Configs from './lib/constants/Configs';
+import { Router, useRouterHistory, hashHistory, browserHistory } from 'react-router'
+import { createHistory } from 'history'
+import Configs from './lib/constants/Configs'
+import routes from './lib/routes'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 import { apiMiddleware } from 'redux-api-middleware'
-import createLogger from 'redux-logger';
+import createLogger from 'redux-logger'
 import rootReducer from './lib/reducers'
 
 // import _ from 'lodash';
@@ -24,18 +25,19 @@ import 'patternfly/dist/css/patternfly-additions.min.css'
  * dev - If 'dev' attribute exist, all api data will be retrieve from .json file in test directory.
  */
 const mountNode = document.getElementById('main-content'),
-  baseUrl = mountNode.getAttribute('base-url'),
+  basename = mountNode.getAttribute('basename'),
   user = JSON.parse(mountNode.getAttribute('user')),
   data = JSON.parse(mountNode.getAttribute('data')),
   dev = data.dev;
 
+
 // base rest url, e.g http://localhost:8080/rest
-Configs.baseUrl = baseUrl;
+Configs.basename = basename || '/';
 Configs.data = data;
 //append with .json extension in 'dev' environment
 Configs.urlPostfix = dev ? '' : '.json?';
 // see org.zanata.rest.editor.dto.User
-Configs.user = user;
+// Configs.user = user;
 
 const loggerOption = {
   // level = 'log': 'log' | 'console' | 'warn' | 'error' | 'info', // console's level
@@ -62,8 +64,13 @@ const store = createStore(
   )
 )
 
+// Run our app under the /base URL.
+// TODO this is not working. Will need to hard code full path in routes.js or make this work
+const basenameAwareHistory = useRouterHistory(createHistory)({
+  basename: `${Configs.basename}`
+})
 // Create an enhanced history that syncs navigation events with the store
-const history = syncHistoryWithStore(browserHistory, store)
+const history = syncHistoryWithStore(hashHistory, store)
 
 render(
   <Provider store={store}>

@@ -4,6 +4,8 @@ import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
 import cx from 'classnames'
+import Configs from '../constants/Configs'
+import { push } from 'react-router-redux'
 
 export default React.createClass({
   propTypes: {
@@ -27,6 +29,11 @@ export default React.createClass({
     }
   },
 
+  // ask for `router` from context
+  contextTypes: {
+    router: React.PropTypes.object
+  },
+
   _handleChange(field, newValue) {
     // this.setState({: event.target.value})
     // TODO use immutable js for better performance
@@ -39,6 +46,18 @@ export default React.createClass({
   _handleReset() {
     console.log('Reset')
     this.setState({myinput: ''})
+  },
+
+  componentWillMount() {
+    if (!Configs.user) {
+      const path = `${Configs.basename}`;
+      console.info('redirect to home page for sign in:' + path)
+      this.context.router.push({
+        pathname: path,
+        // query: { modal: true },
+        state: { needSignIn: true }
+      })
+    }
   },
 
   render() {

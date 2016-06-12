@@ -1,11 +1,8 @@
 package org.zanata.sync.controller;
 
-import java.io.IOException;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.deltaspike.core.api.common.DeltaSpike;
@@ -20,10 +17,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
+ * TODO delete
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @RequestScoped
-@Named("zanataSignIn")
 public class ZanataSignIn {
     private static final Logger log =
             LoggerFactory.getLogger(ZanataSignIn.class);
@@ -67,7 +64,7 @@ public class ZanataSignIn {
 
     public void signIn() {
         try {
-            FacesContext context = FacesContext.getCurrentInstance();
+//            FacesContext context = FacesContext.getCurrentInstance();
             String zanataAuthUrl = generateOAuthURL();
 
             if (hasError()) {
@@ -85,10 +82,10 @@ public class ZanataSignIn {
                     .buildQueryMessage();
 
             log.info("=========== redirecting to {}", request.getLocationUri());
-            context.getExternalContext().redirect(request.getLocationUri());
-            context.responseComplete();
+//            context.getExternalContext().redirect(request.getLocationUri());
+//            context.responseComplete();
 
-        } catch (IOException | OAuthSystemException e) {
+        } catch (OAuthSystemException e) {
             errorMessage = e.getMessage();
         }
     }

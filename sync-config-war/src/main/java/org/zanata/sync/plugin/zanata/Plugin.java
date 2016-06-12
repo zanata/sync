@@ -35,9 +35,9 @@ public class Plugin extends TranslationServerExecutor {
                         "", Messages.getString("field.username.tooltip"),
                         new StringValidator(1, null, true), false, FieldType.TEXT);
         Field apiKeyField =
-                new Field("apiKey", Messages.getString("field.apiKey.label"),
+                new Field("apiKey", Messages.getString("field.secret.label"),
                         "",
-                        Messages.getString("field.apiKey.tooltip"),
+                        Messages.getString("field.secret.tooltip"),
                         new StringValidator(1, null, true), false, FieldType.TEXT);
 
         fields.put(usernameField.getKey(), usernameField);

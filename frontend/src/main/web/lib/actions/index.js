@@ -1,5 +1,6 @@
 import { createAction } from 'redux-actions'
 import { CALL_API } from 'redux-api-middleware'
+import Configs from '../constants/Configs'
 
 export const NEW_WORK_REQUEST = 'NEW_WORK_REQUEST'
 export const NEW_WORK_SUCCESS = 'NEW_WORK_SUCCESS'
@@ -33,11 +34,40 @@ export function submitNewWork(payload) {
 
   return {
     [CALL_API]: {
-      endpoint: `/api/work`,
+      endpoint: `${Configs.basename}/api/work`,
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(entity),
       types: [NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE]
+    }
+  }
+}
+
+// ========== selected a Zanata server for OAuth provider
+export const SELECT_ZANATA_REQUEST = 'SELECT_ZANATA_REQUEST'
+export const SELECT_ZANATA_SUCCESS = 'SELECT_ZANATA_SUCCESS'
+export const SELECT_ZANATA_FAILURE = 'SELECT_ZANATA_FAILURE'
+export function selectZanataServer(zanataUrl) {
+  return {
+    [CALL_API]: {
+      endpoint: `${Configs.basename}/api/oauth/url?z=${zanataUrl}`,
+      method: 'GET',
+      types: [SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE]
+    }
+  }
+}
+
+// ========== get zanata server url list =========
+export const GET_ZANATA_SERVERS_REQUEST = 'GET_ZANATA_SERVERS_REQUEST'
+export const GET_ZANATA_SERVERS_SUCCESS = 'GET_ZANATA_SERVERS_SUCCESS'
+export const GET_ZANATA_SERVERS_FAILURE = 'GET_ZANATA_SERVERS_FAILURE'
+export function getZanataServerUrls() {
+  return {
+    [CALL_API]: {
+      endpoint: `${Configs.basename}/api/oauth`,
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'},
+      types: [GET_ZANATA_SERVERS_REQUEST, GET_ZANATA_SERVERS_SUCCESS, GET_ZANATA_SERVERS_FAILURE]
     }
   }
 }

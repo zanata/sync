@@ -23,7 +23,6 @@ import com.google.common.base.Throwables;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @SessionScoped
-@Named("securityTokens")
 public class SecurityTokens implements Serializable {
     private static final Logger log =
             LoggerFactory.getLogger(SecurityTokens.class);

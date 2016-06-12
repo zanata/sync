@@ -4,28 +4,22 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.zanata.sync.component.AppConfiguration;
 import org.zanata.sync.i18n.Messages;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import static javax.faces.application.FacesMessage.SEVERITY_INFO;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Named("adminController")
-@ViewScoped
+@RequestScoped
 @Slf4j
 public class AdminController implements Serializable {
 
@@ -58,9 +52,9 @@ public class AdminController implements Serializable {
 //            .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
 //                .split(fieldsNeedEncryption)));
 
-        FacesMessage message = new FacesMessage(SEVERITY_INFO,
-                msg.get("jsf.admin.settings.saved.message"), "");
-        FacesContext.getCurrentInstance().addMessage(null, message);
+//        FacesMessage message = new FacesMessage(SEVERITY_INFO,
+//                msg.get("jsf.admin.settings.saved.message"), "");
+//        FacesContext.getCurrentInstance().addMessage(null, message);
         return "/admin/settings.jsf";
     }
 

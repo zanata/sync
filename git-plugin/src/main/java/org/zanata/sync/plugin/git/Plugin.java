@@ -1,5 +1,6 @@
 package org.zanata.sync.plugin.git;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.zanata.sync.common.annotation.RepoPlugin;
@@ -13,8 +14,8 @@ import org.zanata.sync.common.validator.UrlValidator;
  */
 @RepoPlugin
 public class Plugin extends RepoExecutor {
-    private static final String name = "Git plugin";
-    private final String description = Messages.getString("plugin.description");
+    private static final String NAME = "git";
+    private static final String DESCRIPTION = Messages.getString("plugin.description");
 
     public Plugin(Map<String, String> fields) {
         super(fields);
@@ -34,9 +35,9 @@ public class Plugin extends RepoExecutor {
                         "", Messages.getString("field.username.tooltip"),
                         false, FieldType.TEXT);
         Field apiKeyField =
-                new Field("apiKey", Messages.getString("field.apiKey.label"),
+                new Field("secret", Messages.getString("field.secret.label"),
                         "",
-                        Messages.getString("field.apiKey.tooltip"),
+                        Messages.getString("field.secret.tooltip"),
                         true, FieldType.TEXT);
 
         fields.put(urlField.getKey(), urlField);
@@ -47,12 +48,12 @@ public class Plugin extends RepoExecutor {
 
     @Override
     public String getName() {
-        return name;
+        return NAME;
     }
 
     @Override
     public String getDescription() {
-        return description;
+        return DESCRIPTION;
     }
 
 }

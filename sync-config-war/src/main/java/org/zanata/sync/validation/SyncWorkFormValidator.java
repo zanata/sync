@@ -61,8 +61,9 @@ public class SyncWorkFormValidator {
 
         errors.putAll(validateRepoFields(form.getSrcRepoPluginConfig(),
                 form.getSrcRepoPluginName()));
-        errors.putAll(validateTransFields(form.getTransServerPluginConfig()
-        ));
+        // TODO pahuang revisit this. we may not need to run this
+//        errors.putAll(validateTransFields(form.getTransServerPluginConfig()
+//        ));
 
         return errors;
     }

@@ -51,7 +51,7 @@ public class AuthorizationCodeFilter implements Filter {
             log.debug("authorization code: {}", code);
             log.debug("access token: {}", securityTokens.getAccessToken());
             log.debug("refresh token: {}", securityTokens.getRefreshToken());
-            // see org.zanata.sync.controller.ZanataSignIn
+            // TODO pahuang just redirect back to home page with user information (maybe we should forward to a page or get URL rewrite)
             String originalRequest = httpServletRequest.getParameter("origin");
             httpServletResponse.sendRedirect(originalRequest);
         } catch (OAuthProblemException e) {

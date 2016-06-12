@@ -1,15 +1,10 @@
 package org.zanata.sync.controller;
 
 import java.io.IOException;
-import java.util.Map;
-import javax.enterprise.context.ConversationScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.ws.rs.core.Response;
 
-import org.zanata.sync.api.WorkResource;
 import org.zanata.sync.i18n.Messages;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.security.ZanataAuthorized;
@@ -17,21 +12,19 @@ import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.util.ZanataRestClient;
 import lombok.extern.slf4j.Slf4j;
 
-import static javax.faces.application.FacesMessage.SEVERITY_INFO;
-
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Slf4j
 @Named("newWorkController")
-@ConversationScoped
+@RequestScoped
 public class NewWorkController extends HasFormController {
 
     @Inject
     private PluginsService pluginsServiceImpl;
 
-    @Inject
-    private WorkResource workResourceImpl;
+//    @Inject
+//    private WorkResource workResourceImpl;
 
     @Inject
     private Messages msg;
@@ -48,16 +41,16 @@ public class NewWorkController extends HasFormController {
     }
 
     public String onSubmit() throws IOException {
-        Response response = workResourceImpl.createWork(form);
-        setErrors((Map<String, String>) response.getEntity());
+//        Response response = workResourceImpl.createWork(form);
+//        setErrors((Map<String, String>) response.getEntity());
         if (!errors.isEmpty()) {
             log.info("has errors: {}", errors);
             return null;
         }
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        FacesMessage message = new FacesMessage(SEVERITY_INFO,
-            msg.get("jsf.newWork.created.message"), "");
-        facesContext.addMessage(null, message);
+//        FacesContext facesContext = FacesContext.getCurrentInstance();
+//        FacesMessage message = new FacesMessage(SEVERITY_INFO,
+//            msg.get("jsf.newWork.created.message"), "");
+//        facesContext.addMessage(null, message);
 //        facesContext.getExternalContext().redirect("/home.jsf");
         return "/home.jsf?faces-redirect=true";
     }

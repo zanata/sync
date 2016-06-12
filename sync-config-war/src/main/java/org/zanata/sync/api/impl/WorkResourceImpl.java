@@ -1,7 +1,9 @@
 package org.zanata.sync.api.impl;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -20,13 +22,16 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.api.WorkResource;
+import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.controller.SyncWorkForm;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
+import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import org.zanata.sync.validation.SyncWorkFormValidator;
+import com.google.common.collect.Maps;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -51,6 +56,26 @@ public class WorkResourceImpl {
 
     @Inject
     private SyncWorkConfigBuilder syncWorkConfigBuilder;
+
+    @Inject
+    private PluginsService pluginsService;
+
+    @GET
+    @Path("supported")
+    public Response getSupportedSourceRepoPlugin() {
+        List<RepoExecutor> srcRepoPlugins =
+                pluginsService.getAvailableSourceRepoPlugins();
+        List<Map<String, Object>> plugins =
+                srcRepoPlugins.stream().map(plugin -> {
+                    // TODO maybe use a DTO for json serialization
+                    Map<String, Object> pluginMap = Maps.newHashMap();
+                    pluginMap.put("name", plugin.getName());
+                    pluginMap.put("description", plugin.getDescription());
+                    pluginMap.put("fields", plugin.getFields());
+                    return pluginMap;
+                }).collect(Collectors.toList());
+        return Response.ok(plugins).build();
+    }
 
     @GET
     public Response

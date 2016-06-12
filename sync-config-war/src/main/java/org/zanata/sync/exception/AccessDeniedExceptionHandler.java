@@ -1,9 +1,9 @@
 package org.zanata.sync.exception;
 
 import java.io.IOException;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.apache.deltaspike.core.api.exception.control.ExceptionHandler;
@@ -21,17 +21,24 @@ public class AccessDeniedExceptionHandler {
     @DeltaSpike
     private HttpServletRequest request;
 
+    @Inject
+    @DeltaSpike
+    private HttpServletResponse response;
+
     public void handleException(
             @Handles ExceptionEvent<AccessDeniedException> event) {
-        FacesContext context = FacesContext.getCurrentInstance();
+
+//        FacesContext context = FacesContext.getCurrentInstance();
 
         try {
-            context.getExternalContext().redirect(request.getContextPath() + "/sign_in.jsf?original=" + request.getRequestURI());
+            response.sendRedirect(request.getContextPath() + "/sign_in?original=" + request.getRequestURI());
+
+//            context.getExternalContext().redirect(request.getContextPath() + "/sign_in.jsf?original=" + request.getRequestURI());
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
 
-        context.responseComplete();
+//        context.responseComplete();
         event.handled();
     }
 }

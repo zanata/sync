@@ -20,28 +20,43 @@
  */
 package org.zanata.sync.api;
 
-import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
-import org.zanata.sync.api.impl.WorkResourceImpl;
-import com.google.common.collect.ImmutableSet;
-
 /**
+ * Simple JSON friendly DTO
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
-@ApplicationPath("/api")
-public class WorkApplication extends Application {
-    private static final Set<Class<?>> RESOURCE_CLASSES =
-            ImmutableSet.<Class<?>>builder()
-                    .add(WorkResourceImpl.class)
-                    .add(SecurityResource.class)
-                    .build();
+public class Payload {
+    private boolean error;
+    private String data;
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        return RESOURCE_CLASSES;
+    private Payload(boolean error, String data) {
+        this.error = error;
+        this.data = data;
+    }
+
+    public static Payload error(String errorMessage) {
+        return new Payload(true, errorMessage);
+    }
+
+    public static Payload ok(String data) {
+        return new Payload(false, data);
+    }
+
+    public Payload() {
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }

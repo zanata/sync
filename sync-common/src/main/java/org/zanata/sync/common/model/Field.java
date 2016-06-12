@@ -6,23 +6,29 @@ import org.zanata.sync.common.plugin.Validator;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 @Getter
 public class Field implements Serializable {
-    private final String key;
-    private final String label;
+    private String key;
+    private String label;
 
     @Setter
     private String value;
 
-    private final FieldType type;
+    private FieldType type;
 
-    private final String placeholder;
-    private final String tooltip;
-    private final Validator validator;
-    private final boolean isMasked;
+    private String placeholder;
+    private String tooltip;
+    @JsonIgnore
+    private Validator validator;
+    private boolean isMasked;
+
+    public Field() {
+    }
 
     public Field(String key, String label, String placeholder, String tooltip,
         boolean isMasked, FieldType type) {

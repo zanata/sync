@@ -10,6 +10,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <!-- N.B. resteasy provider uses version 2.6.3-->
+    <jackson.version>2.7.0</jackson.version>
   </properties>
 
   <dependencyManagement>
@@ -28,6 +30,23 @@
         <version>1.16.6</version>
         <scope>provided</scope>
       </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
 
       <dependency>
         <groupId>junit</groupId>
@@ -73,12 +92,26 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>build frontend module</id>
+      <activation>
+        <property>
+          <name>!excludeFrontend</name>
+        </property>
+      </activation>
+      <properties>
+        <required.maven>3.1.0</required.maven>
+      </properties>
+      <modules>
+        <module>frontend</module>
+      </modules>
+    </profile>
   </profiles>
 
   <modules>
     <module>sync-config-war</module>
     <module>sync-common</module>
     <module>git-plugin</module>
-    <module>frontend</module>
+    <!--<module>frontend</module>-->
   </modules>
 </project>
