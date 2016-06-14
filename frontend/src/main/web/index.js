@@ -25,10 +25,15 @@ import 'patternfly/dist/css/patternfly-additions.min.css'
  * dev - If 'dev' attribute exist, all api data will be retrieve from .json file in test directory.
  */
 const mountNode = document.getElementById('main-content'),
+  dataUser = mountNode.getAttribute('data-user'),
   basename = mountNode.getAttribute('basename'),
-  user = JSON.parse(mountNode.getAttribute('user')),
+  zanata = mountNode.getAttribute('data-zanata'),
+  // user = JSON.parse(mountNode.getAttribute('user')),
   data = JSON.parse(mountNode.getAttribute('data')),
   dev = data.dev;
+
+const user = dataUser ? JSON.parse(dataUser): undefined
+
 
 
 // base rest url, e.g http://localhost:8080/rest
@@ -57,7 +62,7 @@ const loggerOption = {
 const logger = createLogger(loggerOption)
 
 const store = createStore(
-  rootReducer,
+  rootReducer(user, zanata),
   applyMiddleware(
     apiMiddleware,
     logger

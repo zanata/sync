@@ -63,7 +63,7 @@ public class ZanataRestClient {
         accessTokenMap.put(OAuth.OAUTH_ACCESS_TOKEN, securityTokens.getAccessToken());
 
         return client.resource(
-                securityTokens.getZanataServerUrl() + "/rest/oauth/authorized/myaccount")
+                securityTokens.getZanataServerUrl() + "/rest/user/myaccount")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
 //                    .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
                 .header(OAuth.HeaderType.AUTHORIZATION, OAuthUtils.encodeAuthorizationBearerHeader(

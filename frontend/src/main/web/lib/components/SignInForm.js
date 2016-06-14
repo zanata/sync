@@ -5,7 +5,8 @@ export default React.createClass(
   {
     propTypes:{
       // TODo check if we need user to be presented here
-      user: React.PropTypes.object,
+      zanataUser: React.PropTypes.object,
+      zanataServer: React.PropTypes.string,
       onSignIn: React.PropTypes.func.isRequired,
       getZanataServerUrls: React.PropTypes.func.isRequired,
       zanataServerUrls: React.PropTypes.arrayOf(React.PropTypes.string),
@@ -33,20 +34,23 @@ export default React.createClass(
     },
 
     componentWillMount() {
-       this.props.getZanataServerUrls();
+      if (!this.props.zanataUser) {
+        this.props.getZanataServerUrls();
+      }
     },
 
     componentWillReceiveProps(nextProps) {
        if (nextProps.zanataOAuthUrl) {
          console.log(nextProps.zanataOAuthUrl)
-         // window.location = nextProps.zanataOAuthUrl
+         window.location = nextProps.zanataOAuthUrl
        }
     },
 
     render() {
-      const user = this.props.user
-      if (user) {
-        return <div>Welcome {user}</div>
+      const user = this.props.zanataUser
+      const server = this.props.zanataServer
+      if (user && server) {
+        return <div>Welcome {user.name} from {user.username}@{server}</div>
       }
 
       const zanataServerUrls = this.props.zanataServerUrls;

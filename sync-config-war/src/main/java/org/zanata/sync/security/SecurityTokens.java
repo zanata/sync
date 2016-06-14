@@ -34,12 +34,13 @@ public class SecurityTokens implements Serializable {
     private String zanataServerUrl;
     private String zanataUsername;
     private String zanataApiKey;
+    private Account account;
 
     boolean hasAccess() {
         return refreshToken != null;
     }
 
-    OAuthToken requestOAuthTokens(String authorizationCode)
+    public OAuthToken requestOAuthTokens(String authorizationCode)
             throws OAuthProblemException {
         if (zanataServerUrl == null) {
             throw new IllegalStateException("You are not authorized to one Zanata server");
@@ -67,7 +68,7 @@ public class SecurityTokens implements Serializable {
             refreshToken = oAuthToken.getRefreshToken();
 
             // this should change once we have Zanata all converted to use OAuth
-            Account account = zanataRestClient.getAuthorizedAccount();
+            account = zanataRestClient.getAuthorizedAccount();
             log.debug("========= my account: {}", account);
             // for the time being, we only allow Zanata admin to create jobs
             if (!account.getRoles().contains("admin")) {
@@ -109,6 +110,10 @@ public class SecurityTokens implements Serializable {
 
     public String getZanataApiKey() {
         return zanataApiKey;
+    }
+
+    public Account getAccount() {
+        return account;
     }
 
     public static class StatusCodeAwareOAuthJSONAccessTokenResponse extends OAuthJSONAccessTokenResponse {
