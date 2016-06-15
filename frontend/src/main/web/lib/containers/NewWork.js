@@ -6,7 +6,9 @@ const mapStateToProps = (state) => {
   return {
     creating: state.workConfig.creating,
     created: state.workConfig.created,
-    error: state.workConfig.error
+    error: state.workConfig.error,
+    srcRepoPlugins: state.zanata.srcRepoPlugins,
+    loggedIn: !!state.zanata.user
   }
 }
 

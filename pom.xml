@@ -12,6 +12,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <!-- N.B. resteasy provider uses version 2.6.3-->
     <jackson.version>2.7.0</jackson.version>
+    <zanata.api.version>3.9.1</zanata.api.version>
   </properties>
 
   <dependencyManagement>
@@ -46,6 +47,51 @@
         <artifactId>jackson-annotations</artifactId>
         <version>${jackson.version}</version>
       </dependency>
+
+      <!--<dependency>-->
+        <!--<groupId>org.zanata</groupId>-->
+        <!--<artifactId>zanata-common-api</artifactId>-->
+        <!--<version>${zanata.api.version}</version>-->
+        <!--<exclusions>-->
+          <!--<exclusion>-->
+            <!--<groupId>javax.annotation</groupId>-->
+            <!--<artifactId>jsr250-api</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>javax.servlet</groupId>-->
+            <!--<artifactId>servlet-api</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>javax.xml.bind</groupId>-->
+            <!--<artifactId>jaxb-api</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>org.jboss.resteasy</groupId>-->
+            <!--<artifactId>resteasy-jaxb-provider</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>org.jboss.resteasy</groupId>-->
+            <!--<artifactId>resteasy-jaxrs</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>org.jboss.resteasy</groupId>-->
+            <!--<artifactId>resteasy-multipart-provider</artifactId>-->
+          <!--</exclusion>-->
+          <!--&lt;!&ndash; Need to exclude jersey from api, getHeader method is not available in jersey jaxrs &ndash;&gt;-->
+          <!--<exclusion>-->
+            <!--<groupId>com.sun.jersey</groupId>-->
+            <!--<artifactId>jersey-core</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>org.jboss.spec.javax.ws.rs</groupId>-->
+            <!--<artifactId>jboss-jaxrs-api_2.0_spec</artifactId>-->
+          <!--</exclusion>-->
+          <!--<exclusion>-->
+            <!--<groupId>javax.validation</groupId>-->
+            <!--<artifactId>validation-api</artifactId>-->
+          <!--</exclusion>-->
+        <!--</exclusions>-->
+      <!--</dependency>-->
 
 
       <dependency>

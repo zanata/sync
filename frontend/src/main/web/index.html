@@ -10,13 +10,87 @@
 <body class="ffsans cblack90 pt1 ph1">
   <main role="main">
     <div id="main-content"
-      basename="http://localhost:3000"
-      data-user='{"username": "test-user", "email":"zanata@zanata.org", "name": "Darth Vader", "apiKey": "abcde12345abcde12345abcde12345ab"}'
+      data-api-url="http://localhost:3000"
+      data-app-basename="/"
       data-zanata="http://localhost:8080/zanata"
+      data-zanata-server-urls='["http://localhost:8080/zanata", "http://localhost:8180/zanata"]'
       data='{"permission":{"updateGlossary":true, "insertGlossary":true, "deleteGlossary":true}, "dev": "true", "profileUser" : {"username": "test-user", "email":"zanata@zanata.org", "name":"admin-name","loggedIn":"true","imageUrl":"//www.gravatar.com/avatar/dda6e90e3f2a615fb8b31205e8b4894b?d=mm&r=g&s=115","languageTeams":["English, French, German, Yodish (Yoda English)"]}}'>
     </div>
 
   </main>
+
+  <script type="application/javascript">
+    function addTestData() {
+      var mountNode = document.getElementById('main-content')
+      var plugins = [{
+        "name": "git",
+        "description": "Git plugin for push to and pull from git repository",
+        "fields": {
+          "url": {
+            "key": "url",
+            "label": "URL",
+            "value": null,
+            "type": "TEXT",
+            "placeholder": "https://github.com/zanata/zanata-server.git",
+            "tooltip": null,
+            "masked": false
+          },
+          "branch": {
+            "key": "branch",
+            "label": "Branch",
+            "value": null,
+            "type": "TEXT",
+            "placeholder": "master",
+            "tooltip": "Default to master branch",
+            "masked": false
+          },
+          "username": {
+            "key": "username",
+            "label": "Username",
+            "value": null,
+            "type": "TEXT",
+            "placeholder": "",
+            "tooltip": "Username for repository",
+            "masked": false
+          },
+          "secret": {
+            "key": "secret",
+            "label": "Secret",
+            "value": null,
+            "type": "TEXT",
+            "placeholder": "",
+            "tooltip": "Secret for repository. e.g. API key or password",
+            "masked": true
+          }
+        }
+      }]
+
+      var user = {
+        "username": "test-user",
+        "email":"zanata@zanata.org",
+        "name": "Darth Vader",
+        "apiKey": "abcde12345abcde12345abcde12345ab"
+      };
+      mountNode.setAttribute('data-src-repo-plugins', JSON.stringify(plugins))
+      mountNode.setAttribute('data-user', JSON.stringify(user))
+    }
+    addTestData()
+    function toggleLogin(btn) {
+      var mountNode = document.getElementById('main-content')
+      if (mountNode.getAttribute('data-user')) {
+        mountNode.setAttribute('data-user', '')
+        btn.innerHTML = 'Click to sign in'
+      } else {
+        mountNode.setAttribute('data-user', JSON.stringify({
+          "username": "test-user",
+          "email":"zanata@zanata.org",
+          "name": "Darth Vader",
+          "apiKey": "abcde12345abcde12345abcde12345ab"
+        }))
+        btn.innerHTML = 'Click to sign out'
+      }
+    }
+  </script>
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" ></script>
   <script src="/bundle.js" ></script>

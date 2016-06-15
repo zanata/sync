@@ -1,15 +1,17 @@
 import React from 'react'
 import Select from './form/Select'
 
+// represents user has not yet selected a zanata server
+const NO_SELECTION_OPT = '...'
+
 export default React.createClass(
   {
     propTypes:{
-      // TODo check if we need user to be presented here
       zanataUser: React.PropTypes.object,
       zanataServer: React.PropTypes.string,
       onSignIn: React.PropTypes.func.isRequired,
       getZanataServerUrls: React.PropTypes.func.isRequired,
-      zanataServerUrls: React.PropTypes.arrayOf(React.PropTypes.string),
+      zanataServerUrls: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
       zanataOAuthUrl: React.PropTypes.string
     },
 
@@ -33,12 +35,6 @@ export default React.createClass(
        })
     },
 
-    componentWillMount() {
-      if (!this.props.zanataUser) {
-        this.props.getZanataServerUrls();
-      }
-    },
-
     componentWillReceiveProps(nextProps) {
        if (nextProps.zanataOAuthUrl) {
          console.log(nextProps.zanataOAuthUrl)
@@ -53,7 +49,7 @@ export default React.createClass(
         return <div>Welcome {user.name} from {user.username}@{server}</div>
       }
 
-      const zanataServerUrls = this.props.zanataServerUrls;
+      const zanataServerUrls = [NO_SELECTION_OPT, ...this.props.zanataServerUrls];
 
       return (
         <div>
@@ -66,8 +62,8 @@ export default React.createClass(
             <div className="form-group">
               <div className="col-md-4 col-md-offset-3">
                 <button type="button" className="btn btn-primary"
-                  onClick={this._signInWithZanata} disabled={!this.state.zanataUrl}>
-                  Sign in to {this.state.zanataUrl || '...'}
+                  onClick={this._signInWithZanata} disabled={!this.state.zanataUrl || this.state.zanataUrl === NO_SELECTION_OPT}>
+                  Sign in to {this.state.zanataUrl || NO_SELECTION_OPT}
                 </button>
               </div>
             </div>

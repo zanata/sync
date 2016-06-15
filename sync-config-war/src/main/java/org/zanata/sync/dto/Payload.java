@@ -18,30 +18,45 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.api;
-
-import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
-import com.google.common.collect.ImmutableSet;
+package org.zanata.sync.dto;
 
 /**
+ * Simple JSON friendly DTO
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
-@ApplicationPath("/api")
-public class WorkApplication extends Application {
-    private static final Set<Class<?>> RESOURCE_CLASSES =
-            ImmutableSet.<Class<?>>builder()
-                    .add(WorkResourceImpl.class)
-                    .add(SecurityResource.class)
-                    .add()
-                    .build();
+public class Payload {
+    private boolean error;
+    private String data;
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        return RESOURCE_CLASSES;
+    private Payload(boolean error, String data) {
+        this.error = error;
+        this.data = data;
+    }
+
+    public static Payload error(String errorMessage) {
+        return new Payload(true, errorMessage);
+    }
+
+    public static Payload ok(String data) {
+        return new Payload(false, data);
+    }
+
+    public Payload() {
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }

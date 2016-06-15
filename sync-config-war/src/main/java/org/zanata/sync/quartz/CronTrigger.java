@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -82,10 +81,15 @@ public class CronTrigger {
                 .withIdentity(key)
                 .withDescription(syncWorkConfig.toString());
 
-        if(StringUtils.isEmpty(cronExp) || !isEnabled) {
+        if(shouldRunAsCronJob(cronExp, isEnabled)) {
             builder.storeDurably();
         }
         return builder.build();
+    }
+
+    private static boolean shouldRunAsCronJob(String cronExp,
+            boolean isEnabled) {
+        return Strings.isNullOrEmpty(cronExp) || !isEnabled;
     }
 
     private boolean isJobEnabled(SyncWorkConfig syncWorkConfig, JobType jobType) {
@@ -143,7 +147,7 @@ public class CronTrigger {
                         .addTriggerListener(triggerListener);
             }
 
-            if (!StringUtils.isEmpty(cronExp) && isEnabled) {
+            if (shouldRunAsCronJob(cronExp, isEnabled)) {
                 Trigger trigger = buildTrigger(cronExp, syncWorkConfig.getId(),
                     type, isEnabled);
                 scheduler.scheduleJob(jobDetail, trigger);
@@ -225,7 +229,7 @@ public class CronTrigger {
         TriggerBuilder builder = TriggerBuilder
             .newTrigger()
             .withIdentity(type.toTriggerKey(id));
-        if (!StringUtils.isEmpty(cronExp) && isEnabled) {
+        if (shouldRunAsCronJob(cronExp, isEnabled)) {
             builder.withSchedule(
                 CronScheduleBuilder.cronSchedule(cronExp));
         }

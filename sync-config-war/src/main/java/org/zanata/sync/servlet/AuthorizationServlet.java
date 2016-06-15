@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.security;
+package org.zanata.sync.servlet;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -27,12 +27,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.zanata.sync.security.AuthorizationServlet.SERVLET_URL;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@WebServlet(name = "authorizationServlet", urlPatterns = {SERVLET_URL})
+@WebServlet(name = "authorizationServlet", urlPatterns = {AuthorizationServlet.SERVLET_URL})
 public class AuthorizationServlet extends HttpServlet {
     public static final String SERVLET_URL = "/auth/granted";
 

@@ -18,30 +18,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.api;
+package org.zanata.sync.util;
 
-import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import java.io.IOException;
 
-import com.google.common.collect.ImmutableSet;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import org.zanata.sync.App;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Throwables;
 
 /**
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang
+ *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
-@ApplicationPath("/api")
-public class WorkApplication extends Application {
-    private static final Set<Class<?>> RESOURCE_CLASSES =
-            ImmutableSet.<Class<?>>builder()
-                    .add(WorkResourceImpl.class)
-                    .add(SecurityResource.class)
-                    .add()
-                    .build();
+@Dependent
+public class JSONObjectMapper {
+    @Inject
+    @App
+    private ObjectMapper objectMapper;
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        return RESOURCE_CLASSES;
+    public <T> T fromJSON(String jsonString) {
+        try {
+            return objectMapper.reader().readValue(jsonString);
+        }
+        catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public String toJSON(Object value) {
+        try {
+            return objectMapper.writer().writeValueAsString(value);
+        }
+        catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
     }
 }

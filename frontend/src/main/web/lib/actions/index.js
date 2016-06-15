@@ -8,8 +8,12 @@ export const NEW_WORK_FAILURE = 'NEW_WORK_FAILURE'
 
 // const newWorkAction = createAction(NEW_WORK_SUBMIT)
 
+const restUrlRoot = () => {
+  return `${Configs.apiUrl}${Configs.basename}`
+}
+
 export function submitNewWork(payload) {
-  // console.log('======== new work button clicked:' + payload)
+   console.log('======== new work button clicked:', payload)
   const entity = {
     name: payload.name,
     description: payload.description,
@@ -24,17 +28,23 @@ export function submitNewWork(payload) {
     // }
   }
   if (payload.syncToRepoEnabled) {
-    entity.srcRepoPluginConfig = {
-      url: payload.repoUrl,
-      username: payload.repoUsername,
-      apiKey: payload.repoSecret,
-      branch: payload.repoBranch
-    }
+    entity.srcRepoPluginName = payload.selectedRepoPluginName
+    const regex = new RegExp('^' + payload.selectedRepoPluginName + '(.+)$')
+    entity.srcRepoPluginConfig = {}
+    // see lib/components/WorkForm.js
+    Object.keys(payload).forEach(key => {
+      const match = regex.exec(key)
+      if (match && match.length === 2) {
+        //console.log('found ' + key + ' with value ' + payload[key])
+        entity.srcRepoPluginConfig[match[1]] = payload[key]
+      }
+    })
+    entity.syncToRepoCron = payload.syncToRepoCron
   }
 
   return {
     [CALL_API]: {
-      endpoint: `${Configs.basename}/api/work`,
+      endpoint: `${restUrlRoot()}/api/work`,
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(entity),
@@ -50,24 +60,9 @@ export const SELECT_ZANATA_FAILURE = 'SELECT_ZANATA_FAILURE'
 export function selectZanataServer(zanataUrl) {
   return {
     [CALL_API]: {
-      endpoint: `${Configs.basename}/api/oauth/url?z=${zanataUrl}`,
+      endpoint: `${restUrlRoot()}/api/oauth/url?z=${zanataUrl}`,
       method: 'GET',
       types: [SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE]
-    }
-  }
-}
-
-// ========== get zanata server url list =========
-export const GET_ZANATA_SERVERS_REQUEST = 'GET_ZANATA_SERVERS_REQUEST'
-export const GET_ZANATA_SERVERS_SUCCESS = 'GET_ZANATA_SERVERS_SUCCESS'
-export const GET_ZANATA_SERVERS_FAILURE = 'GET_ZANATA_SERVERS_FAILURE'
-export function getZanataServerUrls() {
-  return {
-    [CALL_API]: {
-      endpoint: `${Configs.basename}/api/oauth`,
-      method: 'GET',
-      headers: {'Content-Type': 'application/json'},
-      types: [GET_ZANATA_SERVERS_REQUEST, GET_ZANATA_SERVERS_SUCCESS, GET_ZANATA_SERVERS_FAILURE]
     }
   }
 }

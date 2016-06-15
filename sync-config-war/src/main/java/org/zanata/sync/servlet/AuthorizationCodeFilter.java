@@ -1,8 +1,7 @@
-package org.zanata.sync.security;
+package org.zanata.sync.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -18,9 +17,9 @@ import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.rest.dto.Account;
+import org.zanata.sync.dto.ZanataAccount;
+import org.zanata.sync.security.SecurityTokens;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
 
 /**
  * This filter should only be accessed by Zanata after a successful OAuth authentication
@@ -62,7 +61,7 @@ public class AuthorizationCodeFilter implements Filter {
 //            String originalRequest = httpServletRequest.getParameter("origin");
 //            httpServletResponse.sendRedirect(originalRequest);
 
-            String accountAsJson = new ObjectMapper().writerFor(Account.class)
+            String accountAsJson = new ObjectMapper().writerFor(ZanataAccount.class)
                     .writeValueAsString(securityTokens.getAccount());
             request.setAttribute("user", accountAsJson);
             request.setAttribute("zanata", zanataUrl);

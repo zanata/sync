@@ -8,9 +8,9 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
 import org.zanata.sync.component.AppConfiguration;
 import org.zanata.sync.i18n.Messages;
+import com.google.common.base.Joiner;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class AdminController implements Serializable {
     @PostConstruct
     public void init() {
         fieldsNeedEncryption =
-            StringUtils.join(appConfiguration.getFieldsNeedEncryption(), ',');
+                Joiner.on(",").join(appConfiguration.getFieldsNeedEncryption());
     }
 
     public String saveChanges() {

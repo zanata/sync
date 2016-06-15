@@ -1,4 +1,4 @@
-package org.zanata.sync.api.impl;
+package org.zanata.sync.api;
 
 import java.net.URI;
 import java.util.List;
@@ -17,7 +17,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import org.zanata.sync.validation.SyncWorkFormValidator;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 /**
@@ -61,27 +61,10 @@ public class WorkResourceImpl {
     private PluginsService pluginsService;
 
     @GET
-    @Path("supported")
-    public Response getSupportedSourceRepoPlugin() {
-        List<RepoExecutor> srcRepoPlugins =
-                pluginsService.getAvailableSourceRepoPlugins();
-        List<Map<String, Object>> plugins =
-                srcRepoPlugins.stream().map(plugin -> {
-                    // TODO maybe use a DTO for json serialization
-                    Map<String, Object> pluginMap = Maps.newHashMap();
-                    pluginMap.put("name", plugin.getName());
-                    pluginMap.put("description", plugin.getDescription());
-                    pluginMap.put("fields", plugin.getFields());
-                    return pluginMap;
-                }).collect(Collectors.toList());
-        return Response.ok(plugins).build();
-    }
-
-    @GET
     public Response
             getWork(@QueryParam(value = "id") @DefaultValue("") String id,
                     @QueryParam(value = "type") @DefaultValue("") String type) {
-        if (StringUtils.isEmpty(id)) {
+        if (Strings.isNullOrEmpty(id)) {
             return getAllWork(type);
         } else {
             try {

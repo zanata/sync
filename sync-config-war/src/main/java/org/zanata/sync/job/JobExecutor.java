@@ -21,12 +21,14 @@
 package org.zanata.sync.job;
 
 import java.util.Map;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import com.google.common.collect.Maps;
-import com.sun.jersey.api.client.Client;
 
 /**
  *
@@ -51,7 +53,8 @@ public class JobExecutor {
     private static final String JOB_SERVER_URL = System.getProperty("job.server", "http://localhost:8080/jobs");
 
     public void executeJob(String id, SyncWorkConfig workConfig, JobType jobType) {
-        Client client = Client.create();
+        // FIXME need to pass down client
+        Client client = ClientBuilder.newClient();
         Map<String ,String> jobDetail = Maps.newHashMap();
         Map<String, String> srcRepoPluginConfig =
                 workConfig.getSrcRepoPluginConfig();
@@ -68,18 +71,18 @@ public class JobExecutor {
         jobDetail.put("zanataSecret", transServerConfig.get("apiKey"));
         switch (jobType) {
             case SERVER_SYNC:
-                client.resource(JOB_SERVER_URL)
+                client.target(JOB_SERVER_URL)
                         .path("api").path("job").path("2repo").path("start").path(id)
+                        .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON_TYPE)
-                        .post(jobDetail);
+                        .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
                 break;
             case REPO_SYNC:
-                client.resource(JOB_SERVER_URL)
+                client.target(JOB_SERVER_URL)
                         .path("api").path("job").path("2zanata").path("start").path(id)
+                        .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON_TYPE)
-                        .post(jobDetail);
+                        .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
                 break;
         }
     }

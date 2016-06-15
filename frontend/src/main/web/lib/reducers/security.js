@@ -1,14 +1,12 @@
 import { handleActions } from 'redux-actions'
 import {
-  SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE,
-  GET_ZANATA_SERVERS_REQUEST, GET_ZANATA_SERVERS_SUCCESS, GET_ZANATA_SERVERS_FAILURE
+  SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE
 } from '../actions'
 import Configs from '../constants/Configs'
 
 const defaultState = {
   // TODo check if we need this here
   user: null,
-  zanataServerUrls: ['----'],
   error: undefined,
   zanataOAuthUrl: null,
   loading: false
@@ -34,17 +32,6 @@ const errorHandler = (state, action) => {
 
 export default handleActions(
   {
-    [GET_ZANATA_SERVERS_REQUEST]: requestHandler,
-    [GET_ZANATA_SERVERS_SUCCESS]: (state, action) => {
-      console.log(action)
-      const urls = ['-- please select one --', ...action.payload]
-      return {
-        ...state,
-        zanataServerUrls: urls,
-        loading: false
-      }
-    },
-    [GET_ZANATA_SERVERS_FAILURE]: errorHandler,
     [SELECT_ZANATA_REQUEST]: requestHandler,
     [SELECT_ZANATA_SUCCESS]: (state, action) => {
       console.log(action)

@@ -20,15 +20,11 @@
  */
 package org.zanata.sync.api;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -41,12 +37,10 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.security.AuthorizationServlet;
+import org.zanata.sync.dto.Payload;
+import org.zanata.sync.servlet.AuthorizationServlet;
 import org.zanata.sync.security.SecurityTokens;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -61,25 +55,8 @@ public class SecurityResource {
     @DeltaSpike
     private HttpServletRequest request;
 
-//    @Inject
-//    @DeltaSpike
-//    private HttpServletResponse response;
-//
     @Inject
     private SecurityTokens securityTokens;
-
-    private List<String> productionServerUrls = ImmutableList.<String>builder()
-            .add("http://localhost:8180/zanata")
-            .add("http://localhost:8080/zanata")
-            .add("https://translate.zanata.org")
-            .add("https://translate.jboss.org")
-            .add("https://fedora.zanata.org")
-            .build();
-
-    @GET
-    public Response getAvailableZanataServers() {
-        return Response.ok(productionServerUrls).build();
-    }
 
     @GET
     @Path("/url")
@@ -103,8 +80,6 @@ public class SecurityResource {
                     .buildQueryMessage();
 
             log.info("=========== redirecting to {}", request.getLocationUri());
-//            context.getExternalContext().redirect(request.getLocationUri());
-//            context.responseComplete();
             return Response.ok(Payload.ok(request.getLocationUri())).build();
 
         } catch (OAuthSystemException e) {

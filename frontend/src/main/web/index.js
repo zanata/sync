@@ -24,25 +24,32 @@ import 'patternfly/dist/css/patternfly-additions.min.css'
  * data - json object of any information to be included. e.g Permission {@link org.zanata.rest.editor.dto.Permission}, and View
  * dev - If 'dev' attribute exist, all api data will be retrieve from .json file in test directory.
  */
-const mountNode = document.getElementById('main-content'),
-  dataUser = mountNode.getAttribute('data-user'),
-  basename = mountNode.getAttribute('basename'),
-  zanata = mountNode.getAttribute('data-zanata'),
+const mountNode = document.getElementById('main-content')
+const dataUser = mountNode.getAttribute('data-user')
+const apiUrl = mountNode.getAttribute('data-api-url')
+const basename = mountNode.getAttribute('data-app-basename')
+const zanata = mountNode.getAttribute('data-zanata')
+const zanataServerUrls = JSON.parse(mountNode.getAttribute('data-zanata-server-urls'))
+const srcRepoPlugins = JSON.parse(mountNode.getAttribute('data-src-repo-plugins'))
   // user = JSON.parse(mountNode.getAttribute('user')),
-  data = JSON.parse(mountNode.getAttribute('data')),
-  dev = data.dev;
+const data = JSON.parse(mountNode.getAttribute('data'))
+const dev = data.dev;
 
 const user = dataUser ? JSON.parse(dataUser): undefined
+//const user = undefined
 
 
 
 // base rest url, e.g http://localhost:8080/rest
-Configs.basename = basename || '/';
+Configs.apiUrl = apiUrl || ''
+Configs.basename = basename || ''
 Configs.data = data;
 //append with .json extension in 'dev' environment
-Configs.urlPostfix = dev ? '' : '.json?';
+Configs.urlPostfix = dev ? '' : '.json?'
 // see org.zanata.rest.editor.dto.User
 // Configs.user = user;
+
+console.log(`${Configs.apiUrl} - ${Configs.basename}` )
 
 const loggerOption = {
   // level = 'log': 'log' | 'console' | 'warn' | 'error' | 'info', // console's level
@@ -62,7 +69,7 @@ const loggerOption = {
 const logger = createLogger(loggerOption)
 
 const store = createStore(
-  rootReducer(user, zanata),
+  rootReducer(user, zanata, zanataServerUrls, srcRepoPlugins),
   applyMiddleware(
     apiMiddleware,
     logger

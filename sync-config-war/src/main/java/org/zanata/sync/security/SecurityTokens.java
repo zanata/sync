@@ -15,7 +15,7 @@ import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.token.OAuthToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.rest.dto.Account;
+import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.util.ZanataRestClient;
 import com.google.common.base.Throwables;
 
@@ -34,7 +34,7 @@ public class SecurityTokens implements Serializable {
     private String zanataServerUrl;
     private String zanataUsername;
     private String zanataApiKey;
-    private Account account;
+    private ZanataAccount account;
 
     boolean hasAccess() {
         return refreshToken != null;
@@ -112,7 +112,7 @@ public class SecurityTokens implements Serializable {
         return zanataApiKey;
     }
 
-    public Account getAccount() {
+    public ZanataAccount getAccount() {
         return account;
     }
 

@@ -18,45 +18,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.api;
+package org.zanata.sync;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
+
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
+@Documented
 /**
- * Simple JSON friendly DTO
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * This qualifier can be used for anything requiring a specific qualifier to
+ * differentiate from other possible source (in CDI 1 by default any class with
+ * no-arg constructor can be a bean).
  */
-public class Payload {
-    private boolean error;
-    private String data;
-
-    private Payload(boolean error, String data) {
-        this.error = error;
-        this.data = data;
-    }
-
-    public static Payload error(String errorMessage) {
-        return new Payload(true, errorMessage);
-    }
-
-    public static Payload ok(String data) {
-        return new Payload(false, data);
-    }
-
-    public Payload() {
-    }
-
-    public boolean isError() {
-        return error;
-    }
-
-    public void setError(boolean error) {
-        this.error = error;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
+public @interface App {
 }

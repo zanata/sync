@@ -13,9 +13,12 @@
 <body>
 <main role="main">
     <div id="main-content"
-            basename='${pageContext.request.contextPath}'
+            data-api-url=''
+            data-app-basename='${pageContext.request.contextPath}'
             data-user='${requestScope.user}'
             data-zanata='${requestScope.zanata}'
+            data-zanata-server-urls='${requestScope.zanataServerUrls}'
+            data-src-repo-plugins='${requestScope.srcRepoPlugins}'
             data='{"permission":{"updateGlossary":true, "insertGlossary":true, "deleteGlossary":true}, "dev": "true", "profileUser" : {"username": "test-user", "email":"zanata@zanata.org", "name":"admin-name","loggedIn":"true","imageUrl":"//www.gravatar.com/avatar/dda6e90e3f2a615fb8b31205e8b4894b?d=mm&r=g&s=115","languageTeams":["English, French, German, Yodish (Yoda English)"]}}'>
     </div>
 

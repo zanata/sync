@@ -33,12 +33,20 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
+import javax.ws.rs.client.Client;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
 import org.hibernate.Session;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.App;
 import org.zanata.sync.events.ResourceReadyEvent;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -79,4 +87,20 @@ public class ResourceProducer {
 //            log.debug("EntityManager is not open");
 //        }
 //    }
+
+    @Produces
+    @App
+    protected ObjectMapper getObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper
+                .configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
+                .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
+        return objectMapper;
+    }
+    
+    @Produces
+    protected Client getRestClient() {
+        return ResteasyClientBuilder.newBuilder()
+                .register(ResteasyJackson2Provider.class).build();
+    }
 }

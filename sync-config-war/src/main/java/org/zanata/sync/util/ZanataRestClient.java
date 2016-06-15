@@ -21,21 +21,21 @@
 package org.zanata.sync.util;
 
 import java.util.Map;
-import javax.annotation.PostConstruct;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.utils.OAuthUtils;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.rest.dto.Account;
+import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
+
 import com.google.common.collect.Maps;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 /**
  * This rest client knows how to use OAuth to talk to Zanata.
@@ -48,26 +48,22 @@ public class ZanataRestClient {
             LoggerFactory.getLogger(ZanataRestClient.class);
     @Inject
     private SecurityTokens securityTokens;
+    @Inject
     private Client client;
 
-    @PostConstruct
-    void init() {
-        DefaultClientConfig
-                clientConfig = new DefaultClientConfig();
-        clientConfig.getClasses().add(JacksonJsonProvider.class);
-        client = Client.create(clientConfig);
-    }
-
-    public Account getAuthorizedAccount() {
+    public ZanataAccount getAuthorizedAccount() {
         Map<String, Object> accessTokenMap = Maps.newHashMap();
         accessTokenMap.put(OAuth.OAUTH_ACCESS_TOKEN, securityTokens.getAccessToken());
 
-        return client.resource(
+        // we don't use dto from zanata api because
+        // it's using an incompatible version of jackson annotation
+        return client.target(
                 securityTokens.getZanataServerUrl() + "/rest/user/myaccount")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE)
 //                    .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
-                .header(OAuth.HeaderType.AUTHORIZATION, OAuthUtils.encodeAuthorizationBearerHeader(
-                        accessTokenMap))
-                .get(Account.class);
+                .header(OAuth.HeaderType.AUTHORIZATION,
+                        OAuthUtils.encodeAuthorizationBearerHeader(
+                                accessTokenMap))
+                .get(ZanataAccount.class);
     }
 }

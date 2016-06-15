@@ -11,7 +11,9 @@ export default React.createClass({
   propTypes: {
     onSaveNewWork: React.PropTypes.func.isRequired,
     creating: React.PropTypes.bool.isRequired,
-    created: React.PropTypes.bool.isRequired
+    created: React.PropTypes.bool.isRequired,
+    // TODO use shape to be more specific
+    srcRepoPlugins: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
   },
   getInitialState() {
     return {
@@ -21,11 +23,10 @@ export default React.createClass({
       syncOption: 'SOURCE',
       syncToZanataCron: 'MANUAL',
       syncToRepoEnabled: true,
-      syncToRepoCron: 'MANUAL',
-      repoUrl: '',
-      repoUsername: '',
-      repoSecret: '',
-      repoBranch: ''
+      // srcRepoPlugins will never change so this is not an anti-pattern
+      // TODO check whether there are any plugins (do it in index.js)
+      selectedRepoPluginName: this.props.srcRepoPlugins[0].name,
+      syncToRepoCron: 'MANUAL'
     }
   },
 
@@ -49,7 +50,8 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    if (!Configs.user) {
+    if (!this.props.loggedIn) {
+      // TODO use props not Configs
       const path = `${Configs.basename}`;
       console.info('redirect to home page for sign in:' + path)
       this.context.router.push({
@@ -77,6 +79,25 @@ export default React.createClass({
     if (this.props.created) {
       msgContent = 'Saved successfully'
     }
+
+    const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)
+
+    const selectedPluginName = this.state.selectedRepoPluginName
+
+    const selectedPlugin = this.props.srcRepoPlugins.filter(
+      plugin => plugin.name === selectedPluginName
+    )[0]
+
+
+    const selectedPluginFields = Object.keys(selectedPlugin.fields).map(key => {
+      // TODO field tooltip
+      const field = selectedPlugin.fields[key]
+      return (
+        <TextInput key={field.key} name={field.key} label={field.label}
+          onChange={callbackFor(`${selectedPluginName}${field.key}`)}
+          placeholder={field.placeholder} isSecret={field.masked}/>
+      )
+    })
 
     return (
       <div>
@@ -115,15 +136,13 @@ export default React.createClass({
               optionsDesc={['Manually', 'Every hour', 'Every two hour', 'Every six hour']}
               selected={this.state.syncToRepoCron}
             />
-            <TextInput name='repoUrl' label='URL'
-              onChange={callbackFor('repoUrl')}
-              placeholder='file://path/to/your/repo'/>
-            <TextInput name='repoBranch' label='Branch'
-              onChange={callbackFor('repoBranch')} placeholder='master'/>
-            <TextInput name='repoUsername' label='Username'
-              onChange={callbackFor('repoUsername')}/>
-            <TextInput name='repoSecret' label='Secret'
-              onChange={callbackFor('repoSecret')} isSecret/>
+            <Select name='srcRepoPlugin' label='Source repository plugin'
+              onChange={callbackFor('srcRepoPlugin')}
+              options={srcRepoPluginsName}
+              selected={this.state.selectedRepoPluginName}
+            />
+            {selectedPluginFields}
+
           </ToggleFieldSet>
 
           <div className="form-group">
