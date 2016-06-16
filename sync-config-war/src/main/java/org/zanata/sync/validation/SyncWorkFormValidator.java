@@ -61,9 +61,6 @@ public class SyncWorkFormValidator {
 
         errors.putAll(validateRepoFields(form.getSrcRepoPluginConfig(),
                 form.getSrcRepoPluginName()));
-        // TODO pahuang revisit this. we may not need to run this
-//        errors.putAll(validateTransFields(form.getTransServerPluginConfig()
-//        ));
 
         return errors;
     }
@@ -76,12 +73,6 @@ public class SyncWorkFormValidator {
             return new HashMap<>();
         }
         return validateFields(config, executor, SyncWorkForm.repoSettingsPrefix);
-    }
-
-    private Map<String, String> validateTransFields(
-            Map<String, String> config) {
-        TranslationServerExecutor executor = new org.zanata.sync.plugin.zanata.Plugin();
-        return validateFields(config, executor, SyncWorkForm.transSettingsPrefix);
     }
 
     private Map<String, String> validateFields(Map<String, String> config,

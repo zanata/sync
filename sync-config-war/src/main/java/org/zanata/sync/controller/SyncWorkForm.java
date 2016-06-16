@@ -18,8 +18,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class SyncWorkForm implements Serializable {
-    public final static String repoSettingsPrefix = "sourceSettingsConfig.";
-    public final static String transSettingsPrefix = "transSettingsConfig.";
+    public final static String repoSettingsPrefix = "sourceRepoSettings.";
 
     @Setter
     private Long id;
@@ -56,15 +55,10 @@ public class SyncWorkForm implements Serializable {
     @Setter
     private String encryptionKey;
 
-    /**
-     * All field id must prefix with {@link SyncWorkForm#repoSettingsPrefix}
-     */
     @Setter
     private Map<String, String> srcRepoPluginConfig = new HashMap<>();
 
-    /**
-     * All field id must prefix with {@link SyncWorkForm#transSettingsPrefix}
-     */
+
     @Setter
     private Map<String, String> transServerPluginConfig = new HashMap<>();
 
@@ -73,9 +67,5 @@ public class SyncWorkForm implements Serializable {
 
     @Setter
     private boolean syncToRepoEnabled = true;
-
-    public static String getRepoSettingsPrefix() {
-        return repoSettingsPrefix;
-    }
 
 }

@@ -1,5 +1,7 @@
 package org.zanata.sync.quartz;
 
+import javax.ws.rs.client.Client;
+
 import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
@@ -27,11 +29,13 @@ class SyncJob implements InterruptableJob {
         try {
             syncWorkConfig =
                     (SyncWorkConfig) context.getJobDetail().getJobDataMap()
-                            .get("value");
+                            .get(CronTrigger.SYNC_WORK_CONFIG_KEY);
 
-            jobType = (JobType) context.getJobDetail().getJobDataMap().get("jobType");
+            jobType = (JobType) context.getJobDetail().getJobDataMap().get(CronTrigger.JOB_TYPE_KEY);
 
-            new JobExecutor().executeJob(syncWorkConfig.getId().toString(), syncWorkConfig, jobType);
+            Client client = (Client) context.getJobDetail().getJobDataMap().get(CronTrigger.REST_CLIENT_KEY);
+
+            new JobExecutor(client).executeJob(syncWorkConfig.getId().toString(), syncWorkConfig, jobType);
 
         } catch (Exception e) {
             log.error("error happened during job run", e);

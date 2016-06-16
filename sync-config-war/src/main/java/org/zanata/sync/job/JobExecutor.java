@@ -51,10 +51,13 @@ import com.google.common.collect.Maps;
  */
 public class JobExecutor {
     private static final String JOB_SERVER_URL = System.getProperty("job.server", "http://localhost:8080/jobs");
+    private Client client;
+
+    public JobExecutor(Client client) {
+        this.client = client;
+    }
 
     public void executeJob(String id, SyncWorkConfig workConfig, JobType jobType) {
-        // FIXME need to pass down client
-        Client client = ClientBuilder.newClient();
         Map<String ,String> jobDetail = Maps.newHashMap();
         Map<String, String> srcRepoPluginConfig =
                 workConfig.getSrcRepoPluginConfig();
@@ -63,7 +66,7 @@ public class JobExecutor {
         jobDetail.put("srcRepoSecret", srcRepoPluginConfig.get("apiKey"));
         jobDetail.put("srcRepoBranch", srcRepoPluginConfig.get("branch"));
         jobDetail.put("syncToZanataOption", workConfig.getSyncToZanataOption().name());
-        jobDetail.put("srcRepoType", "git"); // TODO hard coded
+        jobDetail.put("srcRepoType", workConfig.getSrcRepoPluginName());
 
         Map<String, String> transServerConfig =
                 workConfig.getTransServerPluginConfig();

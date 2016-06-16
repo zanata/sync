@@ -14,7 +14,7 @@ import org.zanata.sync.model.JobType;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Path(APIResource.JOB_ROOT)
+@Path("/job")
 @Produces("application/json")
 public interface JobResource {
 

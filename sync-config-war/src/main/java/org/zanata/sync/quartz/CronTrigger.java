@@ -6,10 +6,10 @@ package org.zanata.sync.quartz;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.client.Client;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
@@ -20,29 +20,29 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
 import org.quartz.UnableToInterruptJobException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.zanata.sync.common.plugin.RepoExecutor;
-import org.zanata.sync.common.plugin.TranslationServerExecutor;
 import org.zanata.sync.component.AppConfiguration;
 import org.zanata.sync.events.JobRunCompletedEvent;
-import org.zanata.sync.exception.UnableLoadPluginException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
-import org.zanata.sync.plugin.zanata.Plugin;
 import org.zanata.sync.service.PluginsService;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @ApplicationScoped
 @Slf4j
 public class CronTrigger {
+    static final String SYNC_WORK_CONFIG_KEY = "value";
+    static final String JOB_TYPE_KEY = "jobType";
+    static final String REST_CLIENT_KEY = "restClient";
+
     private Scheduler scheduler;
 
     @Inject
@@ -53,6 +53,9 @@ public class CronTrigger {
 
     @Inject
     private JobConfigListener triggerListener;
+
+    @Inject
+    private Client restClient;
 
     @PostConstruct
     public void start() throws SchedulerException {
@@ -110,52 +113,37 @@ public class CronTrigger {
         if (scheduler.checkExists(jobKey)) {
             return;
         }
-        try {
-            String cronExp;
-            Class<SyncJob> jobClass = SyncJob.class;
-            if (type.equals(JobType.REPO_SYNC)
-                    && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToRepoCron())) {
-                cronExp = syncWorkConfig.getSyncToRepoCron();
-            } else if (type.equals(JobType.SERVER_SYNC)
-                    && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
-                cronExp = syncWorkConfig.getSyncToZanataCron();
-            } else {
-                // impossible
-                return;
-            }
+        String cronExp;
+        Class<SyncJob> jobClass = SyncJob.class;
+        if (type.equals(JobType.REPO_SYNC)
+                && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToRepoCron())) {
+            cronExp = syncWorkConfig.getSyncToRepoCron();
+        } else if (type.equals(JobType.SERVER_SYNC)
+                && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
+            cronExp = syncWorkConfig.getSyncToZanataCron();
+        } else {
+            throw new IllegalStateException("unknown job type:" + type);
+        }
 
-            JobDetail jobDetail =
-                buildJobDetail(syncWorkConfig, jobKey, jobClass, cronExp,
-                    isEnabled);
+        JobDetail jobDetail =
+            buildJobDetail(syncWorkConfig, jobKey, jobClass, cronExp,
+                isEnabled);
 
-            jobDetail.getJobDataMap().put("value", syncWorkConfig);
-            jobDetail.getJobDataMap().put("jobType", type);
+        jobDetail.getJobDataMap().put(SYNC_WORK_CONFIG_KEY, syncWorkConfig);
+        jobDetail.getJobDataMap().put(JOB_TYPE_KEY, type);
+        jobDetail.getJobDataMap().put(REST_CLIENT_KEY, restClient);
 
-            jobDetail.getJobDataMap()
-                    .put(RepoExecutor.class.getSimpleName(), pluginsService
-                            .getNewSourceRepoPlugin(
-                                    syncWorkConfig.getSrcRepoPluginName(),
-                                    syncWorkConfig.getSrcRepoPluginConfig()));
+        if (scheduler.getListenerManager().getJobListeners().isEmpty()) {
+            scheduler.getListenerManager()
+                    .addTriggerListener(triggerListener);
+        }
 
-            jobDetail.getJobDataMap()
-                .put(TranslationServerExecutor.class.getSimpleName(),
-                        new Plugin(syncWorkConfig.getTransServerPluginConfig())
-                    );
-
-            if (scheduler.getListenerManager().getJobListeners().isEmpty()) {
-                scheduler.getListenerManager()
-                        .addTriggerListener(triggerListener);
-            }
-
-            if (shouldRunAsCronJob(cronExp, isEnabled)) {
-                Trigger trigger = buildTrigger(cronExp, syncWorkConfig.getId(),
-                    type, isEnabled);
-                scheduler.scheduleJob(jobDetail, trigger);
-            } else {
-                scheduler.addJob(jobDetail, false);
-            }
-        } catch (UnableLoadPluginException e) {
-            log.error("Unable to load plugin", e.getMessage());
+        if (shouldRunAsCronJob(cronExp, isEnabled)) {
+            Trigger trigger = buildTrigger(cronExp, syncWorkConfig.getId(),
+                type, isEnabled);
+            scheduler.scheduleJob(jobDetail, trigger);
+        } else {
+            scheduler.addJob(jobDetail, false);
         }
     }
 

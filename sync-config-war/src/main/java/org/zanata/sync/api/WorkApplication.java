@@ -35,7 +35,7 @@ import com.google.common.collect.ImmutableSet;
 public class WorkApplication extends Application {
     private static final Set<Class<?>> RESOURCE_CLASSES =
             ImmutableSet.<Class<?>>builder()
-                    .add(WorkResourceImpl.class)
+                    .add(WorkResource.class)
                     .add(SecurityResource.class)
                     .add()
                     .build();
