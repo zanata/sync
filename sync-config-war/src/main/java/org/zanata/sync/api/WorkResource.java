@@ -1,6 +1,7 @@
 package org.zanata.sync.api;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -11,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
@@ -19,9 +21,11 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.controller.SyncWorkForm;
+import org.zanata.sync.dto.Payload;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
+import org.zanata.sync.model.WorkSummary;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
@@ -56,6 +60,7 @@ public class WorkResource {
     private PluginsService pluginsService;
 
     @GET
+    // TODO revisit
     public Response
             getWork(@QueryParam(value = "id") @DefaultValue("") String id,
                     @QueryParam(value = "type") @DefaultValue("") String type) {
@@ -69,10 +74,21 @@ public class WorkResource {
                     return Response.ok(schedulerServiceImpl.getWorkSummary(id)).build();
                 }
             } catch (WorkNotFoundException e) {
-                log.error("fail getting all jobs", e);
+                log.error("fail getting job " + id, e);
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
         }
+    }
+
+    @GET
+    @Path("/by/{username}")
+    public Response getMyWorks(@PathParam("username") String username) {
+        if (Strings.isNullOrEmpty(username)) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Payload.error("need Zanata username")).build();
+        }
+        List<WorkSummary> workSummaries = schedulerServiceImpl.getWorkFor(username);
+        return Response.ok(workSummaries).build();
     }
 
     @POST
@@ -91,8 +107,8 @@ public class WorkResource {
             errors.put("error", e.getMessage());
             return Response.serverError().entity(errors).build();
         }
-        // TODO create URI
-        return Response.created(URI.create("")).entity(errors).build();
+        return Response.created(URI.create("/work/" + syncWorkConfig.getId()))
+                .build();
     }
 
     @PUT

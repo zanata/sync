@@ -38,7 +38,6 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
-import org.zanata.sync.servlet.AuthorizationServlet;
 import org.zanata.sync.security.SecurityTokens;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -76,7 +75,7 @@ public class SecurityResource {
             OAuthClientRequest request = OAuthClientRequest
                     .authorizationLocation(zanataAuthUrl)
                     .setClientId("zanata_sync")
-                    .setRedirectURI(appRoot() + AuthorizationServlet.SERVLET_URL + "?z=" + zanataUrl)
+                    .setRedirectURI(appRoot() + "?z=" + zanataUrl)
                     .buildQueryMessage();
 
             log.info("=========== redirecting to {}", request.getLocationUri());

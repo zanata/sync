@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start:dev",
-    "start:dev": "webpack-dev-server --inline --content-base . ",
+    "start:dev": "webpack-dev-server --inline --content-base . --port 8000",
     "fake": "node fakeServer.js",
     "build": "webpack -p --config webpack.prod.config.js --bail --display-error-details",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,6 +16,7 @@
     "classnames": "^2.2.5",
     "flux": "^2.1.1",
     "history": "^3.0.0",
+    "invariant": "^2.2.1",
     "patternfly": "^3.5.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",

@@ -1,9 +1,12 @@
 package org.zanata.sync.model;
 
+import java.util.Map;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 
 import org.zanata.sync.controller.SyncWorkForm;
 import org.zanata.sync.util.CronType;
+import org.zanata.sync.util.JSONObjectMapper;
 import com.google.common.base.Strings;
 
 /**
@@ -11,24 +14,36 @@ import com.google.common.base.Strings;
  */
 @RequestScoped
 public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
+    @Inject
+    private JSONObjectMapper objectMapper;
 
     @Override
     public SyncWorkConfig buildObject(SyncWorkForm syncWorkForm) {
+        String zanataUsername =
+                syncWorkForm.getTransServerPluginConfig().get("username");
+        String srcRepoPluginConfigJson =
+                objectMapper.toJSON(syncWorkForm.getSrcRepoPluginConfig());
+        String transServerPluginConfigJson =
+                objectMapper.toJSON(syncWorkForm.getTransServerPluginConfig());
+        String syncToZanataCron = syncWorkForm.getSyncToZanataCron().getExpression();
+        String syncToRepoCron = syncWorkForm.getSyncToRepoCron().getExpression();
         return new SyncWorkConfig(syncWorkForm.getId(),
-            syncWorkForm.getName(),
-            syncWorkForm.getDescription(),
-                syncWorkForm.getSyncToZanataCron().getExpression(),
-                syncWorkForm.getSyncToRepoCron().getExpression(),
+                syncWorkForm.getName(),
+                syncWorkForm.getDescription(),
+                syncToZanataCron,
+                syncToRepoCron,
                 syncWorkForm.getSyncOption(),
-                syncWorkForm.getSrcRepoPluginConfig(),
-            syncWorkForm.getSrcRepoPluginName(),
-            syncWorkForm.getTransServerPluginConfig(),
-            syncWorkForm.getEncryptionKey(),
-            syncWorkForm.isSyncToZanataEnabled(),
-            syncWorkForm.isSyncToRepoEnabled());
+                syncWorkForm.getSrcRepoPluginName(),
+                syncWorkForm.getEncryptionKey(),
+                syncWorkForm.isSyncToZanataEnabled(),
+                syncWorkForm.isSyncToRepoEnabled(),
+                zanataUsername,
+                srcRepoPluginConfigJson,
+                transServerPluginConfigJson
+        );
     }
 
-    @Override
+    // TODO to be deleted
     public SyncWorkForm buildForm(SyncWorkConfig syncWorkConfig) {
 
         SyncWorkForm form = new SyncWorkForm();

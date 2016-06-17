@@ -13,7 +13,9 @@ export default React.createClass({
     creating: React.PropTypes.bool.isRequired,
     created: React.PropTypes.bool.isRequired,
     // TODO use shape to be more specific
-    srcRepoPlugins: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
+    srcRepoPlugins: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    zanataUsername: React.PropTypes.string,
+    zanataSecret: React.PropTypes.string
   },
   getInitialState() {
     return {
@@ -23,9 +25,11 @@ export default React.createClass({
       syncOption: 'SOURCE',
       syncToZanataCron: 'MANUAL',
       syncToRepoEnabled: true,
-      // srcRepoPlugins will never change so this is not an anti-pattern
+      // srcRepoPlugins, zanataUsername and zanataSecret will never change so this is not an anti-pattern
       // TODO check whether there are any plugins (do it in index.js)
       selectedRepoPluginName: this.props.srcRepoPlugins[0].name,
+      zanataUsername: this.props.zanataUsername,
+      zanataSecret: this.props.zanataSecret,
       syncToRepoCron: 'MANUAL'
     }
   },
@@ -46,17 +50,18 @@ export default React.createClass({
 
   _handleReset() {
     console.log('Reset')
-    this.setState({myinput: ''})
+    this.setState(this.getInitialState())
   },
 
   componentWillMount() {
-    if (!this.props.loggedIn) {
+    if (!this.props.zanataUsername) {
       // TODO use props not Configs
       const path = `${Configs.basename}`;
       console.info('redirect to home page for sign in:' + path)
       this.context.router.push({
         pathname: path,
         // query: { modal: true },
+        // TODO check this state in home page and display a message
         state: { needSignIn: true }
       })
     }
@@ -77,6 +82,7 @@ export default React.createClass({
     })
     let msgContent = this.props.error ? this.props.error.message : undefined
     if (this.props.created) {
+      // TODO maybe put up a toastr message and then reset the form to initial state or redirect to other page?
       msgContent = 'Saved successfully'
     }
 

@@ -24,6 +24,4 @@ import org.zanata.sync.controller.SyncWorkForm;
 
 public interface SyncWorkConfigBuilder {
     SyncWorkConfig buildObject(SyncWorkForm syncWorkForm);
-
-    SyncWorkForm buildForm(SyncWorkConfig syncWorkConfig);
 }

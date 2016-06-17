@@ -4,7 +4,7 @@ import NavBanner from './NavBanner'
 export default React.createClass({
   render() {
     return (
-      <div className="container-fluid">
+      <div className="container-fluid container-cards-pf">
         <div className="row">
           <div className="col-sm-6 col-md-8 col-sm-push-3 col-md-push-2">
             <NavBanner />

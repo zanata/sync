@@ -14,23 +14,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
+import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
+import org.zanata.sync.util.JSONObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 
 /**
  * This filter should only be accessed by Zanata after a successful OAuth authentication
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@WebFilter(filterName = "authorizationCodeFilter", urlPatterns = "/auth/*")
+@WebFilter(filterName = "authorizationCodeFilter", urlPatterns = "/*")
 public class AuthorizationCodeFilter implements Filter {
     private static final Logger log =
             LoggerFactory.getLogger(AuthorizationCodeFilter.class);
     @Inject
     private SecurityTokens securityTokens;
+
+    @Inject
+    private JSONObjectMapper objectMapper;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -48,6 +54,11 @@ public class AuthorizationCodeFilter implements Filter {
 
         try {
             String zanataUrl = request.getParameter("z");
+            String authCode = request.getParameter(OAuth.OAUTH_CODE);
+            if (Strings.isNullOrEmpty(zanataUrl) || Strings.isNullOrEmpty(authCode)) {
+                chain.doFilter(request, response);
+                return;
+            }
             OAuthAuthzResponse oAuthResponse = OAuthAuthzResponse
                     .oauthCodeAuthzResponse(httpServletRequest);
             String code = oAuthResponse.getCode();
@@ -57,12 +68,11 @@ public class AuthorizationCodeFilter implements Filter {
             log.debug("authorization code: {}", code);
             log.debug("access token: {}", securityTokens.getAccessToken());
             log.debug("refresh token: {}", securityTokens.getRefreshToken());
-            // TODO pahuang just redirect back to home page with user information (maybe we should forward to a page or get URL rewrite)
+            // TODO just hitting home page with ugly parameters. get URL rewrite and make the url look nicer
 //            String originalRequest = httpServletRequest.getParameter("origin");
 //            httpServletResponse.sendRedirect(originalRequest);
 
-            String accountAsJson = new ObjectMapper().writerFor(ZanataAccount.class)
-                    .writeValueAsString(securityTokens.getAccount());
+            String accountAsJson = objectMapper.toJSON(securityTokens.getAccount());
             request.setAttribute("user", accountAsJson);
             request.setAttribute("zanata", zanataUrl);
 //            request.setAttribute("accessToken", "{\"accessToken\": \"" + securityTokens.getAccessToken() +

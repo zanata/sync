@@ -10,7 +10,6 @@ export default React.createClass({
     const classNames = cx(
       'col-md-3',
       'control-label',
-      'bg-info',
       'text-capitalize'
     )
     return (

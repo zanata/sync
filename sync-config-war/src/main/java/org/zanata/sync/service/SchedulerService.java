@@ -47,4 +47,6 @@ public interface SchedulerService {
     SyncWorkConfig getWork(String id) throws WorkNotFoundException;
 
     WorkSummary getWorkSummary(String id) throws WorkNotFoundException;
+
+    List<WorkSummary> getWorkFor(String username);
 }

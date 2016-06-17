@@ -21,6 +21,8 @@
 package org.zanata.sync.util;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -40,20 +42,26 @@ public class JSONObjectMapper {
     @App
     private ObjectMapper objectMapper;
 
-    public <T> T fromJSON(String jsonString) {
+    public <T> T fromJSON(Class<? super T> type, String jsonString) {
         try {
-            return objectMapper.reader().readValue(jsonString);
-        }
-        catch (IOException e) {
+            return objectMapper.readerFor(type).readValue(jsonString);
+        } catch (IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public String toJSON(Object value) {
+    public <T> String toJSON(Class<T> type, T value) {
+        try {
+            return objectMapper.writerFor(type).writeValueAsString(value);
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public <T> String toJSON(Object value) {
         try {
             return objectMapper.writer().writeValueAsString(value);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw Throwables.propagate(e);
         }
     }

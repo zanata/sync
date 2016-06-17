@@ -41,6 +41,7 @@ public class SyncWorkForm implements Serializable {
     @Setter
     private CronType syncToRepoCron;
 
+    // TODO change this to srcRepoType instead
     @NotEmpty
     @Size(max = 255)
     @Setter

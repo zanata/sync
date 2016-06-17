@@ -1,0 +1,3 @@
+alias buildfrontend="echo ++ building frontend ++ && cd frontend && mvn install && cd -"
+
+alias buildwarnofrontend="echo ++ building war without frontend ++ && mvn clean -DexcludeFrontend package && cp sync-config-war/target/sync-config-war-1.0.0-SNAPSHOT.war /NotBackedUp/tools/jboss-eap/standalone/deployments/sync.war"

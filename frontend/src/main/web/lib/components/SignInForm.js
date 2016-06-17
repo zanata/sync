@@ -10,7 +10,6 @@ export default React.createClass(
       zanataUser: React.PropTypes.object,
       zanataServer: React.PropTypes.string,
       onSignIn: React.PropTypes.func.isRequired,
-      getZanataServerUrls: React.PropTypes.func.isRequired,
       zanataServerUrls: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
       zanataOAuthUrl: React.PropTypes.string
     },

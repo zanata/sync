@@ -4,18 +4,18 @@
 package org.zanata.sync.quartz;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.ListenerManager;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -24,8 +24,6 @@ import org.quartz.UnableToInterruptJobException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.zanata.sync.component.AppConfiguration;
-import org.zanata.sync.events.JobRunCompletedEvent;
-import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.PluginsService;
@@ -39,9 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 @Slf4j
 public class CronTrigger {
-    static final String SYNC_WORK_CONFIG_KEY = "value";
-    static final String JOB_TYPE_KEY = "jobType";
-    static final String REST_CLIENT_KEY = "restClient";
 
     private Scheduler scheduler;
 
@@ -55,14 +50,15 @@ public class CronTrigger {
     private JobConfigListener triggerListener;
 
     @Inject
-    private Client restClient;
+    private SyncJobListener syncJobListener;
 
     @PostConstruct
     public void start() throws SchedulerException {
         scheduler = StdSchedulerFactory.getDefaultScheduler();
-        if (scheduler.getListenerManager().getJobListeners().isEmpty()) {
-            scheduler.getListenerManager()
-                    .addTriggerListener(triggerListener);
+        ListenerManager listenerManager = scheduler.getListenerManager();
+        if (listenerManager.getJobListeners().isEmpty()) {
+            listenerManager.addJobListener(syncJobListener);
+            listenerManager.addTriggerListener(triggerListener);
         }
         scheduler.start();
     }
@@ -84,7 +80,8 @@ public class CronTrigger {
                 .withIdentity(key)
                 .withDescription(syncWorkConfig.toString());
 
-        if(shouldRunAsCronJob(cronExp, isEnabled)) {
+        // TODO pahuang revisit this (if cron expression is empty (manual job) or job is disabled, we store it durably. Maybe we only want this when job is enabled but manual?
+        if (!shouldRunAsCronJob(cronExp, isEnabled)) {
             builder.storeDurably();
         }
         return builder.build();
@@ -92,7 +89,7 @@ public class CronTrigger {
 
     private static boolean shouldRunAsCronJob(String cronExp,
             boolean isEnabled) {
-        return Strings.isNullOrEmpty(cronExp) || !isEnabled;
+        return !Strings.isNullOrEmpty(cronExp) && isEnabled;
     }
 
     private boolean isJobEnabled(SyncWorkConfig syncWorkConfig, JobType jobType) {
@@ -122,16 +119,16 @@ public class CronTrigger {
                 && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
             cronExp = syncWorkConfig.getSyncToZanataCron();
         } else {
-            throw new IllegalStateException("unknown job type:" + type);
+            // two jobs are all set to run mannually
+            cronExp = null;
         }
 
         JobDetail jobDetail =
             buildJobDetail(syncWorkConfig, jobKey, jobClass, cronExp,
                 isEnabled);
 
-        jobDetail.getJobDataMap().put(SYNC_WORK_CONFIG_KEY, syncWorkConfig);
-        jobDetail.getJobDataMap().put(JOB_TYPE_KEY, type);
-        jobDetail.getJobDataMap().put(REST_CLIENT_KEY, restClient);
+        SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromJobDetail(jobDetail);
+        syncJobDataMap.storeWorkConfig(syncWorkConfig).storeJobType(type);
 
         if (scheduler.getListenerManager().getJobListeners().isEmpty()) {
             scheduler.getListenerManager()
@@ -147,25 +144,20 @@ public class CronTrigger {
         }
     }
 
-    public JobStatus getTriggerStatus(Long id,
-        JobRunCompletedEvent event) throws SchedulerException {
-        JobKey key = event.getJobType().toJobKey(id);
-
-        if (scheduler.checkExists(key)) {
-            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(key);
-
+    public Optional<Trigger> getTriggerFor(Long workId, JobType jobType) {
+        JobKey jobKey = jobType.toJobKey(workId);
+        try {
+            List<? extends Trigger> triggers =
+                    scheduler.getTriggersOfJob(jobKey);
             if (!triggers.isEmpty()) {
-                Trigger trigger = triggers.get(0);
-                Date endTime = event.getCompletedTime();
-                Trigger.TriggerState state =
-                        scheduler.getTriggerState(trigger.getKey());
-
-                return new JobStatus(event.getJobStatusType(),
-                        trigger.getPreviousFireTime(), endTime,
-                        trigger.getNextFireTime());
+                return Optional.of(triggers.get(0));
             }
+            return Optional.empty();
+        } catch (SchedulerException e) {
+            log.error("error getting triggers for job: {}", jobKey);
+            return Optional.empty();
         }
-        return JobStatus.EMPTY;
+
     }
 
     public List<JobDetail> getJobs() throws SchedulerException {

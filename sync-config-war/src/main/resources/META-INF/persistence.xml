@@ -10,6 +10,7 @@
 
     <class>org.zanata.sync.model.SystemSettings</class>
     <class>org.zanata.sync.model.SyncWorkConfig</class>
+    <class>org.zanata.sync.model.JobStatus</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>

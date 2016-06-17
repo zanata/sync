@@ -22,14 +22,17 @@ package org.zanata.sync.dao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.zanata.sync.model.SyncWorkConfig;
 
 
@@ -82,5 +85,17 @@ public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
         return entityManager
                 .createQuery("from SyncWorkConfig order by createdDate",
                         SyncWorkConfig.class).getResultList();
+    }
+
+    @Override
+    public List<SyncWorkConfig> findByCriteria(
+            BiFunction<CriteriaBuilder, Root<SyncWorkConfig>, Predicate[]> criteriaBuilderToPredicates) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SyncWorkConfig> query = cb
+                .createQuery(SyncWorkConfig.class);
+        Root<SyncWorkConfig> root = query.from(SyncWorkConfig.class);
+        CriteriaQuery<SyncWorkConfig> where =
+                query.select(root).where(criteriaBuilderToPredicates.apply(cb, root));
+        return entityManager.createQuery(where).getResultList();
     }
 }

@@ -1,6 +1,7 @@
 package org.zanata.sync.service.impl;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,16 +10,17 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.quartz.UnableToInterruptJobException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.component.AppConfiguration;
 import org.zanata.sync.dao.JobStatusDAO;
 import org.zanata.sync.dao.Repository;
-import org.zanata.sync.dao.SyncWorkConfigDAO;
 import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.events.ResourceReadyEvent;
@@ -36,7 +38,6 @@ import org.zanata.sync.quartz.CronTrigger;
 import org.zanata.sync.quartz.RunningJobKey;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
-import org.zanata.sync.util.WorkUtil;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -103,6 +104,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     // TODO: fire websocket
+    // TODO this is not being used or displayed right now
     public void onJobProgressUpdate(@Observes JobProgressEvent event) {
         Logger jobTypeLog =
                 LoggerFactory.getLogger(event.getJobType().name());
@@ -126,7 +128,18 @@ public class SchedulerServiceImpl implements SchedulerService {
             log.debug("Job: " + event.getJobType() + "-" +
                             syncWorkConfig.getName() + " is completed.");
 
-            JobStatus jobStatus = getStatus(event);
+            Date completedTime = event.getCompletedTime();
+            Date startTime = event.getStartTime();
+            Optional<Trigger> trigger = cronTrigger
+                    .getTriggerFor(event.getId(), event.getJobType());
+            Date nextRunTime = null;
+            if (trigger.isPresent()) {
+                nextRunTime = trigger.get().getNextFireTime();
+            }
+            JobStatus jobStatus =
+                    new JobStatus(syncWorkConfig, event.getJobType(),
+                            event.getJobStatusType(), startTime, completedTime,
+                            nextRunTime);
             jobStatusRepository.saveJobStatus(syncWorkConfig,
                     event.getJobType(), jobStatus);
         }
@@ -140,7 +153,8 @@ public class SchedulerServiceImpl implements SchedulerService {
         if (syncWorkConfigOpt.isPresent()) {
             SyncWorkConfig syncWorkConfig = syncWorkConfigOpt.get();
 
-            JobStatusList statusList =
+            // TODO create a method to get lastest job status
+            List<JobStatus> statusList =
                     jobStatusRepository.getJobStatusList(syncWorkConfig, type);
 
             if (statusList != null && !statusList.isEmpty()) {
@@ -162,7 +176,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Override
     public List<WorkSummary> getAllWorkSummary() throws SchedulerException {
         List<WorkSummary> results = getAllWork().stream()
-            .map(config -> WorkUtil.toWorkSummary(config,
+            .map(config -> WorkSummary.toWorkSummary(config,
                 getLatestJobStatus(config.getId(), JobType.REPO_SYNC),
                 getLatestJobStatus(config.getId(), JobType.SERVER_SYNC)))
             .collect(Collectors.toList());
@@ -244,26 +258,29 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Override
     public WorkSummary getWorkSummary(String id) throws WorkNotFoundException {
         SyncWorkConfig syncWorkConfig = getWork(id);
-        return WorkUtil.toWorkSummary(syncWorkConfig,
+        return WorkSummary.toWorkSummary(syncWorkConfig,
                 getLatestJobStatus(syncWorkConfig.getId(), JobType.REPO_SYNC),
                 getLatestJobStatus(syncWorkConfig.getId(),
                         JobType.SERVER_SYNC));
+    }
+
+    @Override
+    public List<WorkSummary> getWorkFor(String username) {
+        List<SyncWorkConfig> syncWorkConfigs = syncWorkConfigRepository
+                .findByCriteria((cb, root) -> new Predicate[]{
+                        cb.equal(root.get("zanataUsername"), username) });
+        return syncWorkConfigs.stream()
+                .map(config -> WorkSummary.toWorkSummary(config,
+                        getLatestJobStatus(config.getId(), JobType.REPO_SYNC),
+                        getLatestJobStatus(config.getId(),
+                                JobType.SERVER_SYNC)))
+                .collect(Collectors.toList());
     }
 
     @WithRequestScope
     @Override
     public List<SyncWorkConfig> getAllWork() throws SchedulerException {
         return syncWorkConfigRepository.getAll();
-    }
-
-    private JobStatus getStatus(JobRunCompletedEvent event)
-        throws SchedulerException, JobNotFoundException {
-        Optional<SyncWorkConfig> workConfigOptional =
-                syncWorkConfigRepository.load(event.getId());
-        if (!workConfigOptional.isPresent()) {
-            throw new JobNotFoundException(event.getId().toString());
-        }
-        return cronTrigger.getTriggerStatus(event.getId(), event);
     }
 
     private JobSummary convertToJobSummary(JobDetail jobDetail) {
@@ -277,7 +294,7 @@ public class SchedulerServiceImpl implements SchedulerService {
             setJobProgress(status, syncWorkConfig.getId(), type);
 
             return new JobSummary(jobDetail.getKey().toString(),
-                    syncWorkConfig.getId().toString(), syncWorkConfig.getName(),
+                    syncWorkConfig.getId(), syncWorkConfig.getName(),
                     syncWorkConfig.getDescription(), type, status);
         }
         return new JobSummary();

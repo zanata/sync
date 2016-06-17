@@ -18,26 +18,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.servlet;
+package org.zanata.sync.api;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@WebServlet(name = "authorizationServlet", urlPatterns = {AuthorizationServlet.SERVLET_URL})
-public class AuthorizationServlet extends HttpServlet {
-    public static final String SERVLET_URL = "/auth/granted";
+@ApplicationScoped
+@ApplicationPath("/api")
+public class SyncApplication extends Application {
+    private static final Set<Class<?>> RESOURCE_CLASSES =
+            ImmutableSet.<Class<?>>builder()
+                    .add(WorkResource.class)
+                    .add(JobResource.class)
+                    .add(SecurityResource.class)
+                    .add()
+                    .build();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        req.getRequestDispatcher("/index.jsp").forward(req, resp);
+    public Set<Class<?>> getClasses() {
+        return RESOURCE_CLASSES;
     }
 }

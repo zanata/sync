@@ -1,14 +1,13 @@
 package org.zanata.sync.dao;
 
-import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.model.JobStatus;
@@ -20,13 +19,15 @@ import org.zanata.sync.model.SyncWorkConfig;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
+@Stateless
 public class JobStatusDAO {
     private static final Logger log =
             LoggerFactory.getLogger(JobStatusDAO.class);
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
-    public JobStatusList getJobStatusList(SyncWorkConfig config, JobType type) {
+    public List<JobStatus> getJobStatusList(SyncWorkConfig config, JobType type) {
         /*DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
 
         Result<Record> statusRecords = dslContext.select()
@@ -46,7 +47,11 @@ public class JobStatusDAO {
                                 .getValue(JOB_STATUS_TABLE.NEXTSTARTTIME))))
                 .collect(Collectors.toList());
         return new JobStatusList(jobStatusList);*/
-        return new JobStatusList();
+        return entityManager.createQuery("from JobStatus status where status.workConfig = :workConfig and status.jobType = :jobType order by endTime desc", JobStatus.class)
+                .setParameter("workConfig", config)
+                .setParameter("jobType", type)
+//                .setMaxResults(1)
+                .getResultList();
     }
 
     private static Date toDate(Timestamp timestamp) {
@@ -56,22 +61,9 @@ public class JobStatusDAO {
         return new Date(timestamp.getTime());
     }
 
-    @Transactional
+    @TransactionAttribute
     public void saveJobStatus(SyncWorkConfig config, JobType type, JobStatus jobStatus) {
-        /*DSLContext dslContext = DSL.using(connection, SQLDialect.H2);
-
-
-        dslContext.insertInto(JOB_STATUS_TABLE, JOB_STATUS_TABLE.WORKID,
-                JOB_STATUS_TABLE.JOBTYPE, JOB_STATUS_TABLE.JOBSTATUSTYPE,
-                JOB_STATUS_TABLE.STARTTIME, JOB_STATUS_TABLE.ENDTIME,
-                JOB_STATUS_TABLE.NEXTSTARTTIME)
-                .values(config.getId(), type.name(), jobStatus.getStatus(),
-                        // TODO pahuang lastStartTime can be null
-                        toTimestamp(jobStatus.getLastStartTime()),
-                        toTimestamp(jobStatus.getLastEndTime()),
-                        toTimestamp(jobStatus.getNextStartTime()))
-                .execute();*/
-
+        entityManager.persist(jobStatus);
         log.info("JobStatus saved." + config.getName() + ":" + type);
     }
 

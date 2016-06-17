@@ -1,8 +1,7 @@
 import React from 'react'
-import Configs from '../constants/Configs'
 import { connect } from 'react-redux'
 import SignInForm from '../components/SignInForm'
-import { selectZanataServer, getZanataServerUrls } from '../actions'
+import { selectZanataServer } from '../actions'
 
 const mapStateToProps = (state) => {
   return {
@@ -17,10 +16,6 @@ const mapDispatchToProps = (dispatch) => {
   return {
     onSignIn: (zanataUrl) => {
       dispatch(selectZanataServer(zanataUrl))
-    },
-
-    getZanataServerUrls: () => {
-      dispatch(getZanataServerUrls())
     }
   }
 }

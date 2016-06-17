@@ -21,29 +21,53 @@ function commonHeaders(req, res) {
   res.header('Content-Type', 'application/json')
 }
 
-app.get('/api/oauth', function(req, res) {
-  commonHeaders(req, res)
-  res.send(JSON.stringify([
-    'http://localhost:8080/zanata',
-    'http://localhost:8180/zanata',
-    'https://translate.zanata.org'
-  ]))
-  /*res.sendFile(path.join(__dirname, 'public', 'index.html'))*/
-})
-
 app.get('/api/oauth/url', function (req, res) {
   commonHeaders(req, res)
   var zanataUrl = req.query.z
   res.send(JSON.stringify({
     error: false,
-    data: zanataUrl + '/authorize/?redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsync%2Fauth%2F&client_id=zanata_sync'
+    data: zanataUrl + '/authorize/?redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fsync%2Fauth%2F&client_id=zanata_sync'
   }))
+})
+
+app.get('/api/work/by/:username', function (req, res) {
+  commonHeaders(req, res)
+  var username = req.params.username
+  var result = [
+    {
+      "id": 1,
+      "name": "test work",
+      "description": "soemthing",
+      "syncToRepoJob": {
+        "jobKey": "1.REPO_SYNC",
+        "workId": 1,
+        "name": "test work",
+        "description": "soemthing",
+        "type": "REPO_SYNC",
+        "lastJobStatus": {
+          "status": "NONE"
+        }
+      },
+      "syncToTransServerJob": {
+        "jobKey": "1.SERVER_SYNC",
+        "workId": 1,
+        "name": "test work",
+        "description": "soemthing",
+        "type": "SERVER_SYNC",
+        "lastJobStatus": {
+          "status": "NONE"
+        }
+      }
+    }
+  ]
+  res.send(JSON.stringify(result))
 })
 
 app.options('*', function (req, res) {
   accessControlHeaders(res)
   res.send()
 })
+
 
 function renderPage(appHtml) {
   return `

@@ -18,14 +18,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.job;
+package org.zanata.sync.jobs;
 
 import java.util.Map;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import com.google.common.collect.Maps;
@@ -50,6 +52,8 @@ import com.google.common.collect.Maps;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class JobExecutor {
+    private static final Logger log =
+            LoggerFactory.getLogger(JobExecutor.class);
     private static final String JOB_SERVER_URL = System.getProperty("job.server", "http://localhost:8080/jobs");
     private Client client;
 
@@ -57,13 +61,13 @@ public class JobExecutor {
         this.client = client;
     }
 
-    public void executeJob(String id, SyncWorkConfig workConfig, JobType jobType) {
+    public void executeJob(Long id, SyncWorkConfig workConfig, JobType jobType) {
         Map<String ,String> jobDetail = Maps.newHashMap();
         Map<String, String> srcRepoPluginConfig =
                 workConfig.getSrcRepoPluginConfig();
         jobDetail.put("srcRepoUrl", srcRepoPluginConfig.get("url"));
         jobDetail.put("srcRepoUsername", srcRepoPluginConfig.get("username"));
-        jobDetail.put("srcRepoSecret", srcRepoPluginConfig.get("apiKey"));
+        jobDetail.put("srcRepoSecret", srcRepoPluginConfig.get("secret"));
         jobDetail.put("srcRepoBranch", srcRepoPluginConfig.get("branch"));
         jobDetail.put("syncToZanataOption", workConfig.getSyncToZanataOption().name());
         jobDetail.put("srcRepoType", workConfig.getSrcRepoPluginName());
@@ -71,22 +75,30 @@ public class JobExecutor {
         Map<String, String> transServerConfig =
                 workConfig.getTransServerPluginConfig();
         jobDetail.put("zanataUsername", transServerConfig.get("username"));
-        jobDetail.put("zanataSecret", transServerConfig.get("apiKey"));
+        jobDetail.put("zanataSecret", transServerConfig.get("secret"));
+        log.debug("about to execute job remotely with: {}", jobDetail);
+        Response response;
         switch (jobType) {
             case SERVER_SYNC:
-                client.target(JOB_SERVER_URL)
-                        .path("api").path("job").path("2repo").path("start").path(id)
+                response = client.target(JOB_SERVER_URL)
+                        .path("api").path("job").path("2repo").path("start").path(id.toString())
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
                 break;
             case REPO_SYNC:
-                client.target(JOB_SERVER_URL)
-                        .path("api").path("job").path("2zanata").path("start").path(id)
+                response = client.target(JOB_SERVER_URL)
+                        .path("api").path("job").path("2zanata").path("start").path(id.toString())
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
                 break;
+            default:
+                throw new IllegalStateException("impossible. Unknown job type:" + jobType);
+        }
+        log.info("remote job executed result: {}", response.getStatusInfo());
+        if (!response.getStatusInfo().equals(Response.Status.OK)) {
+            throw new RuntimeException(response.getEntity().toString());
         }
     }
 }

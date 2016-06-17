@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     syncToServerEnabled     BOOLEAN      NOT NULL,
     syncToZanataCron        VARCHAR(255),
     syncToZanataOption      VARCHAR(255),
+    zanataUsername          VARCHAR(255) NOT NULL,
     transServerConfigJson   CLOB,
     srcRepoPluginConfigJson CLOB
 );
@@ -18,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Job_Status_table (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     workId        BIGINT      NOT NULL,
     jobType       VARCHAR(20) NOT NULL,
-    jobStatusType VARCHAR(20) NOT NULL,
+    status        VARCHAR(20) NOT NULL,
     startTime     TIMESTAMP,
     endTime       TIMESTAMP,
     nextStartTime TIMESTAMP,

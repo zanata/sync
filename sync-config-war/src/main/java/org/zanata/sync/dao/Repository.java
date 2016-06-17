@@ -22,6 +22,10 @@ package org.zanata.sync.dao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 public interface Repository<T, K> {
 
@@ -34,4 +38,6 @@ public interface Repository<T, K> {
     List<T> getHistory(K id);
 
     List<T> getAll();
+
+    List<T> findByCriteria(BiFunction<CriteriaBuilder, Root<T>, Predicate[]> criteriaBuilderToPredicates);
 }

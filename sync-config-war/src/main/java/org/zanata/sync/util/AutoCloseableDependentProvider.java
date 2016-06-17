@@ -18,30 +18,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.api;
+package org.zanata.sync.util;
 
-import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import java.lang.annotation.Annotation;
 
-import com.google.common.collect.ImmutableSet;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.api.provider.DependentProvider;
 
 /**
+ * A wrapper around dependent provider so that it can be auto closed in try with
+ * resource.
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
-@ApplicationPath("/api")
-public class WorkApplication extends Application {
-    private static final Set<Class<?>> RESOURCE_CLASSES =
-            ImmutableSet.<Class<?>>builder()
-                    .add(WorkResource.class)
-                    .add(SecurityResource.class)
-                    .add()
-                    .build();
+public class AutoCloseableDependentProvider<T>
+        implements AutoCloseable {
+    private final DependentProvider<T> provider;
+
+    private AutoCloseableDependentProvider(DependentProvider<T> provider) {
+        this.provider = provider;
+    }
+
+    public static <T> AutoCloseableDependentProvider<T> forBean(Class<T> beanClass,
+            Annotation... qualifiers) {
+        return new AutoCloseableDependentProvider<T>(
+                BeanProvider.getDependent(beanClass, qualifiers));
+    }
+
+    public T getBean() {
+        return provider.get();
+    }
 
     @Override
-    public Set<Class<?>> getClasses() {
-        return RESOURCE_CLASSES;
+    public void close() throws Exception {
+        provider.destroy();
     }
 }

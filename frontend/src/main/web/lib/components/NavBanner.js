@@ -10,7 +10,7 @@ export default React.createClass(
             <ul className="nav navbar-nav navbar-primary">
               <NavLink to="/" onlyActiveOnIndex={true}>Home</NavLink>
               <NavLink to="/work/new">Create new work</NavLink>
-              <NavLink to="/works">View your works</NavLink>
+              <NavLink to="/work/mine">View your works</NavLink>
             </ul>
           </div>
         </nav>

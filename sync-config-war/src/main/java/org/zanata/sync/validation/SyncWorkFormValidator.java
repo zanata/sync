@@ -65,6 +65,7 @@ public class SyncWorkFormValidator {
         return errors;
     }
 
+    // TODO pahuang this is not doing anything since we pass in 'git' not the class name
     private Map<String, String> validateRepoFields(
             Map<String, String> config, String executorClass) {
         RepoExecutor executor = pluginsService.getNewSourceRepoPlugin(
