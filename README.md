@@ -1,6 +1,6 @@
 TODO:
 
-- SyncJobListener is not invoked
+- unit test json marshalling SyncWorkConfig and see why it won't produce all fields
 - remove jsf backed beans (controller)
 - use mysql baseline.sql and create index
 - maybe consider use container provided jaxrs?

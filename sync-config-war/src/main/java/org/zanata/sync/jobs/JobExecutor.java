@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 
 /**
@@ -98,7 +99,10 @@ public class JobExecutor {
         }
         log.info("remote job executed result: {}", response.getStatusInfo());
         if (!response.getStatusInfo().equals(Response.Status.OK)) {
-            throw new RuntimeException(response.getEntity().toString());
+            Object entity = response.getEntity();
+            String message = entity != null ? entity.toString()
+                    : "remote job returned status:" + response.getStatusInfo();
+            throw new RuntimeException(message);
         }
     }
 }

@@ -26,6 +26,8 @@ import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
@@ -38,6 +40,8 @@ import org.zanata.sync.model.SyncWorkConfig;
 // Although it's dependent scope but it's used by an application scoped bean so there should only be one instance
 @Dependent
 public class SyncJobListener implements JobListener {
+    private static final Logger log =
+            LoggerFactory.getLogger(SyncJobListener.class);
     @Override
     public String getName() {
         return "Sync Job Listener";
@@ -54,6 +58,7 @@ public class SyncJobListener implements JobListener {
     @Override
     public void jobWasExecuted(JobExecutionContext context,
             JobExecutionException jobException) {
+        log.debug("job fired with trigger: {}", context.getTrigger());
         JobRunCompletedEvent event;
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
         SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
