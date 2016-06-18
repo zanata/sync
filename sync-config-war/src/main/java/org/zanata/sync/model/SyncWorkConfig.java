@@ -1,5 +1,6 @@
 package org.zanata.sync.model;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
 import org.zanata.sync.util.JSONObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,7 +66,9 @@ public class SyncWorkConfig extends PersistModel {
     @Transient
     private Map<String, String> transServerPluginConfig;
 
+    @JsonIgnore
     private String srcRepoPluginConfigJson;
+    @JsonIgnore
     private String transServerConfigJson;
 
     private String srcRepoPluginName;
@@ -81,9 +86,12 @@ public class SyncWorkConfig extends PersistModel {
     private Date createdDate;
 
     @OneToMany(mappedBy = "workConfig")
-    private List<JobStatus> jobStatusHistory;
+    @JsonIgnore
+    // ignore from marshalling
+    private List<JobStatus> jobStatusHistory = Collections.emptyList();
 
 
+    // TODO may not need the id parameter
     public SyncWorkConfig(Long id, String name, String description,
             String syncToZanataCron, String syncToRepoCron,
             SyncOption syncToZanataOption,
@@ -120,6 +128,12 @@ public class SyncWorkConfig extends PersistModel {
             transServerPluginConfig = fromJson(transServerConfigJson);
         }
         return transServerPluginConfig;
+    }
+
+    @PostLoad
+    protected void postLoad() {
+        getSrcRepoPluginConfig();
+        getTransServerPluginConfig();
     }
 
     private static <T> T fromJson(String jsonString) {

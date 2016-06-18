@@ -50,7 +50,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.ALWAYS)
 @Entity
 @Table(name = "Job_Status_table")
 @Access(AccessType.FIELD)

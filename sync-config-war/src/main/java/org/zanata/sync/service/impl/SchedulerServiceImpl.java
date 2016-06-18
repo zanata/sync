@@ -140,6 +140,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                     new JobStatus(syncWorkConfig, event.getJobType(),
                             event.getJobStatusType(), startTime, completedTime,
                             nextRunTime);
+            log.info("for work id: {} saved job status: {}", syncWorkConfig.getId(), jobStatus);
             jobStatusRepository.saveJobStatus(syncWorkConfig,
                     event.getJobType(), jobStatus);
         }

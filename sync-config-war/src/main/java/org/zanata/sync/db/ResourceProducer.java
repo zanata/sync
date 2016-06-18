@@ -100,7 +100,6 @@ public class ResourceProducer {
     
     @Produces
     protected Client getRestClient() {
-        return ResteasyClientBuilder.newBuilder()
-                .register(ResteasyJackson2Provider.class).build();
+        return ResteasyClientBuilder.newBuilder().build();
     }
 }

@@ -56,10 +56,8 @@ public class CronTrigger {
     public void start() throws SchedulerException {
         scheduler = StdSchedulerFactory.getDefaultScheduler();
         ListenerManager listenerManager = scheduler.getListenerManager();
-        if (listenerManager.getJobListeners().isEmpty()) {
-            listenerManager.addJobListener(syncJobListener);
-            listenerManager.addTriggerListener(triggerListener);
-        }
+        listenerManager.addJobListener(syncJobListener);
+        listenerManager.addTriggerListener(triggerListener);
         scheduler.start();
     }
 

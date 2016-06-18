@@ -38,21 +38,17 @@ import com.google.common.base.Throwables;
  */
 @Dependent
 public class JSONObjectMapper {
+
+    private final ObjectMapper objectMapper;
+
     @Inject
-    @App
-    private ObjectMapper objectMapper;
+    public JSONObjectMapper(@App ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public <T> T fromJSON(Class<? super T> type, String jsonString) {
         try {
             return objectMapper.readerFor(type).readValue(jsonString);
-        } catch (IOException e) {
-            throw Throwables.propagate(e);
-        }
-    }
-
-    public <T> String toJSON(Class<T> type, T value) {
-        try {
-            return objectMapper.writerFor(type).writeValueAsString(value);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

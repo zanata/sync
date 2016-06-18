@@ -58,7 +58,7 @@ public class SyncJobListener implements JobListener {
     @Override
     public void jobWasExecuted(JobExecutionContext context,
             JobExecutionException jobException) {
-        log.debug("job fired with trigger: {}", context.getTrigger());
+        log.info("job fired with trigger: {}", context.getTrigger());
         JobRunCompletedEvent event;
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
         SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
