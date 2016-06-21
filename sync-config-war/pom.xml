@@ -295,8 +295,6 @@
       <version>1.0.3</version>
     </dependency>
 
-<!-- TODO pahuang zanata plugin. revisit this -->
-
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
