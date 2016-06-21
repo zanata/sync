@@ -25,7 +25,7 @@ import org.zanata.sync.dto.Payload;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
-import org.zanata.sync.model.WorkSummary;
+import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;

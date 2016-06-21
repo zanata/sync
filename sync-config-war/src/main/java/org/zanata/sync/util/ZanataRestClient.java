@@ -47,18 +47,16 @@ public class ZanataRestClient {
     private static final Logger log =
             LoggerFactory.getLogger(ZanataRestClient.class);
     @Inject
-    private SecurityTokens securityTokens;
-    @Inject
     private Client client;
 
-    public ZanataAccount getAuthorizedAccount() {
+    public ZanataAccount getAuthorizedAccount(String zanataUrl,
+            String accessToken) {
         Map<String, Object> accessTokenMap = Maps.newHashMap();
-        accessTokenMap.put(OAuth.OAUTH_ACCESS_TOKEN, securityTokens.getAccessToken());
+        accessTokenMap.put(OAuth.OAUTH_ACCESS_TOKEN, accessToken);
 
         // we don't use dto from zanata api because
         // it's using an incompatible version of jackson annotation
-        return client.target(
-                securityTokens.getZanataServerUrl() + "/rest/user/myaccount")
+        return client.target(zanataUrl + "/rest/user/myaccount")
                 .request(MediaType.APPLICATION_JSON_TYPE)
 //                    .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
                 .header(OAuth.HeaderType.AUTHORIZATION,

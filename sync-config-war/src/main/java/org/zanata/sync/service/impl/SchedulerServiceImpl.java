@@ -24,13 +24,12 @@ import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.events.ResourceReadyEvent;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
-import org.zanata.sync.interceptor.WithRequestScope;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
-import org.zanata.sync.model.JobSummary;
+import org.zanata.sync.dto.JobSummary;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
-import org.zanata.sync.model.WorkSummary;
+import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.quartz.CronTrigger;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
@@ -63,7 +62,6 @@ public class SchedulerServiceImpl implements SchedulerService {
     private Cache<JobKey, String> runningJobs =
             CacheBuilder.newBuilder().build();
 
-    @WithRequestScope
     public void onStartUp(@Observes ResourceReadyEvent resourceReadyEvent) {
         log.info("=====================================================");
         log.info("=====================================================");
@@ -117,7 +115,6 @@ public class SchedulerServiceImpl implements SchedulerService {
         }
     }
 
-    @WithRequestScope
     public void onJobCompleted(@Observes JobRunCompletedEvent event)
             throws JobNotFoundException, SchedulerException {
         runningJobs.invalidate(event.getJobType().toJobKey(event.getId()));

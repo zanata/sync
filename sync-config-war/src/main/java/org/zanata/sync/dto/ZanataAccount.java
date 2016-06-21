@@ -20,7 +20,6 @@
  */
 package org.zanata.sync.dto;
 
-import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -31,7 +30,7 @@ import com.google.common.base.MoreObjects;
  * @author Patrick Huang
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@JsonIgnoreProperties({"passwordHash", "tribes"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZanataAccount {
     private String username;
     private String apiKey;
@@ -40,60 +39,28 @@ public class ZanataAccount {
     private String name;
     private boolean enabled;
 
-    private static <T> T getNullableValue(Map<String, Object> map, String key) {
-        Object value = map.get(key);
-        if (value != null) {
-            return (T) value;
-        }
-        return null;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getApiKey() {
         return apiKey;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
     public Set<String> getRoles() {
         return roles;
-    }
-
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override

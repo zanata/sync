@@ -7,10 +7,10 @@ import org.quartz.UnableToInterruptJobException;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
-import org.zanata.sync.model.JobSummary;
+import org.zanata.sync.dto.JobSummary;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
-import org.zanata.sync.model.WorkSummary;
+import org.zanata.sync.dto.WorkSummary;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>

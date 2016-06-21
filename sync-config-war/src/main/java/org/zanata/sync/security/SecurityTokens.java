@@ -1,9 +1,28 @@
+/*
+ * Copyright 2016, Red Hat, Inc. and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.zanata.sync.security;
 
 import java.io.Serializable;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
@@ -29,27 +48,22 @@ public class SecurityTokens implements Serializable {
     @Inject
     private ZanataRestClient zanataRestClient;
 
-    private String accessToken;
-    private String refreshToken;
-    private String zanataServerUrl;
-    private String zanataUsername;
-    private String zanataApiKey;
     private ZanataAccount account;
 
     boolean hasAccess() {
-        return refreshToken != null;
+        return account != null;
     }
 
-    public OAuthToken requestOAuthTokens(String authorizationCode)
+    public void requestOAuthTokens(String zanataUrl, String authorizationCode)
             throws OAuthProblemException {
-        if (zanataServerUrl == null) {
+        if (zanataUrl == null) {
             throw new IllegalStateException("You are not authorized to one Zanata server");
         }
         OAuthClient oAuthClient = null;
         try {
             // TODO pahuang we only need to get access token and refresh token once (then we should persist the refresh token)
             OAuthClientRequest request = OAuthClientRequest
-                    .tokenLocation(zanataServerUrl + "/rest/oauth/token")
+                    .tokenLocation(zanataUrl + "/rest/oauth/token")
                     .setGrantType(GrantType.AUTHORIZATION_CODE)
                     .setClientId("zanata_sync")
                     .setClientSecret("we_do_not_have_a_secret")
@@ -64,21 +78,22 @@ public class SecurityTokens implements Serializable {
                     oAuthClient.accessToken(request, "POST", StatusCodeAwareOAuthJSONAccessTokenResponse.class);
 
             OAuthToken oAuthToken = accessTokenResponse.getOAuthToken();
-            accessToken = oAuthToken.getAccessToken();
-            refreshToken = oAuthToken.getRefreshToken();
+            String accessToken = oAuthToken.getAccessToken();
+            String refreshToken = oAuthToken.getRefreshToken();
+
+            log.debug("authorization code: {}", authorizationCode);
+            log.debug("access token: {}", accessToken);
+            log.debug("refresh token: {}", refreshToken);
 
             // this should change once we have Zanata all converted to use OAuth
-            account = zanataRestClient.getAuthorizedAccount();
+            account = zanataRestClient.getAuthorizedAccount(zanataUrl,
+                    accessToken);
             log.debug("========= my account: {}", account);
             // for the time being, we only allow Zanata admin to create jobs
             if (!account.getRoles().contains("admin")) {
                 throw OAuthProblemException.error("Only Zanata admin can create sync job");
             }
 
-            zanataUsername = account.getUsername();
-            zanataApiKey = account.getApiKey();
-
-            return oAuthToken;
         } catch (OAuthSystemException e) {
             throw Throwables.propagate(e);
         } finally {
@@ -86,30 +101,6 @@ public class SecurityTokens implements Serializable {
                 oAuthClient.shutdown();
             }
         }
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public String getZanataServerUrl() {
-        return zanataServerUrl;
-    }
-
-    public void setZanataServerUrl(String zanataServerUrl) {
-        this.zanataServerUrl = zanataServerUrl;
-    }
-
-    public String getZanataUsername() {
-        return zanataUsername;
-    }
-
-    public String getZanataApiKey() {
-        return zanataApiKey;
     }
 
     public ZanataAccount getAccount() {

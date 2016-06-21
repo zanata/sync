@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 
 /**
@@ -52,13 +51,13 @@ import com.google.common.collect.Maps;
  * </pre>
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-public class JobExecutor {
+public class RemoteJobExecutor {
     private static final Logger log =
-            LoggerFactory.getLogger(JobExecutor.class);
+            LoggerFactory.getLogger(RemoteJobExecutor.class);
     private static final String JOB_SERVER_URL = System.getProperty("job.server", "http://localhost:8080/jobs");
     private Client client;
 
-    public JobExecutor(Client client) {
+    public RemoteJobExecutor(Client client) {
         this.client = client;
     }
 

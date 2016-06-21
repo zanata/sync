@@ -63,11 +63,7 @@ public class AuthorizationCodeFilter implements Filter {
                     .oauthCodeAuthzResponse(httpServletRequest);
             String code = oAuthResponse.getCode();
             // TODO refactor this and make the method accept zanataUrl and make it request scope
-            securityTokens.setZanataServerUrl(zanataUrl);
-            securityTokens.requestOAuthTokens(code);
-            log.debug("authorization code: {}", code);
-            log.debug("access token: {}", securityTokens.getAccessToken());
-            log.debug("refresh token: {}", securityTokens.getRefreshToken());
+            securityTokens.requestOAuthTokens(zanataUrl, code);
             // TODO just hitting home page with ugly parameters. get URL rewrite and make the url look nicer
 //            String originalRequest = httpServletRequest.getParameter("origin");
 //            httpServletResponse.sendRedirect(originalRequest);

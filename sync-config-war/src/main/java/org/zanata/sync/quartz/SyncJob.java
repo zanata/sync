@@ -26,7 +26,7 @@ import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.UnableToInterruptJobException;
-import org.zanata.sync.jobs.JobExecutor;
+import org.zanata.sync.jobs.RemoteJobExecutor;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
@@ -51,7 +51,7 @@ public class SyncJob implements InterruptableJob {
             JobType jobType = syncJobDataMap.getJobType();
 
             Client client = provider.getBean();
-            new JobExecutor(client)
+            new RemoteJobExecutor(client)
                     .executeJob(syncWorkConfig.getId(), syncWorkConfig,
                             jobType);
 

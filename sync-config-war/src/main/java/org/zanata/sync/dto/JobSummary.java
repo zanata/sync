@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors
+ * Copyright 2016, Red Hat, Inc. and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -18,25 +18,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.interceptor;
+package org.zanata.sync.dto;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import javax.interceptor.InterceptorBinding;
+import java.io.Serializable;
 
-@InterceptorBinding
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Documented
+import org.zanata.sync.model.JobType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 /**
- * TODO may not need this anymore
- * Any method requires a request scope should be annotated by this.
- *
- * @author Patrick Huang
- *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public @interface WithRequestScope {
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class JobSummary implements Serializable {
+    private String jobKey;
+    private Long workId;
+    private String name;
+    private String description;
+    private JobType type;
+    private JobRunStatus lastJobStatus;
 }

@@ -20,11 +20,9 @@
  */
 package org.zanata.sync.api;
 
-import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -33,14 +31,12 @@ import javax.ws.rs.core.Response;
 
 import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.security.SecurityTokens;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -85,33 +81,6 @@ public class SecurityResource {
             return Response.serverError().entity(Payload.error(e.getMessage())).build();
         }
 
-    }
-
-    // TODO may not need this method
-    @POST
-    public Response getOAuthTokens(@QueryParam("z") String zanataUrl, @QueryParam("code") String authorizationCode) {
-        if (Strings.isNullOrEmpty(zanataUrl)) {
-            String errorMessage =
-                    "You must select one production server";
-
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Payload.error(errorMessage)).build();
-        }
-        securityTokens.setZanataServerUrl(zanataUrl);
-
-        try {
-            securityTokens.requestOAuthTokens(authorizationCode);
-            log.debug("authorization code: {}", authorizationCode);
-            log.debug("access token: {}", securityTokens.getAccessToken());
-            log.debug("refresh token: {}", securityTokens.getRefreshToken());
-            // cheap DTO
-            Map<String, String> data = Maps.newHashMap();
-            data.put("accessToken", securityTokens.getAccessToken());
-            data.put("refreshToken", securityTokens.getRefreshToken());
-            return Response.ok(data).build();
-        } catch (OAuthProblemException e) {
-            return Response.serverError().entity(Payload.error(e.getMessage())).build();
-        }
     }
 
     private String generateOAuthURL(String zanataUrl) {

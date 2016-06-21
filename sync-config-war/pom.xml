@@ -95,17 +95,6 @@
       <version>${deltaspike.version}</version>
       <!--<scope>runtime</scope>-->
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>org.apache.deltaspike.modules</groupId>-->
-      <!--<artifactId>deltaspike-jpa-module-api</artifactId>-->
-      <!--<version>${deltaspike.version}</version>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-      <!--<groupId>org.apache.deltaspike.modules</groupId>-->
-      <!--<artifactId>deltaspike-jpa-module-impl</artifactId>-->
-      <!--<version>${deltaspike.version}</version>-->
-      <!--<scope>runtime</scope>-->
-    <!--</dependency>-->
 
     <!-- JAXRS -->
     <dependency>
@@ -176,11 +165,6 @@
       <artifactId>resteasy-client</artifactId>
       <version>${resteasy.version}</version>
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>org.jboss.resteasy</groupId>-->
-      <!--<artifactId>resteasy-multipart-provider</artifactId>-->
-      <!--<version>${resteasy.version}</version>-->
-    <!--</dependency>-->
 
     <dependency>
       <groupId>org.apache.oltu.oauth2</groupId>
@@ -312,25 +296,6 @@
     </dependency>
 
 <!-- TODO pahuang zanata plugin. revisit this -->
-    <!--<dependency>-->
-      <!--<groupId>org.zanata</groupId>-->
-      <!--<artifactId>zanata-client-commands</artifactId>-->
-      <!--<version>3.8.1</version>-->
-      <!--<exclusions>-->
-        <!--<exclusion>-->
-          <!--<groupId>org.slf4j</groupId>-->
-          <!--<artifactId>slf4j-log4j12</artifactId>-->
-        <!--</exclusion>-->
-        <!--<exclusion>-->
-          <!--<groupId>javassist</groupId>-->
-          <!--<artifactId>javassist</artifactId>-->
-        <!--</exclusion>-->
-        <!--<exclusion>-->
-          <!--<groupId>org.jboss</groupId>-->
-          <!--<artifactId>*</artifactId>-->
-        <!--</exclusion>-->
-      <!--</exclusions>-->
-    <!--</dependency>-->
 
     <dependency>
       <groupId>com.google.guava</groupId>

@@ -40,7 +40,7 @@ import org.zanata.sync.dto.Payload;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
-import org.zanata.sync.model.JobSummary;
+import org.zanata.sync.dto.JobSummary;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.dto.RunningJobKey;
 import org.zanata.sync.service.SchedulerService;
@@ -158,7 +158,7 @@ public class JobResource {
      * @param type - required if id is present. {@link JobType}
      * @param status - {@link JobStatusType},  empty for all status
      *
-     * @return - List of {@link org.zanata.sync.model.JobSummary}
+     * @return - List of {@link JobSummary}
      *  or List of 1 if id and type is present.
      *
      */
