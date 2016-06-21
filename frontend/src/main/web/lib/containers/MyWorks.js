@@ -1,13 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import WorkList from '../components/WorkList'
-import { loadWorkSummaries, runJob } from '../actions'
+import { loadWorkSummaries, runJob, getLatestJobStatus } from '../actions'
 
 const mapStateToProps = (state) => {
   const username = state.zanata.user ? state.zanata.user.username : undefined
+  const {workSummaries, error, loading, runningJobs} = state.myWorks
   return {
     zanataUsername: username,
-    workSummaries: state.myWorks.workSummaries
+    workSummaries,
+    error,
+    loading,
+    runningJobs
   }
 }
 
@@ -18,7 +22,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     runJob: (workId, jobType) => {
       dispatch(runJob(workId, jobType))
+    },
+    pollJobStatus: (workId, jobType) => {
+      dispatch(getLatestJobStatus(workId, jobType))
     }
+
+    // TODO add a prop to reload work summary?
   }
 }
 

@@ -12,14 +12,17 @@ import lombok.Getter;
  */
 @Getter
 public class JobRunCompletedEvent {
+    private String jobFireId;
     private Long id;
     private Date startTime;
     private JobType jobType;
     private long runDuration;
     private JobStatusType jobStatusType;
 
-    public JobRunCompletedEvent(Long id,
-            long runDuration, Date startTime, JobType jobType, JobStatusType jobStatusType) {
+    public JobRunCompletedEvent(String jobFireId, Long id,
+            long runDuration, Date startTime, JobType jobType,
+            JobStatusType jobStatusType) {
+        this.jobFireId = jobFireId;
         this.id = id;
         this.runDuration = runDuration;
         this.startTime = startTime;

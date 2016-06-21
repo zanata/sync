@@ -1,6 +1,7 @@
 import React from 'react'
-import {PropTypes} from 'react'
 import JobSummary from './JobSummary'
+
+const {PropTypes} = React
 
 const jobSummaryShape = {
   jobKey: PropTypes.string.isRequired,
@@ -15,10 +16,12 @@ export default React.createClass({
     description: PropTypes.string,
     syncToRepoJob: PropTypes.shape(jobSummaryShape).isRequired,
     syncToTransServerJob: PropTypes.shape(jobSummaryShape).isRequired,
-    runJob: PropTypes.func.isRequired
+    runJob: PropTypes.func.isRequired,
+    runningJobs: PropTypes.object.isRequired
   },
 
   render() {
+    // TODO remove this. this is for reference only
     const progress = (
       <div className="progress-container progress-description-left progress-label-right">
         <div className="progress-description">
@@ -34,23 +37,31 @@ export default React.createClass({
         </div>
       </div>
     )
-    const {id, name, description, runJob, syncToRepoJob, syncToTransServerJob} = this.props
+    const {id, name, description, runJob, syncToRepoJob, syncToTransServerJob,
+      runningJobs} = this.props
 
+    // TODO make this an enum
+    const syncToRepoRunning = runningJobs[id + 'REPO_SYNC'] || false
     const syncToRepoSummary = (
       <JobSummary workId={id} jobKey={syncToRepoJob.jobKey}
         jobType={syncToRepoJob.type} runJob={runJob}
         lastJobStatus={syncToRepoJob.lastJobStatus}
+        running={syncToRepoRunning}
+        {...this.props}
       />
     )
 
+    const syncToZanataRunning = runningJobs[id + 'SERVER_SYNC'] || false
     const syncToZanataSummary = (
       <JobSummary workId={id} jobKey={syncToTransServerJob.jobKey}
         jobType={syncToTransServerJob.type} runJob={runJob}
         lastJobStatus={syncToTransServerJob.lastJobStatus}
+        running={syncToZanataRunning}
+        {...this.props}
       />
     )
 
-    const cardHeight = 280
+    const cardHeight = 360
     const cardStyle = {height: cardHeight + 'px'}
     const cardBodyStyle = {height: cardHeight * 0.8 + 'px'}
     return (

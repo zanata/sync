@@ -28,6 +28,7 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
@@ -49,6 +50,14 @@ public class SyncJobListener implements JobListener {
 
     @Override
     public void jobToBeExecuted(JobExecutionContext context) {
+        log.info("job about to be fired: {}", context.getTrigger());
+        SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
+        SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
+        JobType jobType = syncJobDataMap.getJobType();
+
+        JobProgressEvent event = JobProgressEvent
+                .running(context.getFireInstanceId(), workConfig, jobType);
+        fireCDIEvent(event);
     }
 
     @Override
@@ -64,16 +73,22 @@ public class SyncJobListener implements JobListener {
         SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
         JobType jobType = syncJobDataMap.getJobType();
         if (jobException != null) {
-            event = new JobRunCompletedEvent(workConfig.getId(),
+            event = new JobRunCompletedEvent(context.getFireInstanceId(),
+                    workConfig.getId(),
                     context.getJobRunTime(),
                     context.getFireTime(),
                     jobType, JobStatusType.ERROR);
         } else {
-            event = new JobRunCompletedEvent(workConfig.getId(),
+            event = new JobRunCompletedEvent(context.getFireInstanceId(),
+                    workConfig.getId(),
                     context.getJobRunTime(),
                     context.getFireTime(),
                     jobType, JobStatusType.COMPLETE);
         }
+        fireCDIEvent(event);
+    }
+
+    private static void fireCDIEvent(Object event) {
         BeanManagerProvider.getInstance().getBeanManager()
                 .fireEvent(event);
     }

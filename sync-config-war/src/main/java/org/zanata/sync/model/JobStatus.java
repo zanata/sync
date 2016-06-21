@@ -22,43 +22,46 @@ package org.zanata.sync.model;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
-import org.zanata.sync.util.DateUtil;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Getter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.ALWAYS)
 @Entity
 @Table(name = "Job_Status_table")
 @Access(AccessType.FIELD)
+@NamedQueries(
+        {
+                @NamedQuery(name = JobStatus.GET_JOB_STATUS_QUERY,
+                        query = "from JobStatus status where status.workConfig = :workConfig and status.jobType = :jobType order by endTime desc")
+        }
+)
 public class JobStatus implements Serializable {
+    public static final String GET_JOB_STATUS_QUERY = "GetJobStatusQuery";
     public static JobStatus EMPTY = new JobStatus();
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(unique = true, nullable = false, updatable = false)
+    private String id;
 
     @Enumerated(EnumType.STRING)
     private JobStatusType status = JobStatusType.NONE;
@@ -67,30 +70,22 @@ public class JobStatus implements Serializable {
     private JobType jobType;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern= DateUtil.DATE_TIME_FORMAT)
     private Date startTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern= DateUtil.DATE_TIME_FORMAT)
     private Date endTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern= DateUtil.DATE_TIME_FORMAT)
     private Date nextStartTime;
 
-    //This field is being ignored. See {@link SyncWorkConfigRepresenter}
-    // TODO check if this field is used
-    @JsonIgnore
-    @Transient
-    private JobProgress currentProgress = null;
-
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "workId")
     private SyncWorkConfig workConfig;
 
-    public JobStatus(SyncWorkConfig workConfig, JobType jobType,
+    public JobStatus(String id, SyncWorkConfig workConfig, JobType jobType,
             JobStatusType status,
             Date startTime, Date endTime, Date nextStartTime) {
+        this.id = id;
         this.workConfig = workConfig;
         this.status = status;
         this.jobType = jobType;
@@ -99,7 +94,4 @@ public class JobStatus implements Serializable {
         this.nextStartTime = nextStartTime;
     }
 
-    public void updateCurrentProgress(JobProgress currentProgress) {
-        this.currentProgress = currentProgress;
-    }
 }

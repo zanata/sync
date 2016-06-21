@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
 import org.zanata.sync.util.JSONObjectMapper;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +43,7 @@ import static org.zanata.sync.util.AutoCloseableDependentProvider.*;
 @Entity
 @Table(name = "Sync_Work_Config_table")
 @Access(AccessType.FIELD)
-public class SyncWorkConfig extends PersistModel {
+public class SyncWorkConfig {
     private static final Logger log =
             LoggerFactory.getLogger(SyncWorkConfig.class);
 
@@ -66,9 +65,7 @@ public class SyncWorkConfig extends PersistModel {
     @Transient
     private Map<String, String> transServerPluginConfig;
 
-    @JsonIgnore
     private String srcRepoPluginConfigJson;
-    @JsonIgnore
     private String transServerConfigJson;
 
     private String srcRepoPluginName;
@@ -86,8 +83,6 @@ public class SyncWorkConfig extends PersistModel {
     private Date createdDate;
 
     @OneToMany(mappedBy = "workConfig")
-    @JsonIgnore
-    // ignore from marshalling
     private List<JobStatus> jobStatusHistory = Collections.emptyList();
 
 

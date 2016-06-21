@@ -11,7 +11,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <!-- N.B. resteasy provider uses version 2.6.3-->
-    <jackson.version>2.7.0</jackson.version>
+    <jackson.version>2.6.3</jackson.version>
     <zanata.api.version>3.9.1</zanata.api.version>
   </properties>
 

@@ -2,11 +2,13 @@ package org.zanata.sync.model;
 
 import java.io.Serializable;
 
+import org.zanata.sync.dto.JobRunStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
+ * TODO move to dto package
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Getter
@@ -30,7 +32,7 @@ public class WorkSummary implements Serializable {
                         syncWorkConfig.getName(),
                         syncWorkConfig.getDescription(),
                         JobType.REPO_SYNC,
-                        syncToRepoJobStatus);
+                        JobRunStatus.fromEntity(syncToRepoJobStatus));
 
         JobSummary syncToServerJob =
                 new JobSummary(
@@ -39,7 +41,7 @@ public class WorkSummary implements Serializable {
                         syncWorkConfig.getName(),
                         syncWorkConfig.getDescription(),
                         JobType.SERVER_SYNC,
-                        syncToServerJobStatus);
+                        JobRunStatus.fromEntity(syncToServerJobStatus));
 
         return new WorkSummary(syncWorkConfig.getId(),
                 syncWorkConfig.getName(),

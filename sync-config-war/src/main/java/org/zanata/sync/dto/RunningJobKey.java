@@ -18,11 +18,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.model;
+package org.zanata.sync.dto;
+
+import org.zanata.sync.model.JobType;
+import com.google.common.base.MoreObjects;
 
 /**
- * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
+ * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public enum JobStatusType {
-    RUNNING, NONE, COMPLETE, ERROR;
+public class RunningJobKey {
+    private Long workId;
+    private JobType jobType;
+
+    public RunningJobKey(Long workId, JobType jobType) {
+        this.workId = workId;
+        this.jobType = jobType;
+    }
+
+    public Long getWorkId() {
+        return workId;
+    }
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+            .add("workId", workId)
+            .add("jobType", jobType)
+            .toString();
+    }
 }

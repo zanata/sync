@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
 );
 
 CREATE TABLE IF NOT EXISTS Job_Status_table (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id            VARCHAR(255) PRIMARY KEY,
     workId        BIGINT      NOT NULL,
     jobType       VARCHAR(20) NOT NULL,
     status        VARCHAR(20) NOT NULL,

@@ -32,17 +32,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.dto.JobRunStatus;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.exception.JobNotFoundException;
-import org.zanata.sync.model.JobProgress;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobSummary;
 import org.zanata.sync.model.JobType;
+import org.zanata.sync.dto.RunningJobKey;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import com.google.common.base.Strings;
@@ -75,15 +75,15 @@ public class JobResource {
     @Path("/status")
     @GET
     public Response getJobStatus(
-        @QueryParam(value = "id") @DefaultValue("") String id,
-        @QueryParam(value = "type") @DefaultValue("")
-        JobType type) {
+        @QueryParam(value = "id") Long id,
+        @QueryParam(value = "type") JobType type) {
         try {
-            if (Strings.isNullOrEmpty(id) || type == null) {
+            if (id == null || type == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(schedulerServiceImpl
-                .getLatestJobStatus(new Long(id), type)).build();
+            JobStatus jobStatus = schedulerServiceImpl
+                    .getLatestJobStatus(id, type);
+            return Response.ok(JobRunStatus.fromEntity(jobStatus)).build();
         } catch (SchedulerException e) {
             log.error("get job status error", e);
             return Response.serverError().build();
@@ -140,7 +140,7 @@ public class JobResource {
                         Payload.error("missing id and/or type")).build();
             }
             schedulerServiceImpl.triggerJob(id, type);
-            return Response.ok().build();
+            return Response.ok(new RunningJobKey(id, type)).build();
         } catch (SchedulerException e) {
             log.error("trigger job error", e);
             return Response.serverError().build();
@@ -183,7 +183,7 @@ public class JobResource {
                 List<JobSummary> filteredList = new ArrayList<>();
                 boolean filterByStatus = status != null;
 
-                for (JobSummary summary : jobs) {
+                /*for (JobSummary summary : jobs) {
                     if (filterByKey && filterByStatus) {
                         JobKey key = type.toJobKey(new Long(id));
                         if (summary.getJobKey().equals(key.toString())
@@ -203,7 +203,7 @@ public class JobResource {
                         filteredList.add(summary);
                         continue;
                     }
-                }
+                }*/
                 return Response.ok(filteredList).build();
             }
         } catch (SchedulerException e) {
@@ -214,10 +214,10 @@ public class JobResource {
 
     private boolean isMatchStatus(JobStatus jobStatus, JobStatusType status) {
         if(status.equals(JobStatusType.RUNNING)) {
-            JobProgress currentProgress = jobStatus.getCurrentProgress();
-            if(currentProgress != null && currentProgress.getStatus().equals(status)) {
-                return true;
-            }
+//            JobProgress currentProgress = jobStatus.getCurrentProgress();
+//            if(currentProgress != null && currentProgress.getStatus().equals(status)) {
+//                return true;
+//            }
         }
         return jobStatus.getStatus().equals(status);
     }

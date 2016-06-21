@@ -1,12 +1,15 @@
 import React from 'react'
 import WorkSummary from './WorkSummary'
 
+const {PropTypes} = React
+
 export default React.createClass({
   propTypes: {
-    workSummaries: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    zanataUsername: React.PropTypes.string,
-    loadWorkSummaries: React.PropTypes.func.isRequired,
-    runJob: React.PropTypes.func.isRequired
+    workSummaries: PropTypes.arrayOf(PropTypes.object).isRequired,
+    zanataUsername: PropTypes.string,
+    loadWorkSummaries: PropTypes.func.isRequired,
+    runJob: PropTypes.func.isRequired,
+    runningJobs: PropTypes.object.isRequired
   },
 
   // ask for `router` from context
@@ -39,14 +42,15 @@ export default React.createClass({
   },
 
   render() {
-    const {runJob, workSummaries} = this.props
+    const {runJob, workSummaries, runningJobs} = this.props
     const summaries = workSummaries.map(work => {
       return (
         <WorkSummary key={work.id} id={work.id} name={work.name}
           description={work.description}
           syncToRepoJob={work.syncToRepoJob}
           syncToTransServerJob={work.syncToTransServerJob}
-          runJob={runJob}
+          runJob={runJob} runningJobs={runningJobs}
+          {...this.props}
         />
       )
     })

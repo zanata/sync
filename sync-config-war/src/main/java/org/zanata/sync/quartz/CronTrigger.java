@@ -47,7 +47,7 @@ public class CronTrigger {
     private PluginsService pluginsService;
 
     @Inject
-    private JobConfigListener triggerListener;
+    private JobTriggerListener triggerListener;
 
     @Inject
     private SyncJobListener syncJobListener;

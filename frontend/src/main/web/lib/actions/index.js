@@ -97,3 +97,18 @@ export function runJob(workId, jobType) {
     }
   }
 }
+
+// ============= get job status
+export const GET_JOB_STATUS_REQUEST = 'GET_JOB_STATUS_REQUEST'
+export const GET_JOB_STATUS_SUCCESS = 'GET_JOB_STATUS_SUCCESS'
+export const GET_JOB_STATUS_FAILURE = 'GET_JOB_STATUS_FAILURE'
+export function getLatestJobStatus(workId, jobType) {
+  return {
+    [CALL_API]: {
+      endpoint: `${restUrlRoot()}/api/job/status?id=${workId}&type=${jobType}`,
+      method: 'GET',
+      types: [GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS,
+        GET_JOB_STATUS_FAILURE]
+    }
+  }
+}

@@ -33,34 +33,66 @@ app.get('/api/oauth/url', function (req, res) {
 app.get('/api/work/by/:username', function (req, res) {
   commonHeaders(req, res)
   var username = req.params.username
-  var result = [
-    {
-      "id": 1,
-      "name": "test work",
-      "description": "soemthing",
-      "syncToRepoJob": {
-        "jobKey": "1.REPO_SYNC",
+  var result = [{
+    "id": 1,
+    "name": "test ets",
+    "description": "asd",
+    "syncToRepoJob": {
+      "jobKey": "1.REPO_SYNC",
+      "workId": 1,
+      "name": "test ets",
+      "description": "asd",
+      "type": "REPO_SYNC",
+      "lastJobStatus": {
         "workId": 1,
-        "name": "test work",
-        "description": "soemthing",
-        "type": "REPO_SYNC",
-        "lastJobStatus": {
-          "status": "NONE"
-        }
-      },
-      "syncToTransServerJob": {
-        "jobKey": "1.SERVER_SYNC",
+        "id": "1466480052893",
+        "status": "ERROR",
+        "jobType": "REPO_SYNC",
+        "startTime": "2016-06-21 03:34:59",
+        "endTime": "2016-06-21 03:34:59",
+        "nextStartTime": null
+      }
+    },
+    "syncToTransServerJob": {
+      "jobKey": "1.SERVER_SYNC",
+      "workId": 1,
+      "name": "test ets",
+      "description": "asd",
+      "type": "SERVER_SYNC",
+      "lastJobStatus": {
         "workId": 1,
-        "name": "test work",
-        "description": "soemthing",
-        "type": "SERVER_SYNC",
-        "lastJobStatus": {
-          "status": "NONE"
-        }
+        "id": "1466480052894",
+        "status": "ERROR",
+        "jobType": "SERVER_SYNC",
+        "startTime": "2016-06-21 03:35:02",
+        "endTime": "2016-06-21 03:35:02",
+        "nextStartTime": null
       }
     }
-  ]
+  }]
   res.send(JSON.stringify(result))
+})
+
+app.post('/api/job/start', function (req, res) {
+  commonHeaders(req, res)
+  res.send(JSON.stringify({
+    workId: req.query.id,
+    jobType: req.query.type
+  }))
+})
+
+app.get('/api/job/status', function (req, res) {
+  commonHeaders(req, res)
+  var status = {
+    "workId": parseInt(req.query.id),
+    "id": "1466480052894",
+    "status": "COMPLETED",
+    "jobType": req.query.type,
+    "startTime": "2016-06-21 03:35:02",
+    "endTime": "2016-06-21 03:35:02",
+    "nextStartTime": null
+  };
+  res.send(JSON.stringify(status))
 })
 
 app.options('*', function (req, res) {
