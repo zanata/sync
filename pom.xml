@@ -39,7 +39,14 @@
     <zanata.api.version>3.9.1</zanata.api.version>
 
     <!-- where to put node js and npm -->
+    <frontend.plugin.version>0.0.29</frontend.plugin.version>
+    <node.version>v5.6.0</node.version>
+    <npm.version>3.6.0</npm.version>
+    <!-- on openshift, will replace it with OPENSHIFT_DATA_DIR-->
     <download.dir>${user.home}/Downloads</download.dir>
+    <node.install.directory>${download.dir}/zanata-frontend/node-${node.version}-npm-${npm.version}</node.install.directory>
+    <npm.cli.script>${node.install.directory}/node/node_modules/npm/bin/npm-cli.js</npm.cli.script>
+    <npm.cache.path>~/.npm</npm.cache.path>
   </properties>
 
   <dependencyManagement>
@@ -136,7 +143,12 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         </plugins>
       </build>
       <properties>
+        <!-- openshift is using maven 3.0.4 and newer frontend maven plugin requires maven 3.1.0 -->
+        <frontend.plugin.version>0.0.22</frontend.plugin.version>
         <download.dir>${env.OPENSHIFT_DATA_DIR}</download.dir>
+        <!-- the script location is different when using old version of frontend plugin -->
+        <npm.cli.script>${node.install.directory}/node/npm/bin/npm-cli.js</npm.cli.script>
+        <npm.cache.path>${env.OPENSHIFT_DATA_DIR}/.npm</npm.cache.path>
       </properties>
     </profile>
     <profile>
