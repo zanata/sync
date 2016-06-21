@@ -47,6 +47,8 @@
     <node.install.directory>${download.dir}/zanata-frontend/node-${node.version}-npm-${npm.version}</node.install.directory>
     <npm.cli.script>${node.install.directory}/node/node_modules/npm/bin/npm-cli.js</npm.cli.script>
     <npm.cache.path>~/.npm</npm.cache.path>
+    <!-- in seconds. 10 is the default value -->
+    <npm.cache.min>10</npm.cache.min>
   </properties>
 
   <dependencyManagement>
@@ -149,6 +151,7 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <!-- the script location is different when using old version of frontend plugin -->
         <npm.cli.script>${node.install.directory}/node/npm/bin/npm-cli.js</npm.cli.script>
         <npm.cache.path>${env.OPENSHIFT_DATA_DIR}/.npm</npm.cache.path>
+        <npm.cache.min>10000</npm.cache.min>
       </properties>
     </profile>
     <profile>

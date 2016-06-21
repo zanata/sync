@@ -15,8 +15,6 @@
 
     <web.target>${project.build.directory}/web</web.target>
     <bundle.dest>${project.build.outputDirectory}/META-INF/resources</bundle.dest>
-    <!-- in seconds. 10 is the default value -->
-    <npm.cache.min>10</npm.cache.min>
   </properties>
   <dependencies>
 
@@ -34,7 +32,7 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>0.0.22</version>
+        <version>${frontend.plugin.version}</version>
         <configuration>
           <workingDirectory>${node.install.directory}</workingDirectory>
         </configuration>
