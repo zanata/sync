@@ -148,7 +148,7 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <download.dir>${env.OPENSHIFT_DATA_DIR}</download.dir>
         <!-- the script location is different when using old version of frontend plugin -->
         <npm.cli.script>${node.install.directory}/node/npm/bin/npm-cli.js</npm.cli.script>
-        <npm.cache.path>${env.OPENSHIFT_DATA_DIR}/.npm</npm.cache.path>
+        <npm.cache.path>${env.OPENSHIFT_TMP_DIR}/.npm</npm.cache.path>
       </properties>
     </profile>
     <profile>
