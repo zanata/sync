@@ -44,7 +44,7 @@ import com.google.common.collect.Maps;
 /**
  * This filter is responsible for pre-load necessary data for the frontend
  * javascript app.
- * 
+ *
  * @author Patrick Huang
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
@@ -67,7 +67,7 @@ public class FrontendDataProviderFilter implements Filter {
                     "http://localhost:8080/zanata,http://localhost:8180/zanata";
         }
         List<String> urls = ImmutableList
-                .copyOf(Splitter.on(",").omitEmptyStrings()
+                .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
                         .split(supportedZanataServer));
         zanataServerUrls = objectMapper.toJSON(urls);
 

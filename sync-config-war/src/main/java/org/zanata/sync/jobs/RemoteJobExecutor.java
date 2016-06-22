@@ -54,7 +54,8 @@ import com.google.common.collect.Maps;
 public class RemoteJobExecutor {
     private static final Logger log =
             LoggerFactory.getLogger(RemoteJobExecutor.class);
-    private static final String JOB_SERVER_URL = System.getProperty("job.server", "http://localhost:8080/jobs");
+    private static final String JOB_SERVER_URL =
+            System.getProperty("jobs.server", "http://localhost:8080/jobs");
     private Client client;
 
     public RemoteJobExecutor(Client client) {
