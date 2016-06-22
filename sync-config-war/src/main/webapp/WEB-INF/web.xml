@@ -24,7 +24,7 @@
 
   <context-param>
     <param-name>liquibase.datasource</param-name>
-    <param-value>java:jboss/datasources/ExampleDS</param-value>
+    <param-value>java:jboss/datasources/MySQLDS</param-value>
   </context-param>
 
   <context-param>
@@ -44,26 +44,6 @@
     <!--<res-auth>Container</res-auth>-->
   <!--</resource-ref>-->
 
-<!--  <servlet>
-    <servlet-name>rest-ws</servlet-name>
-    <servlet-class>
-      com.sun.jersey.spi.container.servlet.ServletContainer
-    </servlet-class>
-    <init-param>
-      &lt;!&ndash; for our REST resources &ndash;&gt;
-      <param-name>com.sun.jersey.config.property.packages</param-name>
-      &lt;!&ndash; for json provider &ndash;&gt;
-      <param-value>org.zanata.sync.api;org.codehaus.jackson.jaxrs</param-value>
-      &lt;!&ndash; N.B. we can not use jersy pojo json support as it will interfere with zanata client rest commands &ndash;&gt;
-    </init-param>
-
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>rest-ws</servlet-name>
-    <url-pattern>/api/*</url-pattern>
-  </servlet-mapping>-->
-
   <filter>
     <filter-name>monitoring</filter-name>
     <filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
@@ -72,15 +52,6 @@
     <filter-name>monitoring</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <!--<filter>-->
-    <!--<filter-name>authorizationCodeFilter</filter-name>-->
-    <!--<filter-class>org.zanata.sync.security.AuthorizationCodeFilter</filter-class>-->
-  <!--</filter>-->
-  <!--<filter-mapping>-->
-    <!--<filter-name>authorizationCodeFilter</filter-name>-->
-    <!--<url-pattern>/auth/*</url-pattern>-->
-  <!--</filter-mapping>-->
 
   <listener>
     <listener-class>net.bull.javamelody.SessionListener</listener-class>
