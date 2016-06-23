@@ -242,6 +242,8 @@
       <artifactId>log4j-over-slf4j</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
+
+    <!-- TODO logback will not be used in jboss, maybe switch it to test scope? -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
@@ -252,6 +254,15 @@
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
     </dependency>
+    <!--
+    <dependency>
+      &lt;!&ndash; logback filter needs this &ndash;&gt;
+      <groupId>janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>2.5.10</version>
+      <scope>test</scope>
+    </dependency>
+    -->
 
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -261,6 +272,10 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
     </dependency>
   </dependencies>
 
