@@ -4,7 +4,7 @@ import {
   RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE,
   GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS, GET_JOB_STATUS_FAILURE
 } from '../actions'
-import {reducerUtil} from '../utils'
+import {reducer} from '../utils'
 
 const defaultState = {
   error: undefined,
@@ -15,7 +15,7 @@ const defaultState = {
 
 export default handleActions(
   {
-    [LOAD_WORKS_REQUEST]: reducerUtil.requestHandler,
+    [LOAD_WORKS_REQUEST]: reducer.requestHandler,
     [LOAD_WORKS_SUCCESS]: (state, action) => {
       console.log(action)
       const summaries = action.payload
@@ -25,7 +25,7 @@ export default handleActions(
         loading: false
       }
     },
-    [LOAD_WORKS_FAILURE]: reducerUtil.errorHandler,
+    [LOAD_WORKS_FAILURE]: reducer.errorHandler,
     // [RUN_JOB_REQUEST]: (state, action) => {
     //   // we do nothing... for now
     //   return {

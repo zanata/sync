@@ -1,6 +1,6 @@
 import React from 'react'
 import WorkSummary from './WorkSummary'
-
+import {route} from '../utils'
 const {PropTypes} = React
 
 export default React.createClass({
@@ -18,21 +18,12 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    // TODO load data
     const {zanataUsername, loadWorkSummaries} = this.props
     if (zanataUsername) {
       loadWorkSummaries(zanataUsername)
     } else {
-      // TODO use props not Configs
-      // TODO dup in WorkForm
-      const path = `${Configs.basename}`;
-      console.info('redirect to home page for sign in:' + path)
-      this.context.router.push({
-        pathname: path,
-        // query: { modal: true },
-        // TODO check this state in home page and display a message
-        state: { needSignIn: true }
-      })
+      // TODO use props not Configs for basename
+      route.redirectToSignIn(this.context.router)
     }
   },
 

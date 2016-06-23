@@ -4,8 +4,7 @@ import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
 import cx from 'classnames'
-import Configs from '../constants/Configs'
-import { push } from 'react-router-redux'
+import {route} from '../utils'
 
 export default React.createClass({
   propTypes: {
@@ -55,15 +54,7 @@ export default React.createClass({
 
   componentWillMount() {
     if (!this.props.zanataUsername) {
-      // TODO use props not Configs
-      const path = `${Configs.basename}`;
-      console.info('redirect to home page for sign in:' + path)
-      this.context.router.push({
-        pathname: path,
-        // query: { modal: true },
-        // TODO check this state in home page and display a message
-        state: { needSignIn: true }
-      })
+      route.redirectToSignIn(this.context.router)
     }
   },
 

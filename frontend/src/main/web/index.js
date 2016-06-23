@@ -36,7 +36,7 @@ const data = JSON.parse(mountNode.getAttribute('data'))
 const dev = data.dev;
 
 const user = dataUser ? JSON.parse(dataUser): undefined
-//const user = undefined
+// const user = undefined
 
 
 
