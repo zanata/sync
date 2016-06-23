@@ -10,13 +10,18 @@ import org.apache.deltaspike.core.api.exception.control.ExceptionHandler;
 import org.apache.deltaspike.core.api.exception.control.Handles;
 import org.apache.deltaspike.core.api.exception.control.event.ExceptionEvent;
 import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
 
 /**
+ * TODO may not need this any more
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @ExceptionHandler
 public class AccessDeniedExceptionHandler {
+    private static final Logger log =
+            LoggerFactory.getLogger(AccessDeniedExceptionHandler.class);
     @Inject
     @DeltaSpike
     private HttpServletRequest request;
@@ -27,18 +32,14 @@ public class AccessDeniedExceptionHandler {
 
     public void handleException(
             @Handles ExceptionEvent<AccessDeniedException> event) {
-
-//        FacesContext context = FacesContext.getCurrentInstance();
-
+        log.warn("unauthorized request: {}?{}" ,request.getRequestURI(), request.getQueryString());
         try {
-            response.sendRedirect(request.getContextPath() + "/sign_in?original=" + request.getRequestURI());
 
-//            context.getExternalContext().redirect(request.getContextPath() + "/sign_in.jsf?original=" + request.getRequestURI());
+            response.sendRedirect(request.getContextPath());
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
 
-//        context.responseComplete();
         event.handled();
     }
 }

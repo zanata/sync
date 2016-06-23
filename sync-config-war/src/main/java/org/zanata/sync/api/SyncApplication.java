@@ -38,6 +38,7 @@ public class SyncApplication extends Application {
                     .add(WorkResource.class)
                     .add(JobResource.class)
                     .add(SecurityResource.class)
+                    .add(RestSecurityInterceptor.class)
                     .add()
                     .build();
 
