@@ -102,8 +102,8 @@
             <password>sa</password>
           </security>
         </datasource>
-        <datasource jndi-name="java:jboss/datasources/MySQLDS"
-          enabled="${mysql.enabled}" use-java-context="true" pool-name="MySQLDS"
+        <datasource jndi-name="java:jboss/datasources/syncDS"
+          enabled="${mysql.enabled}" use-java-context="true" pool-name="syncDS"
           use-ccm="true">
           <connection-url>jdbc:mysql://${env.OPENSHIFT_MYSQL_DB_HOST}:${env.OPENSHIFT_MYSQL_DB_PORT}/${env.OPENSHIFT_APP_NAME}
           </connection-url>

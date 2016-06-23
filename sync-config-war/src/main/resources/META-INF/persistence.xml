@@ -6,7 +6,7 @@
 
   <persistence-unit name="syncDatasourcePU" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
-    <jta-data-source>java:jboss/datasources/MySQLDS</jta-data-source>
+    <jta-data-source>java:jboss/datasources/syncDS</jta-data-source>
 
     <class>org.zanata.sync.model.SystemSettings</class>
     <class>org.zanata.sync.model.SyncWorkConfig</class>
