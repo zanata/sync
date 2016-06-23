@@ -55,6 +55,9 @@ public class JSONObjectMapper {
     }
 
     public <T> String toJSON(Object value) {
+        if (value == null) {
+            return "";
+        }
         try {
             return objectMapper.writer().writeValueAsString(value);
         } catch (IOException e) {

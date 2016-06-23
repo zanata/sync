@@ -34,6 +34,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 
 import org.zanata.sync.common.plugin.RepoExecutor;
+import org.zanata.sync.dto.ZanataAccount;
+import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.util.JSONObjectMapper;
 import com.google.common.base.Splitter;
@@ -44,11 +46,13 @@ import com.google.common.collect.Maps;
 /**
  * This filter is responsible for pre-load necessary data for the frontend
  * javascript app.
+ * Filter mapping url is defined in web.xml to specify order of execution.
  *
+ * see index.jsp
  * @author Patrick Huang
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@WebFilter(filterName = "frontendDataProviderFilter", urlPatterns = "/*")
+@WebFilter(filterName = "frontendDataProviderFilter")
 public class FrontendDataProviderFilter implements Filter {
 
     @Inject
@@ -56,6 +60,10 @@ public class FrontendDataProviderFilter implements Filter {
 
     @Inject
     private JSONObjectMapper objectMapper;
+
+    @Inject
+    private SecurityTokens securityTokens;
+
     private String zanataServerUrls;
     private String plugins;
 
@@ -92,6 +100,14 @@ public class FrontendDataProviderFilter implements Filter {
                     throws IOException, ServletException {
         servletRequest.setAttribute("srcRepoPlugins", plugins);
         servletRequest.setAttribute("zanataServerUrls", zanataServerUrls);
+
+        ZanataAccount account = securityTokens.getAccount();
+        String zanataServer = account != null ? account.getZanataServer() : "";
+        String accountAsJson = objectMapper.toJSON(account);
+
+
+        servletRequest.setAttribute("user", accountAsJson);
+        servletRequest.setAttribute("zanata", zanataServer);
         filterChain.doFilter(servletRequest, servletResponse);
     }
 

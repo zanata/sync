@@ -52,6 +52,14 @@
     <filter-name>monitoring</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
+  <filter-mapping>
+    <filter-name>authorizationCodeFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>frontendDataProviderFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
   <listener>
     <listener-class>net.bull.javamelody.SessionListener</listener-class>

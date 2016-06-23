@@ -32,6 +32,7 @@ import com.google.common.base.MoreObjects;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZanataAccount {
+    private String zanataServer;
     private String username;
     private String apiKey;
     private Set<String> roles;
@@ -63,6 +64,10 @@ public class ZanataAccount {
         return enabled;
     }
 
+    public String getZanataServer() {
+        return zanataServer;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -73,5 +78,9 @@ public class ZanataAccount {
                 .add("name", name)
                 .add("enabled", enabled)
                 .toString();
+    }
+
+    public void setZanataServer(String zanataServer) {
+        this.zanataServer = zanataServer;
     }
 }
