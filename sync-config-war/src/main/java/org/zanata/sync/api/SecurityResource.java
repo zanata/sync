@@ -22,7 +22,9 @@ package org.zanata.sync.api;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -82,6 +84,16 @@ public class SecurityResource {
             return Response.serverError().entity(Payload.error(e.getMessage())).build();
         }
 
+    }
+
+    @POST
+    @Path("/logout")
+    public Response logout() {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return Response.ok().build();
     }
 
     private String generateOAuthURL(String zanataUrl) {

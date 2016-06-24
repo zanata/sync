@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -102,12 +103,9 @@ public class FrontendDataProviderFilter implements Filter {
         servletRequest.setAttribute("zanataServerUrls", zanataServerUrls);
 
         ZanataAccount account = securityTokens.getAccount();
-        String zanataServer = account != null ? account.getZanataServer() : "";
         String accountAsJson = objectMapper.toJSON(account);
-
-
         servletRequest.setAttribute("user", accountAsJson);
-        servletRequest.setAttribute("zanata", zanataServer);
+
         filterChain.doFilter(servletRequest, servletResponse);
     }
 

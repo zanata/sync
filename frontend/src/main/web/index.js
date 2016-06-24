@@ -20,6 +20,7 @@ import 'patternfly/dist/css/patternfly-additions.min.css'
  * Process attributes in dom element:id='main-content'
  *
  * base-url - base url for rest api
+ * TODO update comment
  * user - json object of user information. See {@link org.zanata.rest.editor.dto.User}
  * data - json object of any information to be included. e.g Permission {@link org.zanata.rest.editor.dto.Permission}, and View
  * dev - If 'dev' attribute exist, all api data will be retrieve from .json file in test directory.
@@ -42,6 +43,7 @@ const user = dataUser ? JSON.parse(dataUser): undefined
 // base rest url, e.g http://localhost:8080/rest
 Configs.apiUrl = apiUrl || ''
 Configs.basename = basename || ''
+// TODO doe we use these?
 Configs.data = data;
 //append with .json extension in 'dev' environment
 Configs.urlPostfix = dev ? '' : '.json?'

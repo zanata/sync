@@ -7,7 +7,7 @@ var app = express()
 app.use(express.static(__dirname))
 
 function accessControlHeaders(res) {
-  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Origin', 'http://localhost:8000')
   res.header('Access-Control-Allow-Credentials', true)
   // try: 'POST, GET, PUT, DELETE, OPTIONS'
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
@@ -28,6 +28,11 @@ app.get('/api/oauth/url', function (req, res) {
     error: false,
     data: zanataUrl + '/authorize/?redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fsync%2Fauth%2F&client_id=zanata_sync'
   }))
+})
+
+app.post('/api/oauth/logout', function (req, res) {
+  commonHeaders(req, res)
+  res.send()
 })
 
 app.get('/api/work/by/:username', function (req, res) {

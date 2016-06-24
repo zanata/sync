@@ -71,6 +71,7 @@ public class ZanataAccount {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("zanataServer", zanataServer)
                 .add("username", username)
                 .add("apiKey", apiKey)
                 .add("roles", roles)

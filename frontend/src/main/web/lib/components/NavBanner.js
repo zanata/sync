@@ -20,8 +20,9 @@ const NavHeader = React.createClass({
   render() {
     const {name, zanataServer} = this.props
     if (!name || !zanataServer) {
-      return undefined
+      return null
     }
+    // TODO click outside the dropdown won't close it
     const drowdownClass = cx('dropdown', {
       open: this.state.dropdownOpen
     })

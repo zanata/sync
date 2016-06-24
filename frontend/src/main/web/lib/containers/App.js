@@ -7,7 +7,15 @@ import { connect } from 'react-redux'
 const App = React.createClass({
   propTypes: {
     zanataUser: PropTypes.object,
+    loggedOut: PropTypes.bool,
     onLogout: PropTypes.func.isRequired
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.loggedOut) {
+      const {origin, pathname} = window.location
+      window.location = `${origin}${pathname}`
+    }
   },
 
   render() {
@@ -23,10 +31,10 @@ const App = React.createClass({
           zanataServer={zanataUser && zanataUser.zanataServer}
           onLogout={this.props.onLogout}
         />
+        <h2 className='text-center'>Zanata Sync {message}</h2>
         <div className="container-fluid container-cards-pf">
           <div className="row">
             <div className="col-sm-6 col-md-8 col-sm-push-3 col-md-push-2">
-              <h2>Zanata Sync {message}</h2>
               {/* this is passed down by nested react router */}
               {this.props.children}
             </div>
@@ -39,7 +47,8 @@ const App = React.createClass({
 
 const mapStateToProps = (state) => {
   return {
-    zanataUser: state.zanata.user
+    zanataUser: state.zanata.user,
+    loggedOut: state.security.loggedOut
   }
 }
 

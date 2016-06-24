@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -33,8 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 
 /**
- * @author Patrick Huang
- *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Dependent
 public class JSONObjectMapper {
@@ -54,7 +54,15 @@ public class JSONObjectMapper {
         }
     }
 
-    public <T> String toJSON(Object value) {
+    /**
+     * Marshall an object into JSON string. If the object is null, return empty
+     * string.
+     *
+     * @param value
+     *         the object
+     * @return the JSON string
+     */
+    public String toJSON(@Nullable Object value) {
         if (value == null) {
             return "";
         }

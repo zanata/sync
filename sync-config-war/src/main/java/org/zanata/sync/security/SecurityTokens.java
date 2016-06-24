@@ -22,6 +22,8 @@ package org.zanata.sync.security;
 
 import java.io.Serializable;
 
+import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 
 import org.slf4j.Logger;
@@ -42,12 +44,17 @@ public class SecurityTokens implements Serializable {
         return account != null;
     }
 
-    public ZanataAccount getAccount() {
+    @Nullable public ZanataAccount getAccount() {
         return account;
     }
 
     public void setAuthenticatedAccount(ZanataAccount authenticatedAccount) {
         this.account = authenticatedAccount;
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        log.info("log out as {}", account);
     }
 
 }
