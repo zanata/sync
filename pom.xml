@@ -30,6 +30,12 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
+
+  <scm>
+    <!-- TODO move to zanata repo -->
+    <connection>scm:git:git@github.com:huangp/zsync.git</connection>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
