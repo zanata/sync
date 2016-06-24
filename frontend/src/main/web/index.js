@@ -28,7 +28,6 @@ const mountNode = document.getElementById('main-content')
 const dataUser = mountNode.getAttribute('data-user')
 const apiUrl = mountNode.getAttribute('data-api-url')
 const basename = mountNode.getAttribute('data-app-basename')
-const zanata = mountNode.getAttribute('data-zanata')
 const zanataServerUrls = JSON.parse(mountNode.getAttribute('data-zanata-server-urls'))
 const srcRepoPlugins = JSON.parse(mountNode.getAttribute('data-src-repo-plugins'))
   // user = JSON.parse(mountNode.getAttribute('user')),
@@ -69,7 +68,7 @@ const loggerOption = {
 const logger = createLogger(loggerOption)
 
 const store = createStore(
-  rootReducer(user, zanata, zanataServerUrls, srcRepoPlugins),
+  rootReducer(user, zanataServerUrls, srcRepoPlugins),
   applyMiddleware(
     apiMiddleware,
     logger

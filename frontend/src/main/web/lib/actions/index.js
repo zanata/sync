@@ -117,3 +117,18 @@ export function getLatestJobStatus(workId, jobType) {
     }
   }
 }
+
+// ============ log out
+export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
+export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
+export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
+export function logout() {
+  return {
+    [CALL_API]: {
+      endpoint: `${restUrlRoot()}/api/oauth`,
+      method: 'POST',
+      credentials: 'include',
+      types: [LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE]
+    }
+  }
+}

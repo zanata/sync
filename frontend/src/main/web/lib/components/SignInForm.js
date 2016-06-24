@@ -8,7 +8,6 @@ export default React.createClass(
   {
     propTypes:{
       zanataUser: React.PropTypes.object,
-      zanataServer: React.PropTypes.string,
       onSignIn: React.PropTypes.func.isRequired,
       zanataServerUrls: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
       zanataOAuthUrl: React.PropTypes.string
@@ -21,10 +20,6 @@ export default React.createClass(
     },
 
     _signInWithZanata(e) {
-      // this.context.router.push({
-      //   pathname: path,
-      //   query: { modal: true }
-      // })
       return this.props.onSignIn(this.state.zanataUrl)
     },
 
@@ -43,9 +38,8 @@ export default React.createClass(
 
     render() {
       const user = this.props.zanataUser
-      const server = this.props.zanataServer
-      if (user && server) {
-        return <div>Welcome {user.name} from {user.username}@{server}</div>
+      if (user) {
+        return <div>Welcome {user.name}</div>
       }
 
       const zanataServerUrls = [NO_SELECTION_OPT, ...this.props.zanataServerUrls];

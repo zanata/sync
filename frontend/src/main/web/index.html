@@ -12,7 +12,6 @@
     <div id="main-content"
       data-api-url="http://localhost:3000"
       data-app-basename=""
-      data-zanata="http://localhost:8080/zanata"
       data-zanata-server-urls='["http://localhost:8080/zanata", "http://localhost:8180/zanata"]'
       data='{ "dev": "true"}'
     >
@@ -67,6 +66,7 @@
       }]
 
       var user = {
+        "zanataServer": "http://localhost:3000/zanata",
         "username": "test-user",
         "email":"zanata@zanata.org",
         "name": "Darth Vader",
@@ -76,21 +76,7 @@
       mountNode.setAttribute('data-user', JSON.stringify(user))
     }
     addTestData()
-    function toggleLogin(btn) {
-      var mountNode = document.getElementById('main-content')
-      if (mountNode.getAttribute('data-user')) {
-        mountNode.setAttribute('data-user', '')
-        btn.innerHTML = 'Click to sign in'
-      } else {
-        mountNode.setAttribute('data-user', JSON.stringify({
-          "username": "test-user",
-          "email":"zanata@zanata.org",
-          "name": "Darth Vader",
-          "apiKey": "abcde12345abcde12345abcde12345ab"
-        }))
-        btn.innerHTML = 'Click to sign out'
-      }
-    }
+
   </script>
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" ></script>
