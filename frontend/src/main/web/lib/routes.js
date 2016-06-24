@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, IndexRoute } from 'react-router'
 
 import Home from './containers/Home'
-import App from './components/App'
+import App from './containers/App'
 import NewWork from './containers/NewWork'
 import MyWorks from './containers/MyWorks'
 

@@ -21,29 +21,28 @@
 package org.zanata.sync.api;
 
 import java.io.IOException;
-
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Provider;
 
-import org.jboss.resteasy.annotations.interception.SecurityPrecedence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.security.SecurityTokens;
 
 /**
- * @author Patrick Huang
- *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Provider
-@PreMatching
-@SecurityPrecedence
-public class RestSecurityInterceptor implements ContainerRequestFilter {
+@RequestScoped
+class RestSecurityInterceptor implements ContainerRequestFilter {
+    private static final Logger log =
+            LoggerFactory.getLogger(RestSecurityInterceptor.class);
     private static final String AUTH_ERROR_MSG =
             "Authorization check failed. You need to sign in from a Zanata server";
+
     @Inject
     private SecurityTokens securityTokens;
 
@@ -51,6 +50,8 @@ public class RestSecurityInterceptor implements ContainerRequestFilter {
     public void filter(ContainerRequestContext context)
             throws IOException {
         if (!securityTokens.hasAccess()) {
+            log.info("block unauthenticated access to protected resources: {}",
+                    context.getUriInfo().getPath());
             context.abortWith(
                     Response.status(Response.Status.UNAUTHORIZED)
                             .header("Content-Type", MediaType.APPLICATION_JSON)

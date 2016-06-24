@@ -67,10 +67,8 @@ public class SchedulerServiceImpl implements SchedulerService {
         log.info("=====================================================");
         log.info("=================Zanata Sync starts==================");
         log.info("=====================================================");
-        log.info("== build: {}-{}",
-                appConfiguration.getBuildVersion(),
-                appConfiguration.getBuildInfo());
-        log.info("== repo directory: {}", appConfiguration.getRepoDir());
+        log.info("== build version: {}", appConfiguration.getBuildVersion());
+        log.info("== build revision: {}", appConfiguration.getBuildInfo());
         log.info("== fields to encrypt: {}",
                 appConfiguration.getFieldsNeedEncryption());
         log.info("=====================================================");

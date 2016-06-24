@@ -50,6 +50,7 @@ export function submitNewWork(payload) {
       endpoint: `${restUrlRoot()}/api/work`,
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
+      credentials: 'include',
       body: JSON.stringify(entity),
       types: [NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE]
     }
@@ -65,6 +66,7 @@ export function selectZanataServer(zanataUrl) {
     [CALL_API]: {
       endpoint: `${restUrlRoot()}/api/oauth/url?z=${zanataUrl}`,
       method: 'GET',
+      credentials: 'include',
       types: [SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE]
     }
   }
@@ -79,6 +81,7 @@ export function loadWorkSummaries(username) {
     [CALL_API]: {
       endpoint: `${restUrlRoot()}/api/work/by/${username}`,
       method: 'GET',
+      credentials: 'include',
       types: [LOAD_WORKS_REQUEST, LOAD_WORKS_SUCCESS, LOAD_WORKS_FAILURE]
     }
   }
@@ -93,6 +96,7 @@ export function runJob(workId, jobType) {
     [CALL_API]: {
       endpoint: `${restUrlRoot()}/api/job/start?id=${workId}&type=${jobType}`,
       method: 'POST',
+      credentials: 'include',
       types: [RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE]
     }
   }
@@ -107,6 +111,7 @@ export function getLatestJobStatus(workId, jobType) {
     [CALL_API]: {
       endpoint: `${restUrlRoot()}/api/job/status?id=${workId}&type=${jobType}`,
       method: 'GET',
+      credentials: 'include',
       types: [GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS,
         GET_JOB_STATUS_FAILURE]
     }

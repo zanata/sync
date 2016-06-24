@@ -55,6 +55,7 @@ public class SecurityResource {
 
     @GET
     @Path("/url")
+    @NoSecurityCheck
     public Response getZanataAuthUrl(@QueryParam("z") String zanataUrl) {
         if (Strings.isNullOrEmpty(zanataUrl)) {
             String errorMessage =
@@ -74,7 +75,7 @@ public class SecurityResource {
                     .setRedirectURI(appRoot() + "?z=" + zanataUrl)
                     .buildQueryMessage();
 
-            log.info("=========== redirecting to {}", request.getLocationUri());
+            log.debug("redirecting to {}", request.getLocationUri());
             return Response.ok(Payload.ok(request.getLocationUri())).build();
 
         } catch (OAuthSystemException e) {

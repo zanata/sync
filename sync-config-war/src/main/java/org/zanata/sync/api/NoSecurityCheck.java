@@ -20,30 +20,19 @@
  */
 package org.zanata.sync.api;
 
-import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.ws.rs.NameBinding;
 
-import com.google.common.collect.ImmutableSet;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 
 /**
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * Apply this annotation if you want to bypass RestSecurityInterceptor
  */
-@ApplicationScoped
-@ApplicationPath("/api")
-public class SyncApplication extends Application {
-    private static final Set<Class<?>> RESOURCE_CLASSES =
-            ImmutableSet.<Class<?>>builder()
-                    .add(WorkResource.class)
-                    .add(JobResource.class)
-                    .add(SecurityResource.class)
-                    .add(BypassSecurityBinder.class)
-                    .add()
-                    .build();
-
-    @Override
-    public Set<Class<?>> getClasses() {
-        return RESOURCE_CLASSES;
-    }
+@NameBinding
+@Retention(RetentionPolicy.RUNTIME)
+@Target({METHOD, TYPE})
+public @interface NoSecurityCheck {
 }

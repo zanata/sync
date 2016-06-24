@@ -20,30 +20,30 @@
  */
 package org.zanata.sync.api;
 
-import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
-import com.google.common.collect.ImmutableSet;
+import java.lang.reflect.Method;
+import javax.inject.Inject;
+import javax.ws.rs.container.DynamicFeature;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.Provider;
 
 /**
+ * So that we can annotation specific methods or classes to bypass security check.
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
-@ApplicationPath("/api")
-public class SyncApplication extends Application {
-    private static final Set<Class<?>> RESOURCE_CLASSES =
-            ImmutableSet.<Class<?>>builder()
-                    .add(WorkResource.class)
-                    .add(JobResource.class)
-                    .add(SecurityResource.class)
-                    .add(BypassSecurityBinder.class)
-                    .add()
-                    .build();
+@Provider
+public class BypassSecurityBinder implements DynamicFeature {
+    @Inject
+    private RestSecurityInterceptor securityInterceptor;
 
     @Override
-    public Set<Class<?>> getClasses() {
-        return RESOURCE_CLASSES;
+    public void configure(ResourceInfo resourceInfo,
+            FeatureContext featureContext) {
+        Class<?> clazz = resourceInfo.getResourceClass();
+        Method method = resourceInfo.getResourceMethod();
+        if (!method.isAnnotationPresent(NoSecurityCheck.class)
+                && !clazz.isAnnotationPresent(NoSecurityCheck.class)) {
+            featureContext.register(securityInterceptor);
+        }
     }
 }
