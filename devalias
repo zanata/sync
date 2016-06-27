@@ -1,5 +1,7 @@
 alias buildfrontend="echo ++ building frontend ++ && cd frontend && mvn install && cd -"
 
-alias buildwarnofrontend="echo ++ building war without frontend ++ && mvn clean -DexcludeFrontend package && cp sync-config-war/target/sync-config-war-1.0.0-SNAPSHOT.war /NotBackedUp/tools/jboss-eap/standalone/deployments/sync.war"
+alias buildwarnofrontend="echo ++ building config war without frontend ++ && mvn clean -DexcludeFrontend package -pl sync-config-war -am && cp sync-config-war/target/sync-config-war-1.0.0-SNAPSHOT.war /NotBackedUp/tools/jboss-eap/standalone/deployments/sync.war"
 
 alias wipedb="echo ++ wipe db clean ++ && mysql -uroot -proot -e 'drop database sync_local;create database sync_local;' sync_local"
+
+alias buildjobs="echo ++ building jobs war ++ && mvn clean package -pl jobs-war -am && cp jobs-war/target/zsyncjobs-1.0.0-SNAPSHOT.war /NotBackedUp/tools/jboss-eap/standalone/deployments/jobs.war"

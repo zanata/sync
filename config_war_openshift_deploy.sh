@@ -59,4 +59,4 @@ echo "=== created at $BUNDLE  ===="
 echo "=== next, run:"
 echo "rhc deploy -a $APP $BUNDLE"
 
-rhc deploy -a $APP $BUNDLE
+rhc deploy -a $APP ${BUNDLE}

@@ -40,6 +40,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+
+    <jboss-javaee-6.version>3.0.2.Final-redhat-4</jboss-javaee-6.version>
+    <guava.version>19.0</guava.version>
     <!-- N.B. resteasy provider uses version 2.6.3-->
     <jackson.version>2.6.3</jackson.version>
     <slf4j.version>1.7.13</slf4j.version>
@@ -85,7 +88,7 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
       <dependency>
         <groupId>org.jboss.spec</groupId>
         <artifactId>jboss-javaee-6.0</artifactId>
-        <version>3.0.2.Final-redhat-4</version>
+        <version>${jboss-javaee-6.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -95,6 +98,12 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <artifactId>lombok</artifactId>
         <version>1.16.6</version>
         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
 
       <dependency>
@@ -246,6 +255,19 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
       </dependency>
 
       <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+        <!--jboss also has this-->
+        <!--<scope>provided</scope>-->
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.12</version>
@@ -319,5 +341,6 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
     <module>sync-common</module>
     <module>git-plugin</module>
     <!--<module>frontend</module>-->
+    <module>jobs-war</module>
   </modules>
 </project>
