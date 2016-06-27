@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
+import org.zanata.sync.events.JobStartedEvent;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
@@ -51,13 +52,6 @@ public class SyncJobListener implements JobListener {
     @Override
     public void jobToBeExecuted(JobExecutionContext context) {
         log.info("job about to be fired: {}", context.getTrigger());
-        SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
-        SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
-        JobType jobType = syncJobDataMap.getJobType();
-
-        JobProgressEvent event = JobProgressEvent
-                .running(context.getFireInstanceId(), workConfig, jobType);
-        fireCDIEvent(event);
     }
 
     @Override
@@ -68,24 +62,23 @@ public class SyncJobListener implements JobListener {
     public void jobWasExecuted(JobExecutionContext context,
             JobExecutionException jobException) {
         log.info("job fired with trigger: {}", context.getTrigger());
-        JobRunCompletedEvent event;
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
         SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
         JobType jobType = syncJobDataMap.getJobType();
         if (jobException != null) {
-            event = new JobRunCompletedEvent(context.getFireInstanceId(),
-                    workConfig.getId(),
-                    context.getJobRunTime(),
-                    context.getFireTime(),
-                    jobType, JobStatusType.ERROR);
+            JobRunCompletedEvent completedEvent =
+                    JobRunCompletedEvent.endedInError(context.getFireInstanceId(),
+                            workConfig.getId(),
+                            context.getJobRunTime(),
+                            context.getFireTime(), jobType);
+            fireCDIEvent(completedEvent);
+
         } else {
-            event = new JobRunCompletedEvent(context.getFireInstanceId(),
-                    workConfig.getId(),
-                    context.getJobRunTime(),
-                    context.getFireTime(),
-                    jobType, JobStatusType.COMPLETE);
+            JobStartedEvent event = new JobStartedEvent(context.getFireInstanceId(),
+                    workConfig.getId(), jobType, context.getFireTime(),
+                    JobStatusType.STARTED, context.getJobDetail().getKey());
+            fireCDIEvent(event);
         }
-        fireCDIEvent(event);
     }
 
     private static void fireCDIEvent(Object event) {

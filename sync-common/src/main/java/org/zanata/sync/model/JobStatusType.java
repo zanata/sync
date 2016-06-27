@@ -24,5 +24,9 @@ package org.zanata.sync.model;
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 public enum JobStatusType {
-    RUNNING, NONE, COMPLETE, ERROR;
+    STARTED, RUNNING, NONE, COMPLETED, ERROR;
+
+    public boolean isFinished() {
+        return this.equals(COMPLETED) || this.equals(ERROR);
+    }
 }

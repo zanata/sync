@@ -22,6 +22,7 @@ package org.zanata.sync.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -38,6 +39,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.google.common.base.MoreObjects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -94,4 +96,31 @@ public class JobStatus implements Serializable {
         this.nextStartTime = nextStartTime;
     }
 
+    public static JobStatus started(String id, SyncWorkConfig workConfig,
+            JobType jobType, Date startTime, Date nextFireTime) {
+        return new JobStatus(id, workConfig, jobType, JobStatusType.STARTED,
+                startTime, null, nextFireTime);
+    }
+
+    public void setStatus(JobStatusType status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("status", status)
+                .add("jobType", jobType)
+                .add("startTime", startTime)
+                .add("endTime", endTime)
+                .add("nextStartTime", nextStartTime)
+                .add("workConfig", workConfig)
+                .toString();
+    }
+
+    public void changeState(Date endTime, JobStatusType statusType) {
+        this.endTime = endTime;
+        this.status = statusType;
+    }
 }

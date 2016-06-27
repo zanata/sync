@@ -52,7 +52,7 @@ public class SyncJob implements InterruptableJob {
 
             Client client = provider.getBean();
             new RemoteJobExecutor(client)
-                    .executeJob(syncWorkConfig.getId(), syncWorkConfig,
+                    .executeJob(context.getFireInstanceId(), syncWorkConfig,
                             jobType);
 
         } catch (Exception e) {

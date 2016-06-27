@@ -27,6 +27,7 @@ import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.util.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.base.Preconditions;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -49,6 +50,7 @@ public class JobRunStatus {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TIMESTAMP_FMT)
     private Date nextStartTime;
 
+    @SuppressWarnings("unused")
     protected JobRunStatus() {
     }
 
@@ -64,13 +66,19 @@ public class JobRunStatus {
         this.nextStartTime = nextStartTime;
     }
 
-    public static JobRunStatus fromEntity(JobStatus entity) {
+    public static JobRunStatus fromEntity(JobStatus entity, Long configId, JobType jobType) {
         if (entity == JobStatus.EMPTY) {
-            return null;
+            return notYetStarted(configId, jobType);
         }
-        return new JobRunStatus(entity.getWorkConfig().getId(), entity.getId(), entity.getStatus(),
+        return new JobRunStatus(entity.getWorkConfig().getId(), entity.getId(),
+                entity.getStatus(),
                 entity.getJobType(), entity.getStartTime(), entity.getEndTime(),
                 entity.getNextStartTime());
+    }
+
+    private static JobRunStatus notYetStarted(Long configId, JobType jobType) {
+        return new JobRunStatus(configId, null, JobStatusType.NONE, jobType,
+                null, null, null);
     }
 
     public Long getWorkId() {

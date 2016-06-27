@@ -22,11 +22,14 @@ package org.zanata.sync.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -37,12 +40,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.JobRunStatus;
 import org.zanata.sync.dto.Payload;
+import org.zanata.sync.events.JobProgressEvent;
+import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.dto.JobSummary;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.dto.RunningJobKey;
+import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import com.google.common.base.Strings;
@@ -64,6 +70,12 @@ public class JobResource {
     @Inject
     private WorkService workServiceImpl;
 
+    @Inject
+    private Event<JobRunCompletedEvent> jobRunCompletedEvent;
+
+    @Inject
+    private Event<JobProgressEvent> jobProgressEvent;
+
     /**
      * Get job status
      *
@@ -83,7 +95,8 @@ public class JobResource {
             }
             JobStatus jobStatus = schedulerServiceImpl
                     .getLatestJobStatus(id, type);
-            return Response.ok(JobRunStatus.fromEntity(jobStatus)).build();
+            return Response.ok(JobRunStatus.fromEntity(jobStatus, id, type))
+                    .build();
         } catch (SchedulerException e) {
             log.error("get job status error", e);
             return Response.serverError().build();
@@ -93,7 +106,38 @@ public class JobResource {
         }
     }
 
+    @Path("/status")
+    @PUT
+    // FIXME we may need a different kind of security interceptor here to allow jobs to post back status
+    @NoSecurityCheck
+    public Response changeJobStatus(@QueryParam("id") String jobFiringId,
+            @QueryParam("status") JobStatusType status) {
+        if (Strings.isNullOrEmpty(jobFiringId) || status == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Optional<JobStatus> jobStatusOpt =
+                schedulerServiceImpl.getJobStatusByFiringId(jobFiringId);
+        if (!jobStatusOpt.isPresent()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        JobStatus jobStatus = jobStatusOpt.get();
+        SyncWorkConfig workConfig = jobStatus.getWorkConfig();
+        JobType jobType = jobStatus.getJobType();
+        if (status.isFinished()) {
+            jobRunCompletedEvent
+                    .fire(JobRunCompletedEvent.finished(jobFiringId, workConfig
+                            .getId(), jobType, status));
+        } else {
+            jobProgressEvent.fire(
+                    JobProgressEvent.running(jobFiringId, workConfig.getId()));
+        }
+        return Response.ok().build();
+    }
+
     /**
+     * TODO may not support this
      * Cancel job if it is running
      *
      * @param id - work identifier

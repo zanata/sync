@@ -20,19 +20,32 @@
  */
 package org.zanata.sync.events;
 
-import com.google.common.base.MoreObjects;
-import lombok.AllArgsConstructor;
+import java.util.Date;
+
+import org.quartz.JobKey;
+import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.model.JobType;
 
 /**
- * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@AllArgsConstructor
-public class JobProgressEvent {
+public class JobStartedEvent {
     private String firingId;
     private Long configId;
+    private JobType jobType;
+    private Date startTime;
+    private JobStatusType jobStatusType;
+    private JobKey jobKey;
 
-    public static JobProgressEvent running(String fireInstanceId, Long configId) {
-        return new JobProgressEvent(fireInstanceId, configId);
+    public JobStartedEvent(String firingId, Long configId,
+            JobType jobType, Date startTime,
+            JobStatusType jobStatusType, JobKey jobKey) {
+        this.firingId = firingId;
+        this.configId = configId;
+        this.jobType = jobType;
+        this.startTime = startTime;
+        this.jobStatusType = jobStatusType;
+        this.jobKey = jobKey;
     }
 
     public String getFiringId() {
@@ -43,11 +56,19 @@ public class JobProgressEvent {
         return configId;
     }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("firingId", firingId)
-                .add("configId", configId)
-                .toString();
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public JobStatusType getJobStatusType() {
+        return jobStatusType;
+    }
+
+    public JobKey getJobKey() {
+        return jobKey;
     }
 }
