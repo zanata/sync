@@ -20,6 +20,7 @@
  */
 package org.zanata.sync.jobs.api;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -107,9 +108,7 @@ public class JobRunnerManager {
                     doneJobsBuilder.put(jobId, future);
                 }
             });
-            // TODO post back status
-            ImmutableMap<String, Future<Response>> doneJobs =
-                    doneJobsBuilder.build();
+            Map<String, Future<Response>> doneJobs = doneJobsBuilder.build();
             jobStatusPublisher.publish(doneJobs);
             runningJobs.invalidateAll(doneJobs.keySet());
         } finally {

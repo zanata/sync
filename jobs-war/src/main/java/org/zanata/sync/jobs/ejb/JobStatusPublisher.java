@@ -20,6 +20,7 @@
  */
 package org.zanata.sync.jobs.ejb;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.ejb.AsyncResult;
@@ -56,10 +57,10 @@ public class JobStatusPublisher {
     private Client client;
 
     public JobStatusPublisher() {
-        // This will create a threadsafe JAX-RS client using .
+        // This will create a threadsafe JAX-RS client using pooled connections.
         // Per default this implementation will create no more than than 2
         // concurrent connections per given route and no more 20 connections in
-        // total. (see its javadoc for more details)
+        // total. (see javadoc of PoolingHttpClientConnectionManager)
         PoolingHttpClientConnectionManager cm =
                 new PoolingHttpClientConnectionManager();
 
@@ -71,7 +72,7 @@ public class JobStatusPublisher {
     }
 
     private void putStatus(String jobId, JobStatusType statusType) {
-        log.info("======== {} -> {}", jobId, statusType);
+        log.debug("put job status {} -> {}", jobId, statusType);
         try {
             client.target(configWarUrl).path("api").path("job").path("status")
                     .queryParam("id", jobId)
@@ -85,7 +86,7 @@ public class JobStatusPublisher {
         }
     }
 
-    public Future<Boolean> publish(ImmutableMap<String, Future<Response>> doneJobs) {
+    public Future<Boolean> publish(Map<String, Future<Response>> doneJobs) {
         doneJobs.forEach((jobId, future) -> {
             try {
                 Response response = future.get();
