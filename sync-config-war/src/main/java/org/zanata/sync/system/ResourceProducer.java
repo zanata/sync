@@ -18,28 +18,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.db;
+package org.zanata.sync.system;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
-import javax.sql.DataSource;
 import javax.ws.rs.client.Client;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
-import org.hibernate.Session;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.App;
@@ -97,7 +89,7 @@ public class ResourceProducer {
                 .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
         return objectMapper;
     }
-    
+
     @Produces
     protected Client getRestClient() {
         return ResteasyClientBuilder.newBuilder().build();
