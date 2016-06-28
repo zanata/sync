@@ -27,11 +27,11 @@ while getopts ":b" opt; do
 done
 
 
-WAR=$(ls ./jobs/target/*.war)
+WAR=$(ls ./jobs-war/target/*.war)
 
 echo "[!] war file:$WAR"
 
-if [ ! -f ${WAR} ]; then
+if [ ! -f "$WAR" ]; then
     echo "=== war file not exist at $WAR. Give option -b to build it first."
     exit 1
 fi
