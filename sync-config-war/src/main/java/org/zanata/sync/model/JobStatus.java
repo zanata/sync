@@ -119,8 +119,10 @@ public class JobStatus implements Serializable {
                 .toString();
     }
 
-    public void changeState(Date endTime, JobStatusType statusType) {
+    public void changeState(Date endTime, Date nextFireTime,
+            JobStatusType statusType) {
         this.endTime = endTime;
+        this.nextStartTime = nextFireTime;
         this.status = statusType;
     }
 }

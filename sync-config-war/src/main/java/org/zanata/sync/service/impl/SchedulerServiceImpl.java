@@ -106,6 +106,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                 syncWorkConfigRepository.load(event.getConfigId());
         if (workConfig.isPresent()) {
             jobStatusRepository.updateJobStatus(event.getFiringId(), null,
+                    event.getNextFireTime(),
                     JobStatusType.RUNNING);
         }
     }
@@ -118,12 +119,11 @@ public class SchedulerServiceImpl implements SchedulerService {
         Optional<SyncWorkConfig> workConfig =
                 syncWorkConfigRepository.load(event.getConfigId());
         if (workConfig.isPresent()) {
-            Optional<Date> nextFireTime =
-                    getNextFireTime(event.getConfigId(), event.getJobType());
+
             JobStatus status = JobStatus
                     .started(event.getFiringId(), workConfig.get(),
                             event.getJobType(),
-                            event.getStartTime(), nextFireTime.orElse(null));
+                            event.getStartTime(), null);
 
             jobStatusRepository.saveJobStatus(status);
         }
@@ -142,8 +142,11 @@ public class SchedulerServiceImpl implements SchedulerService {
                     syncWorkConfig.getName() + " is completed.");
 
             Date endTime = event.getEndTime();
+            Date nextFireTime =
+                    getNextFireTime(syncWorkConfig.getId(), event.getJobType())
+                            .orElse(null);
             jobStatusRepository.updateJobStatus(event.getJobFireId(), endTime,
-                    event.getJobStatusType());
+                    nextFireTime, event.getJobStatusType());
         }
     }
 

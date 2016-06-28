@@ -83,8 +83,9 @@ public class SyncJobListener implements JobListener {
                             context.getFireTime(), jobType);
             fireCDIEvent(completedEvent);
         } else {
-            JobProgressEvent event = new JobProgressEvent(context.getFireInstanceId(),
-                    workConfig.getId());
+            JobProgressEvent event = JobProgressEvent.running(
+                    context.getFireInstanceId(), workConfig.getId(),
+                    context.getNextFireTime());
             fireCDIEvent(event);
         }
     }

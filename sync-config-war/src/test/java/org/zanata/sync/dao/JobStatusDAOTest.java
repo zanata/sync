@@ -1,5 +1,11 @@
 package org.zanata.sync.dao;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
@@ -35,13 +41,11 @@ public class JobStatusDAOTest {
                         JobStatusType.RUNNING, null, null, null);
         dao.saveJobStatus(jobStatus);
 
-        JobStatus jobStatusWithSameId =
-                new JobStatus("id", syncWorkConfig, JobType.REPO_SYNC,
-                        JobStatusType.ERROR, null, null, null);
-        dao.saveJobStatus(jobStatusWithSameId);
-
         JobStatus status = entityManagerRule.getEm().find(JobStatus.class, "id");
-        assertThat(status.getStatus())
-                .isEqualTo(JobStatusType.ERROR);
+        assertThat(status.getStatus()).isEqualTo(JobStatusType.RUNNING);
+
+        dao.updateJobStatus("id", new Date(), null, JobStatusType.COMPLETED);
+        status = entityManagerRule.getEm().find(JobStatus.class, "id");
+        assertThat(status.getStatus()).isEqualTo(JobStatusType.COMPLETED);
     }
 }

@@ -20,6 +20,8 @@
  */
 package org.zanata.sync.events;
 
+import java.util.Date;
+
 import com.google.common.base.MoreObjects;
 import lombok.AllArgsConstructor;
 
@@ -30,9 +32,14 @@ import lombok.AllArgsConstructor;
 public class JobProgressEvent {
     private String firingId;
     private Long configId;
+    private Date nextFireTime;
 
     public static JobProgressEvent running(String fireInstanceId, Long configId) {
-        return new JobProgressEvent(fireInstanceId, configId);
+        return running(fireInstanceId, configId, null);
+    }
+
+    public static JobProgressEvent running(String fireInstanceId, Long configId, Date nextFireTime) {
+        return new JobProgressEvent(fireInstanceId, configId, nextFireTime);
     }
 
     public String getFiringId() {
@@ -43,11 +50,16 @@ public class JobProgressEvent {
         return configId;
     }
 
+    public Date getNextFireTime() {
+        return nextFireTime;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("firingId", firingId)
                 .add("configId", configId)
+                .add("nextFireTime", nextFireTime)
                 .toString();
     }
 }

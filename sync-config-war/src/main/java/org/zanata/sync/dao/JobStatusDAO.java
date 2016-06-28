@@ -23,6 +23,7 @@ package org.zanata.sync.dao;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
@@ -30,7 +31,6 @@ import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
@@ -82,13 +82,14 @@ public class JobStatusDAO {
     }
 
     @TransactionAttribute
-    public void updateJobStatus(String jobId, Date endTime, JobStatusType statusType) {
+    public void updateJobStatus(String jobId, @Nullable Date endTime,
+            @Nullable Date nextFireTime, JobStatusType statusType) {
         JobStatus entity =
                 entityManager.find(JobStatus.class, jobId);
         if (entity != null) {
-            entity.changeState(endTime, statusType);
-            log.debug("JobStatus for {} updated. endTime:{}, status: {}", jobId,
-                    endTime, statusType);
+            entity.changeState(endTime, nextFireTime, statusType);
+            log.debug("JobStatus for {} updated. endTime: {}, nextFireTime: {}, status: {}", jobId,
+                    endTime, nextFireTime, statusType);
         } else {
             log.warn("job {} not found", jobId);
         }
