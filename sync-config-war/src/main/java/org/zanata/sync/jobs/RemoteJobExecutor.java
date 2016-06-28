@@ -80,14 +80,14 @@ public class RemoteJobExecutor {
         log.debug("about to execute job remotely with: {}", jobDetail);
         Response response;
         switch (jobType) {
-            case SERVER_SYNC:
+            case REPO_SYNC:
                 response = client.target(JOB_SERVER_URL)
                         .path("api").path("job").path("2repo").path("start").path(id)
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
                 break;
-            case REPO_SYNC:
+            case SERVER_SYNC:
                 response = client.target(JOB_SERVER_URL)
                         .path("api").path("job").path("2zanata").path("start").path(id)
                         .request(MediaType.APPLICATION_JSON_TYPE)
@@ -98,7 +98,7 @@ public class RemoteJobExecutor {
                 throw new IllegalStateException("impossible. Unknown job type:" + jobType);
         }
         log.info("remote job executed result: {}", response.getStatusInfo());
-        if (!response.getStatusInfo().equals(Response.Status.OK)) {
+        if (response.getStatus() > 300) {
             Object entity = response.getEntity();
             String message = entity != null ? entity.toString()
                     : "remote job returned status:" + response.getStatusInfo();

@@ -65,18 +65,6 @@ public class SyncJob implements InterruptableJob {
     public final void interrupt() throws UnableToInterruptJobException {
         // TODO we need to interrupt remote job execution
         throw new UnableToInterruptJobException("not supported yet");
-//        interrupted = true;
-//        Thread.currentThread().interrupt();
-//        updateProgress(syncWorkConfig.getId(), 0, "job interrupted",
-//            JobStatusType.INTERRUPTED);
     }
-
-    /*private void updateProgress(Long id, double completePercent,
-            String description, JobStatusType jobStatusType) {
-        JobProgressEvent event =
-            new JobProgressEvent(id, jobType, completePercent,
-                description, jobStatusType);
-        BeanManagerProvider.getInstance().getBeanManager().fireEvent(event);
-    }*/
 
 }
