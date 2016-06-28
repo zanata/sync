@@ -41,6 +41,7 @@
 
 	<system-properties>
        <property name="org.apache.coyote.http11.Http11Protocol.COMPRESSION" value="on"/>
+		<property name="sync.config.war.url" value="${env.sync_config_war_url}" />
     </system-properties>
 
 	<management>
