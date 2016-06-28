@@ -28,6 +28,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -75,6 +76,16 @@ public class JobResource {
 
     @Inject
     private Event<JobProgressEvent> jobProgressEvent;
+
+    /**
+     * Right now this is used as heart beat checker.
+     * @return 200 ok
+     */
+    @HEAD
+    @NoSecurityCheck
+    public Response head() {
+        return Response.ok().build();
+    }
 
     /**
      * Get job status

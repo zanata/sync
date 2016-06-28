@@ -51,7 +51,15 @@ public class SyncJobListener implements JobListener {
 
     @Override
     public void jobToBeExecuted(JobExecutionContext context) {
-        log.info("job about to be fired: {}", context.getTrigger());
+        SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
+        SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
+        JobType jobType = syncJobDataMap.getJobType();
+        log.debug("=== job to be executed: {} {}", workConfig, jobType);
+
+        JobStartedEvent event = new JobStartedEvent(context.getFireInstanceId(),
+                workConfig.getId(), jobType, context.getFireTime(),
+                JobStatusType.STARTED, context.getJobDetail().getKey());
+        fireCDIEvent(event);
     }
 
     @Override
@@ -61,10 +69,12 @@ public class SyncJobListener implements JobListener {
     @Override
     public void jobWasExecuted(JobExecutionContext context,
             JobExecutionException jobException) {
-        log.info("job fired with trigger: {}", context.getTrigger());
+
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
         SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
         JobType jobType = syncJobDataMap.getJobType();
+        log.debug("=== job was executed for: {} {}", workConfig, jobType);
+
         if (jobException != null) {
             JobRunCompletedEvent completedEvent =
                     JobRunCompletedEvent.endedInError(context.getFireInstanceId(),
@@ -72,11 +82,9 @@ public class SyncJobListener implements JobListener {
                             context.getJobRunTime(),
                             context.getFireTime(), jobType);
             fireCDIEvent(completedEvent);
-
         } else {
-            JobStartedEvent event = new JobStartedEvent(context.getFireInstanceId(),
-                    workConfig.getId(), jobType, context.getFireTime(),
-                    JobStatusType.STARTED, context.getJobDetail().getKey());
+            JobProgressEvent event = new JobProgressEvent(context.getFireInstanceId(),
+                    workConfig.getId());
             fireCDIEvent(event);
         }
     }

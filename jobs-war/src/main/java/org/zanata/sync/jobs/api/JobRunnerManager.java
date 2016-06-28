@@ -20,9 +20,9 @@
  */
 package org.zanata.sync.jobs.api;
 
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -39,13 +39,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.common.Either;
 import org.zanata.sync.jobs.ejb.JobRunner;
+import org.zanata.sync.jobs.ejb.JobStatusPublisher;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap;
 
 /**
+ * It's singleton per JVM. It's okay to scale the app as long as each deployment
+ * don't share anything in here.
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Singleton
@@ -53,13 +57,16 @@ import com.google.common.collect.Sets;
 public class JobRunnerManager {
     private static final Logger log =
             LoggerFactory.getLogger(JobRunnerManager.class);
-    private Cache<String, Future<Response>> runningJobs = CacheBuilder.newBuilder().build();
+    private Cache<String, Future<Response>> runningJobs =
+            CacheBuilder.newBuilder().build();
 
     @Resource
     private TimerService timerService;
 
     @Inject
     private JobStatusPublisher jobStatusPublisher;
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @PostConstruct
     public void init() {
@@ -79,36 +86,37 @@ public class JobRunnerManager {
     @Timeout
     public void onTimeout(Timer timer) {
         if (log.isDebugEnabled()) {
-            log.debug("running {}. Next timeout {} - remaining {}", timer.getInfo(),
+            log.debug("running {}. Next timeout {} - remaining {}",
+                    timer.getInfo(),
                     timer.getNextTimeout(), timer.getTimeRemaining());
         }
-        Set<String> doneJobs = Sets.newLinkedHashSet();
-        runningJobs.asMap().forEach((jobId, future) -> {
-            if (future.isDone()) {
-                doneJobs.add(jobId);
+        boolean acquired = false;
+        try {
+            acquired = lock.tryLock();
+            if (!acquired) {
+                // another timer thread is calling this method, quit
+                return;
             }
-        });
-        // TODO post back status
-        for (String doneJob : doneJobs) {
-            Future<Response> responseFuture = runningJobs.getIfPresent(doneJob);
-            if (responseFuture != null) {
-                try {
-                    Response response = responseFuture.get();
-                    if (response.getStatus() ==
-                            Response.Status.OK.getStatusCode()) {
-                        jobStatusPublisher.publishJobStatusSuccess(doneJob);
-                    } else {
-                        log.debug("job response is not ok: {}",
-                                response.getStatus());
-                        jobStatusPublisher.publishJobStatusError(doneJob);
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    log.warn("exception getting future result", e);
-                    jobStatusPublisher.publishJobStatusError(doneJob);
+            if (runningJobs.size() == 0) {
+                return;
+            }
+            ImmutableMap.Builder<String, Future<Response>> doneJobsBuilder =
+                    ImmutableMap.builder();
+            runningJobs.asMap().forEach((jobId, future) -> {
+                if (future.isDone()) {
+                    doneJobsBuilder.put(jobId, future);
                 }
+            });
+            // TODO post back status
+            ImmutableMap<String, Future<Response>> doneJobs =
+                    doneJobsBuilder.build();
+            jobStatusPublisher.publish(doneJobs);
+            runningJobs.invalidateAll(doneJobs.keySet());
+        } finally {
+            if (acquired) {
+                lock.unlock();
             }
         }
-        runningJobs.invalidateAll(doneJobs);
     }
 
     @EJB
