@@ -43,6 +43,8 @@
 
     <jboss-javaee-6.version>3.0.2.Final-redhat-4</jboss-javaee-6.version>
     <guava.version>19.0</guava.version>
+    <cdi-api.version>1.0-SP4</cdi-api.version>
+    <validation-api.version>1.0.0.GA</validation-api.version>
     <!-- N.B. resteasy provider uses version 2.6.3-->
     <jackson.version>2.6.3</jackson.version>
     <slf4j.version>1.7.13</slf4j.version>
@@ -122,6 +124,13 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <version>${jackson.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>${cdi-api.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
       <!-- resteasy -->
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
@@ -159,6 +168,10 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
             <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -187,11 +200,19 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <version>${resteasy.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>${validation-api.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
       <!-- hibernate -->
       <dependency>
         <groupId>org.hibernate.common</groupId>
         <artifactId>hibernate-commons-annotations</artifactId>
         <version>4.0.4.Final</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>org.jboss.logging</groupId>
@@ -203,6 +224,7 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${hibernate.version}</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>org.jboss.logging</groupId>
@@ -214,6 +236,7 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
         <version>${hibernate.version}</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>javassist</groupId>
@@ -225,6 +248,7 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate.validator.version}</version>
+        <scope>provided</scope>
         <exclusions>
           <exclusion>
             <groupId>org.jboss.logging</groupId>

@@ -221,6 +221,12 @@
       <groupId>org.scannotation</groupId>
       <artifactId>scannotation</artifactId>
       <version>1.0.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javassist</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

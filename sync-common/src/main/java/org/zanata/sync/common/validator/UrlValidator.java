@@ -18,11 +18,11 @@ public class UrlValidator implements Validator {
 
     @Override
     public String validate(String value) {
-        if(value == null || value.length() <= 0) {
+        if (value == null || value.length() <= 0) {
             return Messages.getString("validation.string.notEmpty");
         }
-        if(urlValidator.isValid(value)) {
-           return null;
+        if (urlValidator.isValid(value)) {
+            return null;
         }
         return Messages.getString("validation.url.invalid", value);
     }
