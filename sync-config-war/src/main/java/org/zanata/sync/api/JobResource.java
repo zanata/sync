@@ -117,6 +117,15 @@ public class JobResource {
         }
     }
 
+    /**
+     * Accepts callback from jobs-war app.
+     *
+     * @param jobFiringId
+     *         the job firing id
+     * @param status
+     *         status
+     * @return 200 ok
+     */
     @Path("/status")
     @PUT
     // FIXME we may need a different kind of security interceptor here to allow jobs to post back status
