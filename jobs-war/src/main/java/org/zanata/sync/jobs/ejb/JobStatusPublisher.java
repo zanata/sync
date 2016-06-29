@@ -20,10 +20,8 @@
  */
 package org.zanata.sync.jobs.ejb;
 
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import javax.ejb.AsyncResult;
+import javax.enterprise.context.Dependent;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -39,13 +37,16 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.system.ResourceProducer;
 import org.zanata.sync.jobs.system.SysConfig;
 import org.zanata.sync.model.JobStatusType;
-import com.google.common.collect.ImmutableMap;
 
-import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 /**
+ * This is used by the stateless EJB. So its lifecycle will be bound to the EJB
+ * which I think it's pooled.
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
+@Dependent
 public class JobStatusPublisher {
     private static final Logger log =
             LoggerFactory.getLogger(JobStatusPublisher.class);
@@ -71,7 +72,7 @@ public class JobStatusPublisher {
         client = new ResteasyClientBuilder().httpEngine(engine).build();
     }
 
-    private void putStatus(String jobId, JobStatusType statusType) {
+    void putStatus(String jobId, JobStatusType statusType) {
         log.debug("put job status {} -> {}", jobId, statusType);
         try {
             client.target(configWarUrl).path("api").path("job").path("status")
@@ -86,23 +87,14 @@ public class JobStatusPublisher {
         }
     }
 
-    public Future<Boolean> publish(Map<String, Future<Response>> doneJobs) {
-        doneJobs.forEach((jobId, future) -> {
-            try {
-                Response response = future.get();
-                if (response.getStatus() ==
-                        Response.Status.OK.getStatusCode()) {
-                    putStatus(jobId, JobStatusType.COMPLETED);
-                } else {
-                    log.debug("job response is not ok: {}",
-                            response.getStatus());
-                    putStatus(jobId, JobStatusType.ERROR);
-                }
-            } catch (InterruptedException | ExecutionException ee) {
-                log.warn("exception getting future result", ee);
-                putStatus(jobId, JobStatusType.ERROR);
-            }
-        });
-        return new AsyncResult<>(true);
+    void publishStatus(String jobId, Response response) {
+        if (response.getStatus() ==
+                Response.Status.OK.getStatusCode()) {
+            putStatus(jobId, JobStatusType.COMPLETED);
+        } else {
+            log.debug("job response is not ok: {}",
+                    response.getStatus());
+            putStatus(jobId, JobStatusType.ERROR);
+        }
     }
 }

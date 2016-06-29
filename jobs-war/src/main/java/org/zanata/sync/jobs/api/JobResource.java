@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.common.Either;
 import org.zanata.sync.jobs.common.model.ErrorMessage;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
+import org.zanata.sync.jobs.ejb.JobRunner;
 import org.zanata.sync.jobs.plugin.Plugins;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
@@ -57,7 +58,7 @@ public class JobResource {
     private static final Plugins PLUGINS = new Plugins();
 
     @Inject
-    private JobRunnerManager jobRunnerManager;
+    private JobRunner jobRunner;
 
 
     // TODO until we make trigger job an aync task, we won't be able to get status or cancel running job (To make it an async task, we will need database backend to store running job)
@@ -145,7 +146,7 @@ public class JobResource {
         Either<ZanataSyncService, Response> zanataSyncService =
                 createZanataSyncService(jobDetail);
 
-        jobRunnerManager.syncToZanata(srcRepoPlugin, zanataSyncService, id);
+        jobRunner.syncToZanata(srcRepoPlugin, zanataSyncService, id);
         // TODO return a URI to get access to the async job
         return Response.created(URI.create(id)).build();
     }
@@ -225,7 +226,7 @@ public class JobResource {
                 createRepoSyncService(jobDetail);
         Either<ZanataSyncService, Response> zanataSyncService =
                 createZanataSyncService(jobDetail);
-        jobRunnerManager.syncToSourceRepo(id, srcRepoPlugin, zanataSyncService);
+        jobRunner.syncToSrcRepo(id, srcRepoPlugin, zanataSyncService);
 
         // TODO create URI to access running async job
         return Response.created(URI.create(id)).build();
