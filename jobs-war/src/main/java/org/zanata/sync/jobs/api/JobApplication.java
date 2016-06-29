@@ -24,8 +24,6 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.zanata.sync.jobs.common.exception.RepoSyncExMapper;
-import org.zanata.sync.jobs.common.exception.ZanataSyncExMapper;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -40,8 +38,6 @@ public class JobApplication extends Application {
                 // api classes
                 .add(JobResource.class)
                 // providers
-                .add(ZanataSyncExMapper.class)
-                .add(RepoSyncExMapper.class)
                 .build();
     }
 
