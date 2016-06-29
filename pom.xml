@@ -54,6 +54,7 @@
     <hibernate.validator.version>4.3.2.Final</hibernate.validator.version>
     <hibernate.version>4.2.19.Final</hibernate.version>
     <findbugs.maven.version>3.0.1</findbugs.maven.version>
+    <javamelody.version>1.60.0</javamelody.version>
 
     <!-- where to put node js and npm -->
     <frontend.plugin.version>0.0.29</frontend.plugin.version>
@@ -276,6 +277,12 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
             <artifactId>jcip-annotations</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>net.bull.javamelody</groupId>
+        <artifactId>javamelody-core</artifactId>
+        <version>${javamelody.version}</version>
       </dependency>
 
       <dependency>

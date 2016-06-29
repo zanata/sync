@@ -2,7 +2,7 @@ import React from 'react'
 import {PropTypes} from 'react'
 
 function description(label, value) {
-  return (
+  return value && (
     <div className='row'>
       <div className='col-sm-4 text-info'>{label}</div>
       <div className='col-sm-8'>{value}</div>
@@ -19,33 +19,32 @@ export default React.createClass({
       status: PropTypes.string.isRequired
     }),
     running: PropTypes.bool.isRequired,
+    pollInterval: PropTypes.number.isRequired,
     pollJobStatus: PropTypes.func.isRequired
   },
   render() {
     const {workId, jobType, runJob, lastJobStatus,
-      running, pollJobStatus} = this.props
+      running, pollJobStatus, pollInterval} = this.props
     const runJobCallback = (e) => runJob(workId, jobType)
     const jobDescription = (jobType === 'REPO_SYNC') ? 'Sync to source repo' : 'Sync to Zanata'
 
     if (running) {
       // poll job status every certain seconds
-      setTimeout(() => pollJobStatus(workId, jobType), 1500)
+      setTimeout(() => pollJobStatus(workId, jobType), pollInterval)
     }
 
-    const status = (lastJobStatus && (
-        <div className='row'>
-          {description('started', lastJobStatus.startTime)}
-          {description('ended', lastJobStatus.endTime)}
-          {description('next', lastJobStatus.nextStartTime)}
-          {description('status', lastJobStatus.status)}
-        </div>
+    let statusDisplay = (<div className='row'>Not available</div>)
+    if (lastJobStatus) {
+       statusDisplay = (
+         <div className='row'>
+           {description('started', lastJobStatus.startTime)}
+           {description('ended', lastJobStatus.endTime)}
+           {description('next', lastJobStatus.nextStartTime)}
+           {description('status', lastJobStatus.status)}
+         </div>
+       )
+    }
 
-      )) || (
-        'Not available'
-      )
-
-
-    // TODO handle job run failure
     return (
       <div>
         <div className='clearfix'>
@@ -56,7 +55,7 @@ export default React.createClass({
         </div>
         <div className='container-fluid'>
           <div className='row'><span className='text-info'>Last run status:</span></div>
-          {status}
+          {statusDisplay}
         </div>
       </div>
     )

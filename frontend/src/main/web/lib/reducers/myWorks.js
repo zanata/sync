@@ -5,11 +5,13 @@ import {
   GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS, GET_JOB_STATUS_FAILURE
 } from '../actions'
 import {reducer} from '../utils'
+import Configs from '../constants/Configs'
 
 const defaultState = {
   error: undefined,
   loading: false,
   workSummaries: [],
+  pollInterval: Configs.pollInterval,
   runningJobs: {}
 }
 
@@ -37,7 +39,7 @@ export default handleActions(
       // we use work id and job type as identifier for a job...
       // see JobResource.java
       const runningJobs = Object.assign({}, state.runningJobs)
-      runningJobs[workId + jobType] = true
+      runningJobs[workId + jobType] = 1
       return {
         ...state,
         runningJobs
@@ -59,15 +61,26 @@ export default handleActions(
     [GET_JOB_STATUS_SUCCESS]: (state, action) => {
       const {workId, jobType, status, startTime, endTime} = action.payload
       const runningJobs = Object.assign({}, state.runningJobs)
+      const runningJobKey = workId + jobType
       if (status === 'COMPLETED' || status === 'ERROR') {
-        delete runningJobs[workId + jobType]
-        const workSummary = state.workSummaries.find(work => work.id === workId)
-        const job = jobType === 'REPO_SYNC' ? 'syncToRepoJob' : 'syncToTransServerJob'
-        workSummary[job].lastJobStatus = action.payload
+        delete runningJobs[runningJobKey]
       } else {
-        // TODO we need to do another poll but for now,
-        // a new runningJobs object will cause a re-render which is what we want
+        // we increment the count of the running job by 1
+        runningJobs[runningJobKey] += 1
+        // TODO we need to do another poll but for now
+        // temp hack: a new runningJobs object will cause a re-render which triggers another setTimeout
       }
+
+      const workSummary = state.workSummaries.find(work => work.id === workId)
+      const job = jobType === 'REPO_SYNC' ? 'syncToRepoJob' : 'syncToTransServerJob'
+      workSummary[job].lastJobStatus = action.payload
+
+      // stop polling if we have reached the max poll count
+      if (runningJobs[runningJobKey] >= Configs.maxPollCount) {
+        delete runningJobs[runningJobKey]
+        workSummary[job].lastJobStatus.status = 'Timeout polling result'
+      }
+
       return {
         ...state,
         runningJobs

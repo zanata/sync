@@ -5,13 +5,14 @@ import { loadWorkSummaries, runJob, getLatestJobStatus } from '../actions'
 
 const mapStateToProps = (state) => {
   const username = state.zanata.user ? state.zanata.user.username : undefined
-  const {workSummaries, error, loading, runningJobs} = state.myWorks
+  const {workSummaries, error, loading, runningJobs, pollInterval} = state.myWorks
   return {
     zanataUsername: username,
     workSummaries,
     error,
     loading,
-    runningJobs
+    runningJobs,
+    pollInterval
   }
 }
 

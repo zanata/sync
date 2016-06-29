@@ -38,11 +38,20 @@ const dev = data.dev;
 const user = dataUser ? JSON.parse(dataUser): undefined
 // const user = undefined
 
+function secondsToMilli(num) {
+  return num * 1000
+}
 
+function minutesToMilli(num) {
+  return num * 1000 * 60
+}
 
 // base rest url, e.g http://localhost:8080/rest
 Configs.apiUrl = apiUrl || ''
 Configs.basename = basename || ''
+Configs.pollInterval = secondsToMilli(2)
+Configs.maxPollTimeout = minutesToMilli(5)
+Configs.maxPollCount = Configs.maxPollTimeout / Configs.pollInterval
 // TODO doe we use these?
 Configs.data = data;
 //append with .json extension in 'dev' environment
@@ -50,7 +59,7 @@ Configs.urlPostfix = dev ? '' : '.json?'
 // see org.zanata.rest.editor.dto.User
 // Configs.user = user;
 
-console.log(`${Configs.apiUrl} - ${Configs.basename}` )
+console.log('Configs', Configs)
 
 const loggerOption = {
   // level = 'log': 'log' | 'console' | 'warn' | 'error' | 'info', // console's level
