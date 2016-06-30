@@ -18,15 +18,15 @@ const zanataReducer = (user, zanataServerUrls, srcRepoPlugins) => {
   }
 }
 
-export function withZanataInfo(user, zanataServerUrls, srcRepoPlugins) {
-  invariant(arguments.length == 3, 'you need to supply user, zanataServerUrls and srcRepoPlugins as arguments')
+export function withZanataInfo(user, zanataServerUrls, srcRepoPlugins, Configs) {
+  invariant(arguments.length == 4, 'you need to supply user, zanataServerUrls, srcRepoPlugins and Configs as arguments')
   invariant(srcRepoPlugins.length > 0, 'you need to provide at least one source repo plugin (in main-content element as attribute data-src-repo-plugins')
 
   return combineReducers({
     routing,
     workConfig,
     security,
-    myWorks,
+    myWorks: myWorks(Configs.pollInterval, Configs.maxPollCount),
     zanata: zanataReducer(user, zanataServerUrls, srcRepoPlugins)
   })
 }

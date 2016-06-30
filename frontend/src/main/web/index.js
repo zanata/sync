@@ -78,8 +78,9 @@ const loggerOption = {
 }
 const logger = createLogger(loggerOption)
 
+// TODO put everything in Configs and remove the Configs.js file (nowhere should reference it)
 const store = createStore(
-  rootReducer(user, zanataServerUrls, srcRepoPlugins),
+  rootReducer(user, zanataServerUrls, srcRepoPlugins, Configs),
   applyMiddleware(
     apiMiddleware,
     logger

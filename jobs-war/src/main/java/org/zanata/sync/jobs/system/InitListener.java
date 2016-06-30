@@ -29,6 +29,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
@@ -36,6 +38,8 @@ import com.google.common.base.Preconditions;
  */
 @WebListener
 public class InitListener implements ServletContextListener {
+    private static final Logger log =
+            LoggerFactory.getLogger(InitListener.class);
     @Inject
     @SysConfig(ResourceProducer.CONFIG_WAR_URL_KEY)
     private String configWarUrl;
@@ -46,6 +50,10 @@ public class InitListener implements ServletContextListener {
         Preconditions.checkNotNull(configWarUrl,
                 "You must set system property:" +
                         ResourceProducer.CONFIG_WAR_URL_KEY);
+        if (configWarUrl.matches("//localhost")) {
+            log.info("=== skip config war health check for localhost ===");
+            return;
+        }
         Client client = ResteasyClientBuilder.newClient();
         try {
             Response response =

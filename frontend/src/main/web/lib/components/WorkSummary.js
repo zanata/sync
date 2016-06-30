@@ -21,27 +21,11 @@ export default React.createClass({
   },
 
   render() {
-    // TODO remove this. this is for reference only
-    const progress = (
-      <div className="progress-container progress-description-left progress-label-right">
-        <div className="progress-description">
-          CPU
-        </div>
-        <div className="progress">
-          <div className="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;" data-toggle="tooltip" title="" data-original-title="25% Used">
-            <span><strong>115 of 460</strong> MHz</span>
-          </div>
-          <div className="progress-bar progress-bar-remaining" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%;" data-toggle="tooltip" title="" data-original-title="75% Available">
-            <span className="sr-only">75% Available</span>
-          </div>
-        </div>
-      </div>
-    )
     const {id, name, description, runJob, syncToRepoJob, syncToTransServerJob,
       runningJobs} = this.props
 
     // TODO make this an enum
-    const syncToRepoRunning = runningJobs[id + 'REPO_SYNC'] || false
+    const syncToRepoRunning = !!runningJobs[id + 'REPO_SYNC']
     const syncToRepoSummary = (
       <JobSummary workId={id} jobKey={syncToRepoJob.jobKey}
         jobType={syncToRepoJob.type} runJob={runJob}
@@ -51,7 +35,7 @@ export default React.createClass({
       />
     )
 
-    const syncToZanataRunning = runningJobs[id + 'SERVER_SYNC'] || false
+    const syncToZanataRunning = !!runningJobs[id + 'SERVER_SYNC']
     const syncToZanataSummary = (
       <JobSummary workId={id} jobKey={syncToTransServerJob.jobKey}
         jobType={syncToTransServerJob.type} runJob={runJob}
@@ -61,7 +45,10 @@ export default React.createClass({
       />
     )
 
-    const cardHeight = 360
+    // TODO we don't display it as it may potentially break the layout. We want to turn this into a tooltip or popover
+    const desc = (<h4 className='small'>{description}</h4>)
+
+    const cardHeight = 460
     const cardStyle = {height: cardHeight + 'px'}
     const cardBodyStyle = {height: cardHeight * 0.8 + 'px'}
     return (
@@ -69,7 +56,6 @@ export default React.createClass({
         <div className="card-pf" style={cardStyle}>
           <div className="card-pf-heading">
             <h4 className="card-pf-title">{name}</h4>
-            <h4 className='small'>{description}</h4>
           </div>
           <div className="card-pf-body" style={cardBodyStyle}>
             {syncToRepoSummary}

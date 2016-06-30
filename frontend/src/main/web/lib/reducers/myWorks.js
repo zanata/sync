@@ -4,22 +4,20 @@ import {
   RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE,
   GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS, GET_JOB_STATUS_FAILURE
 } from '../actions'
-import {reducer} from '../utils'
-import Configs from '../constants/Configs'
+import { reducer } from '../utils'
+import { isJobFinished, toJobSummaryKeyName } from '../constants/Enums'
 
 const defaultState = {
   error: undefined,
   loading: false,
   workSummaries: [],
-  pollInterval: Configs.pollInterval,
   runningJobs: {}
 }
 
-export default handleActions(
+export default (pollInterval, maxPollCount) => handleActions(
   {
     [LOAD_WORKS_REQUEST]: reducer.requestHandler,
     [LOAD_WORKS_SUCCESS]: (state, action) => {
-      console.log(action)
       const summaries = action.payload
       return {
         ...state,
@@ -62,7 +60,7 @@ export default handleActions(
       const {workId, jobType, status, startTime, endTime} = action.payload
       const runningJobs = Object.assign({}, state.runningJobs)
       const runningJobKey = workId + jobType
-      if (status === 'COMPLETED' || status === 'ERROR') {
+      if (isJobFinished(status)) {
         delete runningJobs[runningJobKey]
       } else {
         // we increment the count of the running job by 1
@@ -72,11 +70,11 @@ export default handleActions(
       }
 
       const workSummary = state.workSummaries.find(work => work.id === workId)
-      const job = jobType === 'REPO_SYNC' ? 'syncToRepoJob' : 'syncToTransServerJob'
+      const job = toJobSummaryKeyName(jobType)
       workSummary[job].lastJobStatus = action.payload
 
       // stop polling if we have reached the max poll count
-      if (runningJobs[runningJobKey] >= Configs.maxPollCount) {
+      if (runningJobs[runningJobKey] >= maxPollCount) {
         delete runningJobs[runningJobKey]
         workSummary[job].lastJobStatus.status = 'Timeout polling result'
       }
@@ -94,6 +92,9 @@ export default handleActions(
       }
     }
   },
-  defaultState
+  {
+    ...defaultState,
+    pollInterval
+  }
 )
 

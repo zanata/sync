@@ -5,6 +5,7 @@ http://openshift.github.io/documentation/oo_cartridge_guide.html#jbosseap
 
 TODO:
 
+- refactor: remove username from myWork api (server has it)
 - remove jsf backed beans (controller)
 - use npm install --save react-redux-toastr for better message display
 - npm WARN deprecated minimatch@2.0.10: Please update to minimatch 3.0.2 or higher to avoid a RegExp DoS issue (used by babel-core)
