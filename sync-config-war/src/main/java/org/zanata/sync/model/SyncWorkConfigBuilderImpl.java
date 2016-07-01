@@ -25,8 +25,8 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
                 objectMapper.toJSON(syncWorkForm.getSrcRepoPluginConfig());
         String transServerPluginConfigJson =
                 objectMapper.toJSON(syncWorkForm.getTransServerPluginConfig());
-        String syncToZanataCron = syncWorkForm.getSyncToZanataCron().getExpression();
-        String syncToRepoCron = syncWorkForm.getSyncToRepoCron().getExpression();
+        CronType syncToZanataCron = syncWorkForm.getSyncToZanataCron();
+        CronType syncToRepoCron = syncWorkForm.getSyncToRepoCron();
         return new SyncWorkConfig(syncWorkForm.getId(),
                 syncWorkForm.getName(),
                 syncWorkForm.getDescription(),
@@ -43,34 +43,4 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
         );
     }
 
-    // TODO to be deleted
-    public SyncWorkForm buildForm(SyncWorkConfig syncWorkConfig) {
-
-        SyncWorkForm form = new SyncWorkForm();
-        form.setId(syncWorkConfig.getId());
-        form.setName(syncWorkConfig.getName());
-        form.setDescription(syncWorkConfig.getDescription());
-        form.setEncryptionKey(syncWorkConfig.getEncryptionKey());
-        form.setSrcRepoPluginName(syncWorkConfig.getSrcRepoPluginName());
-
-        form.setSrcRepoPluginConfig(syncWorkConfig.getSrcRepoPluginConfig());
-        form.setTransServerPluginConfig(
-            syncWorkConfig.getTransServerPluginConfig());
-
-        if (!Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
-            form.setSyncOption(syncWorkConfig.getSyncToZanataOption());
-            form.setSyncToZanataCron(
-                    CronType.getTypeFromExpression(
-                            syncWorkConfig.getSyncToZanataCron()));
-        }
-
-        if (!Strings.isNullOrEmpty(syncWorkConfig.getSyncToRepoCron())) {
-            form.setSyncToRepoCron(CronType.getTypeFromExpression(
-                    syncWorkConfig.getSyncToRepoCron()));
-        }
-
-        form.setSyncToRepoEnabled(syncWorkConfig.isSyncToRepoEnabled());
-        form.setSyncToZanataEnabled(syncWorkConfig.isSyncToServerEnabled());
-        return form;
-    }
 }

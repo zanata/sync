@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react'
 import ProgressBar from './ProgressBar'
 import { toJobDescription, isJobFinished } from '../constants/Enums'
+import { formatDate } from '../utils/DateTime'
 
 function description(label, value) {
   return (
@@ -39,9 +40,9 @@ export default React.createClass({
       statusDisplay = (
         <div className='container-fluid'>
           {description('status', lastJobStatus.status)}
-          {description('started', lastJobStatus.startTime)}
-          {description('ended', lastJobStatus.endTime)}
-          {description('next', lastJobStatus.nextStartTime)}
+          {description('started', formatDate(lastJobStatus.startTime))}
+          {description('ended', formatDate(lastJobStatus.endTime))}
+          {description('next', formatDate(lastJobStatus.nextStartTime))}
         </div>
       )
     }

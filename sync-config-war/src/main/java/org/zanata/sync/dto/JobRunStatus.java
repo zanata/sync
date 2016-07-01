@@ -27,13 +27,11 @@ import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.util.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.google.common.base.Preconditions;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class JobRunStatus {
-    private static final String TIMESTAMP_FMT = "yyyy-MM-dd HH:mm:ss";
     private Long workId;
     private String id;
 
@@ -41,13 +39,13 @@ public class JobRunStatus {
 
     private JobType jobType;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TIMESTAMP_FMT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.ISO_JS_DATE_FMT)
     private Date startTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TIMESTAMP_FMT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.ISO_JS_DATE_FMT)
     private Date endTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TIMESTAMP_FMT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.ISO_JS_DATE_FMT)
     private Date nextStartTime;
 
     @SuppressWarnings("unused")

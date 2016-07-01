@@ -113,7 +113,7 @@ export function getLatestJobStatus(workId, jobType) {
   return (dispatch, getState) => {
     dispatch({
       [CALL_API]: {
-        endpoint: `${getState().configs.apiUrl}/api/job/status?id=${workId}&type=${jobType}`,
+        endpoint: `${getState().configs.apiUrl}/api/job/last/status?id=${workId}&type=${jobType}`,
         method: 'GET',
         credentials: 'include',
         types: [GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS,
@@ -135,6 +135,23 @@ export function logout() {
         method: 'POST',
         credentials: 'include',
         types: [LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE]
+      }
+    })
+  }
+}
+
+// =========== load work detail
+export const LOAD_WORK_REQUEST = 'LOAD_WORK_REQUEST'
+export const LOAD_WORK_SUCCESS = 'LOAD_WORK_SUCCESS'
+export const LOAD_WORK_FAILURE = 'LOAD_WORK_FAILURE'
+export function getWorkDetail(id) {
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/work/${id}`,
+        method: 'GET',
+        credentials: 'include',
+        types: [LOAD_WORK_REQUEST, LOAD_WORK_SUCCESS, LOAD_WORK_FAILURE]
       }
     })
   }

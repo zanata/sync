@@ -252,22 +252,13 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public SyncWorkConfig getWork(String id) throws WorkNotFoundException {
+    public SyncWorkConfig getWorkById(Long id) throws WorkNotFoundException {
         Optional<SyncWorkConfig> syncWorkConfig =
-                syncWorkConfigRepository.load(new Long(id));
+                syncWorkConfigRepository.load(id);
         if (!syncWorkConfig.isPresent()) {
-            throw new WorkNotFoundException(id);
+            throw new WorkNotFoundException("id not found:" + id);
         }
         return syncWorkConfig.get();
-    }
-
-    @Override
-    public WorkSummary getWorkSummary(String id) throws WorkNotFoundException {
-        SyncWorkConfig syncWorkConfig = getWork(id);
-        return WorkSummary.toWorkSummary(syncWorkConfig,
-                getLatestJobStatus(syncWorkConfig.getId(), JobType.REPO_SYNC),
-                getLatestJobStatus(syncWorkConfig.getId(),
-                        JobType.SERVER_SYNC));
     }
 
     @Override
@@ -286,6 +277,16 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Override
     public Optional<JobStatus> getJobStatusByFiringId(String jobFiringId) {
         return jobStatusRepository.findById(jobFiringId);
+    }
+
+    @Override
+    public List<JobStatus> getAllJobStatus(Long configId)
+            throws WorkNotFoundException {
+        Optional<SyncWorkConfig> config = syncWorkConfigRepository.load(configId);
+        if (config.isPresent()) {
+            return jobStatusRepository.getJobStatusList(config.get());
+        }
+        throw new WorkNotFoundException("id not found:" + configId);
     }
 
     @Override

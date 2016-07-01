@@ -10,6 +10,18 @@ const JOB_STATUS = new Enum(['COMPLETED', 'ERROR', 'RUNNING', 'STARTED'], {
   ignoreCase: true
 })
 
+export function isSuccess(status) {
+  return JOB_STATUS.get(status) === JOB_STATUS.get('COMPLETED')
+}
+
+export function isError(status) {
+  return JOB_STATUS.get(status) === JOB_STATUS.get('ERROR')
+}
+
+export function isRunning(status) {
+  return JOB_STATUS.get(status) === JOB_STATUS.get('RUNNING')
+}
+
 
 export function isJobFinished(status) {
   const finished = JOB_STATUS.get('COMPLETED | ERROR')

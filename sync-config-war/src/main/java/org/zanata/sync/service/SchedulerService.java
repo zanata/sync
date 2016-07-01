@@ -9,7 +9,6 @@ import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.dto.JobSummary;
-import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.dto.WorkSummary;
@@ -46,11 +45,11 @@ public interface SchedulerService {
     void triggerJob(Long id, JobType type)
             throws JobNotFoundException, SchedulerException;
 
-    SyncWorkConfig getWork(String id) throws WorkNotFoundException;
-
-    WorkSummary getWorkSummary(String id) throws WorkNotFoundException;
+    SyncWorkConfig getWorkById(Long id) throws WorkNotFoundException;
 
     List<WorkSummary> getWorkFor(String username);
 
     Optional<JobStatus> getJobStatusByFiringId(String jobFiringId);
+
+    List<JobStatus> getAllJobStatus(Long configId) throws WorkNotFoundException;
 }

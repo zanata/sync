@@ -5,12 +5,14 @@ import Home from './containers/Home'
 import App from './containers/App'
 import NewWork from './containers/NewWork'
 import MyWorks from './containers/MyWorks'
+import WorkDetail from './containers/WorkDetail'
 
 const routes = (
   <Route path='/' component={App}>
     <IndexRoute component={Home} />
     <Route path='work/new' component={NewWork} />
     <Route path='work/mine' component={MyWorks} />
+    <Route path='work/:id' component={WorkDetail} />
   </Route>
 )
 

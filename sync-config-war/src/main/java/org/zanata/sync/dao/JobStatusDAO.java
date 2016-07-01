@@ -57,12 +57,10 @@ public class JobStatusDAO {
         this.entityManager = entityManager;
     }
 
-    public List<JobStatus> getJobStatusList(SyncWorkConfig config,
-            JobType type) {
+    public List<JobStatus> getJobStatusList(SyncWorkConfig config) {
         return entityManager
-                .createNamedQuery(JobStatus.GET_JOB_STATUS_QUERY, JobStatus.class)
+                .createNamedQuery(JobStatus.GET_ALL_JOB_STATUS_QUERY, JobStatus.class)
                 .setParameter("workConfig", config)
-                .setParameter("jobType", type)
                 .getResultList();
     }
 

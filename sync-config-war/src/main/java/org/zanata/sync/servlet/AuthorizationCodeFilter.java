@@ -91,9 +91,10 @@ public class AuthorizationCodeFilter implements Filter {
                 ZanataAccount account = requestOAuthTokens(zanataUrl, code);
                 account.setZanataServer(zanataUrl);
                 securityTokens.setAuthenticatedAccount(account);
+                httpServletResponse.sendRedirect(httpServletRequest.getContextPath());
+            } else {
+                chain.doFilter(request, response);
             }
-            // TODO just hitting home page with ugly parameters. get URL rewrite and make the url look nicer
-            chain.doFilter(request, response);
         } catch (OAuthProblemException e) {
             log.warn("=== problem with OAuth", e);
 

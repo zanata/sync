@@ -7,22 +7,21 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.controller.SyncWorkForm;
-import org.zanata.sync.dto.Payload;
+import org.zanata.sync.dto.WorkDetail;
 import org.zanata.sync.exception.WorkNotFoundException;
+import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
 import org.zanata.sync.dto.WorkSummary;
@@ -31,7 +30,6 @@ import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import org.zanata.sync.validation.SyncWorkFormValidator;
-import com.google.common.base.Strings;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -64,23 +62,21 @@ public class WorkResource {
     private SecurityTokens securityTokens;
 
     @GET
-    // TODO revisit
+    @Path("/{id}")
     public Response
-            getWork(@QueryParam(value = "id") @DefaultValue("") String id,
-                    @QueryParam(value = "type") @DefaultValue("") String type) {
-        if (Strings.isNullOrEmpty(id)) {
-            return getAllWork(type);
-        } else {
-            try {
-                if(!type.equals("summary")) {
-                    return Response.ok(schedulerServiceImpl.getWork(id)).build();
-                } else {
-                    return Response.ok(schedulerServiceImpl.getWorkSummary(id)).build();
-                }
-            } catch (WorkNotFoundException e) {
-                log.error("fail getting job " + id, e);
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
+        getWork(@PathParam(value = "id") Long id) {
+
+        try {
+            // TODO doing two queries. optimize
+            SyncWorkConfig workConfig = schedulerServiceImpl.getWorkById(id);
+            List<JobStatus> allJobStatus =
+                    schedulerServiceImpl.getAllJobStatus(id);
+
+            return Response.ok(WorkDetail.fromEntity(workConfig, allJobStatus))
+                    .build();
+        } catch (WorkNotFoundException e) {
+            log.error("fail getting job " + id, e);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 

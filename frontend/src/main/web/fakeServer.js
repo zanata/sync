@@ -52,8 +52,8 @@ app.get('/api/work/mine', function (req, res) {
         "id": "1466480052893",
         "status": "ERROR",
         "jobType": "REPO_SYNC",
-        "startTime": "2016-06-21 03:34:59",
-        "endTime": "2016-06-21 03:34:59",
+        "startTime": "2016-06-24 02:15:46.046+0000",
+        "endTime": "2016-06-24 02:18:46.046+0000",
         "nextStartTime": null
       }
     },
@@ -68,8 +68,8 @@ app.get('/api/work/mine', function (req, res) {
         "id": "1466480052894",
         "status": "ERROR",
         "jobType": "SERVER_SYNC",
-        "startTime": "2016-06-21 03:35:02",
-        "endTime": "2016-06-21 03:35:02",
+        "startTime": "2016-06-24 02:15:46.046+0000",
+        "endTime": "2016-06-24 03:15:46.046+0000",
         "nextStartTime": null
       }
     }
@@ -85,18 +85,74 @@ app.post('/api/job/start', function (req, res) {
   }))
 })
 
-app.get('/api/job/status', function (req, res) {
+app.get('/api/job/last/status', function (req, res) {
   commonHeaders(req, res)
   var status = {
     "workId": parseInt(req.query.id),
     "id": "1466480052894",
     "status": "COMPLETED",
     "jobType": req.query.type,
-    "startTime": "2016-06-21 03:35:02",
-    "endTime": "2016-06-21 03:35:02",
+    "startTime": "2016-06-24 02:15:46.046+0000",
+    "endTime": "2016-06-24 02:15:56.046+0000",
     "nextStartTime": null
   };
   res.send(JSON.stringify(status))
+})
+
+app.get('/api/work/:id', function (req, res) {
+  commonHeaders(req, res)
+  var id = req.query.id
+  var result = {
+    "id": 1,
+    "name": "asdf asdf asdf ",
+    "description": "",
+    "syncToZanataCron": "MANUAL",
+    "syncToRepoCron": "MANUAL",
+    "syncToZanataOption": "SOURCE",
+    "srcRepoPluginName": "git",
+    "srcRepoPluginConfig": {
+      "username": "admin",
+      "secret": "admin",
+      "url": "asdf"
+    },
+    "syncToServerEnabled": true,
+    "syncToRepoEnabled": true,
+    "createdDate": "2016-06-24 02:15:46.046+0000",
+    "jobRunHistory": [{
+      "workId": 1,
+      "id": "1467089217998",
+      "status": "ERROR",
+      "jobType": "REPO_SYNC",
+      "startTime": "2016-06-28 04:49:03.003+0000",
+      "endTime": "2016-06-28 04:59:11.011+0000",
+      "nextStartTime": "2016-06-28 04:49:11.011+0000"
+    }, {
+      "workId": 1,
+      "id": "1467089217997",
+      "status": "ERROR",
+      "jobType": "REPO_SYNC",
+      "startTime": "2016-06-28 04:47:56.056+0000",
+      "endTime": "2016-06-28 04:57:56.056+0000",
+      "nextStartTime": "2016-06-28 04:47:56.056+0000"
+    }, {
+      "workId": 1,
+      "id": "1467087334339",
+      "status": "ERROR",
+      "jobType": "REPO_SYNC",
+      "startTime": "2016-06-28 04:16:41.041+0000",
+      "endTime": "2016-06-28 05:16:42.042+0000",
+      "nextStartTime": "2016-06-28 04:16:41.041+0000"
+    }, {
+      "workId": 1,
+      "id": "1467087334338",
+      "status": "ERROR",
+      "jobType": "REPO_SYNC",
+      "startTime": "2016-06-28 04:16:03.003+0000",
+      "endTime": "2016-06-28 04:26:13.003+0000",
+      "nextStartTime": "2016-06-28 04:16:03.003+0000"
+    }]
+  }
+  res.send(JSON.stringify(result))
 })
 
 app.options('*', function (req, res) {

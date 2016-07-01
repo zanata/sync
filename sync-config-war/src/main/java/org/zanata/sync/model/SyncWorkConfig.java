@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
+import org.zanata.sync.util.CronType;
 import org.zanata.sync.util.JSONObjectMapper;
 import com.google.common.base.MoreObjects;
 import lombok.AccessLevel;
@@ -55,8 +56,8 @@ public class SyncWorkConfig {
     private String name;
     private String description;
 
-    private String syncToZanataCron;
-    private String syncToRepoCron;
+    private CronType syncToZanataCron;
+    private CronType syncToRepoCron;
 
     @Enumerated(EnumType.STRING)
     private SyncOption syncToZanataOption;
@@ -89,7 +90,7 @@ public class SyncWorkConfig {
 
     // TODO may not need the id parameter
     public SyncWorkConfig(Long id, String name, String description,
-            String syncToZanataCron, String syncToRepoCron,
+            CronType syncToZanataCron, CronType syncToRepoCron,
             SyncOption syncToZanataOption,
             String srcRepoPluginName,
             String encryptionKey,

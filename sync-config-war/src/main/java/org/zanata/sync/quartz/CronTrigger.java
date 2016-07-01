@@ -111,11 +111,11 @@ public class CronTrigger {
         String cronExp;
         Class<SyncJob> jobClass = SyncJob.class;
         if (type.equals(JobType.REPO_SYNC)
-                && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToRepoCron())) {
-            cronExp = syncWorkConfig.getSyncToRepoCron();
+                && syncWorkConfig.getSyncToRepoCron() != null) {
+            cronExp = syncWorkConfig.getSyncToRepoCron().getExpression();
         } else if (type.equals(JobType.SERVER_SYNC)
-                && !Strings.isNullOrEmpty(syncWorkConfig.getSyncToZanataCron())) {
-            cronExp = syncWorkConfig.getSyncToZanataCron();
+                && syncWorkConfig.getSyncToZanataCron() != null) {
+            cronExp = syncWorkConfig.getSyncToZanataCron().getExpression();
         } else {
             // two jobs are all set to run mannually
             cronExp = null;

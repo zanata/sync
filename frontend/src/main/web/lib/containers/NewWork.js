@@ -9,6 +9,7 @@ const mapStateToProps = (state) => {
     created: state.workConfig.created,
     error: state.workConfig.error,
     srcRepoPlugins: state.configs.srcRepoPlugins,
+    // TODO no need to pass these info from client. Just use the server values
     zanataUsername: user ? user.username : undefined,
     zanataSecret: user ? user.apiKey : undefined
   }

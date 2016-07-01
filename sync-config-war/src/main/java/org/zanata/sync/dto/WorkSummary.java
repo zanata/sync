@@ -49,7 +49,8 @@ public class WorkSummary implements Serializable {
         JobSummary syncToRepoJob =
                 new JobSummary(
                         JobType.REPO_SYNC.toJobKey(syncWorkConfig.getId())
-                                .toString(), syncWorkConfig.getId(),
+                                .toString(),
+                        syncWorkConfig.getId(),
                         syncWorkConfig.getName(),
                         syncWorkConfig.getDescription(),
                         JobType.REPO_SYNC,
@@ -59,7 +60,8 @@ public class WorkSummary implements Serializable {
         JobSummary syncToServerJob =
                 new JobSummary(
                         JobType.SERVER_SYNC.toJobKey(syncWorkConfig.getId())
-                                .toString(), syncWorkConfig.getId(),
+                                .toString(),
+                        syncWorkConfig.getId(),
                         syncWorkConfig.getName(),
                         syncWorkConfig.getDescription(),
                         JobType.SERVER_SYNC,
@@ -71,5 +73,10 @@ public class WorkSummary implements Serializable {
                 syncWorkConfig.getDescription(),
                 syncToRepoJob,
                 syncToServerJob);
+    }
+
+    public static WorkSummary toWorkSummary(SyncWorkConfig workConfig) {
+        return new WorkSummary(workConfig.getId(), workConfig.getName(),
+                workConfig.getDescription(), null, null);
     }
 }

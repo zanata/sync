@@ -1,5 +1,6 @@
 import React from 'react'
 import JobSummary from './JobSummary'
+import {Link} from 'react-router'
 
 const {PropTypes} = React
 
@@ -51,11 +52,14 @@ export default React.createClass({
     const cardHeight = 460
     const cardStyle = {height: cardHeight + 'px'}
     const cardBodyStyle = {height: cardHeight * 0.8 + 'px'}
+
+    const detailLink = `/work/${id}`
     return (
       <div className="col-xs-12 col-sm-6 col-md-4">
         <div className="card-pf" style={cardStyle}>
           <div className="card-pf-heading">
             <h4 className="card-pf-title">{name}</h4>
+            <Link to={detailLink}>more detail...</Link>
           </div>
           <div className="card-pf-body" style={cardBodyStyle}>
             {syncToRepoSummary}

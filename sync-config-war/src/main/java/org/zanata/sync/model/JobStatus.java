@@ -55,11 +55,15 @@ import lombok.NoArgsConstructor;
 @NamedQueries(
         {
                 @NamedQuery(name = JobStatus.GET_JOB_STATUS_QUERY,
-                        query = "from JobStatus status where status.workConfig = :workConfig and status.jobType = :jobType order by endTime desc")
+                        query = "from JobStatus status where status.workConfig = :workConfig and status.jobType = :jobType order by status.startTime desc"),
+                @NamedQuery(name = JobStatus.GET_ALL_JOB_STATUS_QUERY,
+                        query = "from JobStatus status where status.workConfig = :workConfig order by status.startTime desc")
         }
 )
 public class JobStatus implements Serializable {
     public static final String GET_JOB_STATUS_QUERY = "GetJobStatusQuery";
+    public static final String GET_ALL_JOB_STATUS_QUERY =
+            "GetAllJobStatusQuery";
     public static JobStatus EMPTY = new JobStatus();
     @Id
     @Column(unique = true, nullable = false, updatable = false)
