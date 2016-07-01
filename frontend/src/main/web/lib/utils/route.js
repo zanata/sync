@@ -1,8 +1,6 @@
-import Configs from '../constants/Configs'
 
 export function redirectToSignIn(router) {
-  const path = `${Configs.basename}`;
-  console.info('redirect to home page for sign in:' + path)
+  console.info('redirect to home page for sign in')
   router.push({
     pathname: '/',
     // query: { modal: true },

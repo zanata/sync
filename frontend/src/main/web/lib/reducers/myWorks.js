@@ -14,7 +14,7 @@ const defaultState = {
   runningJobs: {}
 }
 
-export default (pollInterval, maxPollCount) => handleActions(
+export default (maxPollCount) => handleActions(
   {
     [LOAD_WORKS_REQUEST]: reducer.requestHandler,
     [LOAD_WORKS_SUCCESS]: (state, action) => {
@@ -92,9 +92,6 @@ export default (pollInterval, maxPollCount) => handleActions(
       }
     }
   },
-  {
-    ...defaultState,
-    pollInterval
-  }
+  defaultState
 )
 

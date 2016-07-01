@@ -5,31 +5,21 @@ import workConfig from './workConfig'
 import security from './security'
 import myWorks from './myWorks'
 
-
-// the returned reducer function always return the given zanata info
-const zanataReducer = (user, zanataServerUrls, srcRepoPlugins) => {
-  return (state, action) => {
-     return {
-       url: (user && user.zanataServer) || '',
-       user,
-       zanataServerUrls,
-       srcRepoPlugins
-     }
-  }
-}
-
-export function withZanataInfo(user, zanataServerUrls, srcRepoPlugins, Configs) {
-  invariant(arguments.length == 4, 'you need to supply user, zanataServerUrls, srcRepoPlugins and Configs as arguments')
-  invariant(srcRepoPlugins.length > 0, 'you need to provide at least one source repo plugin (in main-content element as attribute data-src-repo-plugins')
+export function createReducersWithConfigs(configs) {
+  const {zanataServerUrls, srcRepoPlugins, pollInterval, maxPollTimeout} = configs
+  invariant(zanataServerUrls && zanataServerUrls.length, 'you need to supply zanataServerUrls')
+  invariant(pollInterval, 'pollInterval must be greater than 0 (in milliseconds)')
+  invariant(maxPollTimeout, 'maxPollTimeout must be defined (in milliseconds and greater than pollInterval)')
+  invariant(srcRepoPlugins && srcRepoPlugins.length > 0, 'you need to provide at least one source repo plugin (in main-content element as attribute data-src-repo-plugins')
 
   return combineReducers({
     routing,
     workConfig,
     security,
-    myWorks: myWorks(Configs.pollInterval, Configs.maxPollCount),
-    zanata: zanataReducer(user, zanataServerUrls, srcRepoPlugins)
+    configs: () => configs,
+    myWorks: myWorks(configs.maxPollCount)
   })
 }
 
-export default withZanataInfo
+export default createReducersWithConfigs
 

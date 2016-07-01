@@ -2,10 +2,10 @@ import React from 'react';
 import { render } from 'react-dom'
 import { Router, useRouterHistory, hashHistory, browserHistory } from 'react-router'
 import { createHistory } from 'history'
-import Configs from './lib/constants/Configs'
 import routes from './lib/routes'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
+import thunk from 'redux-thunk'
 import { syncHistoryWithStore } from 'react-router-redux'
 import { apiMiddleware } from 'redux-api-middleware'
 import createLogger from 'redux-logger'
@@ -27,8 +27,8 @@ import 'patternfly/dist/css/patternfly-additions.min.css'
  */
 const mountNode = document.getElementById('main-content')
 const dataUser = mountNode.getAttribute('data-user')
-const apiUrl = mountNode.getAttribute('data-api-url')
-const basename = mountNode.getAttribute('data-app-basename')
+const apiUrl = mountNode.getAttribute('data-api-url') || ''
+const basename = mountNode.getAttribute('data-app-basename') || ''
 const zanataServerUrls = JSON.parse(mountNode.getAttribute('data-zanata-server-urls'))
 const srcRepoPlugins = JSON.parse(mountNode.getAttribute('data-src-repo-plugins'))
   // user = JSON.parse(mountNode.getAttribute('user')),
@@ -46,18 +46,19 @@ function minutesToMilli(num) {
   return num * 1000 * 60
 }
 
-// base rest url, e.g http://localhost:8080/rest
-Configs.apiUrl = apiUrl || ''
-Configs.basename = basename || ''
-Configs.pollInterval = secondsToMilli(2)
-Configs.maxPollTimeout = minutesToMilli(5)
-Configs.maxPollCount = Configs.maxPollTimeout / Configs.pollInterval
-// TODO doe we use these?
-Configs.data = data;
-//append with .json extension in 'dev' environment
-Configs.urlPostfix = dev ? '' : '.json?'
-// see org.zanata.rest.editor.dto.User
-// Configs.user = user;
+const pollInterval = secondsToMilli(2)
+const maxPollTimeout = minutesToMilli(5)
+const maxPollCount = maxPollTimeout / pollInterval
+
+const Configs = {
+  user,
+  apiUrl: `${apiUrl}${basename}`,
+  pollInterval,
+  maxPollTimeout,
+  maxPollCount,
+  zanataServerUrls,
+  srcRepoPlugins
+}
 
 console.log('Configs', Configs)
 
@@ -78,10 +79,10 @@ const loggerOption = {
 }
 const logger = createLogger(loggerOption)
 
-// TODO put everything in Configs and remove the Configs.js file (nowhere should reference it)
 const store = createStore(
-  rootReducer(user, zanataServerUrls, srcRepoPlugins, Configs),
+  rootReducer(Configs),
   applyMiddleware(
+    thunk,
     apiMiddleware,
     logger
   )

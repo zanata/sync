@@ -27,7 +27,8 @@
     "redux": "^3.5.2",
     "redux-actions": "^0.10.0",
     "redux-api-middleware": "^1.0.2",
-    "redux-logger": "^2.6.1"
+    "redux-logger": "^2.6.1",
+    "redux-thunk": "^2.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",

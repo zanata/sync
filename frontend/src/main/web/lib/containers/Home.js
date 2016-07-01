@@ -5,9 +5,9 @@ import { selectZanataServer } from '../actions'
 
 const mapStateToProps = (state) => {
   return {
-    zanataServerUrls: state.zanata.zanataServerUrls,
+    zanataServerUrls: state.configs.zanataServerUrls,
     zanataOAuthUrl: state.security.zanataOAuthUrl,
-    zanataUser: state.zanata.user
+    zanataUser: state.configs.user
   }
 }
 

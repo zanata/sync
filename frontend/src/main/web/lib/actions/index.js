@@ -1,16 +1,11 @@
 import { createAction } from 'redux-actions'
 import { CALL_API } from 'redux-api-middleware'
-import Configs from '../constants/Configs'
 
 export const NEW_WORK_REQUEST = 'NEW_WORK_REQUEST'
 export const NEW_WORK_SUCCESS = 'NEW_WORK_SUCCESS'
 export const NEW_WORK_FAILURE = 'NEW_WORK_FAILURE'
 
 // const newWorkAction = createAction(NEW_WORK_SUBMIT)
-
-const restUrlRoot = () => {
-  return `${Configs.apiUrl}${Configs.basename}`
-}
 
 export function submitNewWork(payload) {
   console.log('======== new work button clicked:', payload)
@@ -45,15 +40,17 @@ export function submitNewWork(payload) {
 
   console.log('==== entity for new work', entity)
 
-  return {
-    [CALL_API]: {
-      endpoint: `${restUrlRoot()}/api/work`,
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      credentials: 'include',
-      body: JSON.stringify(entity),
-      types: [NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE]
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/work`,
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify(entity),
+        types: [NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE]
+      }
+    })
   }
 }
 
@@ -62,13 +59,15 @@ export const SELECT_ZANATA_REQUEST = 'SELECT_ZANATA_REQUEST'
 export const SELECT_ZANATA_SUCCESS = 'SELECT_ZANATA_SUCCESS'
 export const SELECT_ZANATA_FAILURE = 'SELECT_ZANATA_FAILURE'
 export function selectZanataServer(zanataUrl) {
-  return {
-    [CALL_API]: {
-      endpoint: `${restUrlRoot()}/api/oauth/url?z=${zanataUrl}`,
-      method: 'GET',
-      credentials: 'include',
-      types: [SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE]
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/oauth/url?z=${zanataUrl}`,
+        method: 'GET',
+        credentials: 'include',
+        types: [SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE]
+      }
+    })
   }
 }
 
@@ -77,13 +76,15 @@ export const LOAD_WORKS_REQUEST = 'LOAD_WORKS_REQUEST'
 export const LOAD_WORKS_SUCCESS = 'LOAD_WORKS_SUCCESS'
 export const LOAD_WORKS_FAILURE = 'LOAD_WORKS_FAILURE'
 export function loadWorkSummaries(username) {
-  return {
-    [CALL_API]: {
-      endpoint: `${restUrlRoot()}/api/work/by/${username}`,
-      method: 'GET',
-      credentials: 'include',
-      types: [LOAD_WORKS_REQUEST, LOAD_WORKS_SUCCESS, LOAD_WORKS_FAILURE]
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/work/by/${username}`,
+        method: 'GET',
+        credentials: 'include',
+        types: [LOAD_WORKS_REQUEST, LOAD_WORKS_SUCCESS, LOAD_WORKS_FAILURE]
+      }
+    })
   }
 }
 
@@ -92,13 +93,15 @@ export const RUN_JOB_REQUEST = 'RUN_JOB_REQUEST'
 export const RUN_JOB_SUCCESS = 'RUN_JOB_SUCCESS'
 export const RUN_JOB_FAILURE = 'RUN_JOB_FAILURE'
 export function runJob(workId, jobType) {
-  return {
-    [CALL_API]: {
-      endpoint: `${restUrlRoot()}/api/job/start?id=${workId}&type=${jobType}`,
-      method: 'POST',
-      credentials: 'include',
-      types: [RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE]
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/job/start?id=${workId}&type=${jobType}`,
+        method: 'POST',
+        credentials: 'include',
+        types: [RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE]
+      }
+    })
   }
 }
 
@@ -107,14 +110,16 @@ export const GET_JOB_STATUS_REQUEST = 'GET_JOB_STATUS_REQUEST'
 export const GET_JOB_STATUS_SUCCESS = 'GET_JOB_STATUS_SUCCESS'
 export const GET_JOB_STATUS_FAILURE = 'GET_JOB_STATUS_FAILURE'
 export function getLatestJobStatus(workId, jobType) {
-  return {
-    [CALL_API]: {
-      endpoint: `${restUrlRoot()}/api/job/status?id=${workId}&type=${jobType}`,
-      method: 'GET',
-      credentials: 'include',
-      types: [GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS,
-        GET_JOB_STATUS_FAILURE]
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/job/status?id=${workId}&type=${jobType}`,
+        method: 'GET',
+        credentials: 'include',
+        types: [GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS,
+          GET_JOB_STATUS_FAILURE]
+      }
+    })
   }
 }
 
@@ -123,12 +128,14 @@ export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
 export function logout() {
-  return {
-    [CALL_API]: {
-      endpoint: `${restUrlRoot()}/api/oauth/logout`,
-      method: 'POST',
-      credentials: 'include',
-      types: [LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE]
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/oauth/logout`,
+        method: 'POST',
+        credentials: 'include',
+        types: [LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE]
+      }
+    })
   }
 }

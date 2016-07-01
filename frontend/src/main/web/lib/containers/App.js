@@ -47,7 +47,7 @@ const App = React.createClass({
 
 const mapStateToProps = (state) => {
   return {
-    zanataUser: state.zanata.user,
+    zanataUser: state.configs.user,
     loggedOut: state.security.loggedOut
   }
 }

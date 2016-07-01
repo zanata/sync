@@ -4,8 +4,9 @@ import WorkList from '../components/WorkList'
 import { loadWorkSummaries, runJob, getLatestJobStatus } from '../actions'
 
 const mapStateToProps = (state) => {
-  const username = state.zanata.user ? state.zanata.user.username : undefined
-  const {workSummaries, error, loading, runningJobs, pollInterval} = state.myWorks
+  const username = state.configs.user ? state.configs.user.username : undefined
+  const {workSummaries, error, loading, runningJobs} = state.myWorks
+  const pollInterval = state.configs.pollInterval
   return {
     zanataUsername: username,
     workSummaries,
@@ -16,10 +17,11 @@ const mapStateToProps = (state) => {
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, ownProps) => {
+
   return {
     loadWorkSummaries: (username) => {
-      dispatch(loadWorkSummaries(username))
+      dispatch(loadWorkSummaries(ownProps.apiUrl))
     },
     runJob: (workId, jobType) => {
       dispatch(runJob(workId, jobType))
