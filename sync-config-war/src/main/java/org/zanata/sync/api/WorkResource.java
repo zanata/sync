@@ -26,6 +26,7 @@ import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
 import org.zanata.sync.dto.WorkSummary;
+import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
@@ -59,6 +60,9 @@ public class WorkResource {
     @Inject
     private PluginsService pluginsService;
 
+    @Inject
+    private SecurityTokens securityTokens;
+
     @GET
     // TODO revisit
     public Response
@@ -81,12 +85,9 @@ public class WorkResource {
     }
 
     @GET
-    @Path("/by/{username}")
-    public Response getMyWorks(@PathParam("username") String username) {
-        if (Strings.isNullOrEmpty(username)) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Payload.error("need Zanata username")).build();
-        }
+    @Path("/mine")
+    public Response getMyWorks() {
+        String username = securityTokens.getAccount().getUsername();
         List<WorkSummary> workSummaries = schedulerServiceImpl.getWorkFor(username);
         return Response.ok(workSummaries).build();
     }

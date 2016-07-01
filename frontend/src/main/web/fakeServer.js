@@ -35,9 +35,8 @@ app.post('/api/oauth/logout', function (req, res) {
   res.send()
 })
 
-app.get('/api/work/by/:username', function (req, res) {
+app.get('/api/work/mine', function (req, res) {
   commonHeaders(req, res)
-  var username = req.params.username
   var result = [{
     "id": 1,
     "name": "test ets",

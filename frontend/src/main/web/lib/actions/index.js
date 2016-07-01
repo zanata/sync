@@ -79,7 +79,7 @@ export function loadWorkSummaries(username) {
   return (dispatch, getState) => {
     dispatch({
       [CALL_API]: {
-        endpoint: `${getState().configs.apiUrl}/api/work/by/${username}`,
+        endpoint: `${getState().configs.apiUrl}/api/work/mine`,
         method: 'GET',
         credentials: 'include',
         types: [LOAD_WORKS_REQUEST, LOAD_WORKS_SUCCESS, LOAD_WORKS_FAILURE]
