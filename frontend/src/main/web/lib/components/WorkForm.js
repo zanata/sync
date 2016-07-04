@@ -25,7 +25,6 @@ export default React.createClass({
       syncToZanataCron: 'MANUAL',
       syncToRepoEnabled: true,
       // srcRepoPlugins, zanataUsername and zanataSecret will never change so this is not an anti-pattern
-      // TODO check whether there are any plugins (do it in index.js)
       selectedRepoPluginName: this.props.srcRepoPlugins[0].name,
       zanataUsername: this.props.zanataUsername,
       zanataSecret: this.props.zanataSecret,

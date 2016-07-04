@@ -51,7 +51,6 @@ export default (maxPollCount) => handleActions(
       }
     },
     [GET_JOB_STATUS_REQUEST]: (state, action) => {
-      // TODO ideally we want to show a progress thingy besides the job
       return {
         ...state
       }
