@@ -18,10 +18,6 @@ export function submitNewWork(payload) {
   if (payload.syncToZanataEnabled) {
     entity.syncToZanataCron = payload.syncToZanataCron
     entity.syncOption = payload.syncOption
-    entity.transServerPluginConfig = {
-      username: payload.zanataUsername,
-      secret: payload.zanataSecret
-    }
   }
   if (payload.syncToRepoEnabled) {
     entity.srcRepoPluginName = payload.selectedRepoPluginName

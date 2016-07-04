@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {PropTypes} from 'react'
 import Select from './form/Select'
 import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
@@ -8,13 +8,12 @@ import {route} from '../utils'
 
 export default React.createClass({
   propTypes: {
-    onSaveNewWork: React.PropTypes.func.isRequired,
-    creating: React.PropTypes.bool.isRequired,
-    created: React.PropTypes.bool.isRequired,
+    onSaveNewWork: PropTypes.func.isRequired,
+    creating: PropTypes.bool.isRequired,
+    created: PropTypes.bool.isRequired,
     // TODO use shape to be more specific
-    srcRepoPlugins: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    zanataUsername: React.PropTypes.string,
-    zanataSecret: React.PropTypes.string
+    srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    zanataUser: PropTypes.object
   },
   getInitialState() {
     return {
@@ -52,7 +51,7 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    if (!this.props.zanataUsername) {
+    if (!this.props.zanataUser) {
       route.redirectToSignIn(this.context.router)
     }
   },

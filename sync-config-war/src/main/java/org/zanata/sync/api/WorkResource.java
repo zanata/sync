@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.controller.SyncWorkForm;
 import org.zanata.sync.dto.WorkDetail;
+import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.SyncWorkConfig;
@@ -94,6 +95,12 @@ public class WorkResource {
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }
+        // TODO pahuang this is a quick hack to make it work with old code
+        ZanataAccount zanataAccount = securityTokens.getAccount();
+        form.getTransServerPluginConfig().put("username",
+                zanataAccount.getUsername());
+        form.getTransServerPluginConfig()
+                .put("secret", zanataAccount.getApiKey());
         SyncWorkConfig syncWorkConfig = syncWorkConfigBuilder.buildObject(form);
         // TODO pahuang here we should persist the refresh token
         try {
