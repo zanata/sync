@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Author: Patrick Huang
-# usage: -b to build the war first. Or it will try to find the war
+# usage: -a <appname> to override app name on openshift.
+#        -b to build the war first or it will try to find the war
 
 # app name on openshift
 APP=sync
@@ -14,14 +15,18 @@ echo "  rhc configure-app -a $APP --no-auto-deploy"
 echo "  rhc configure-app -a $APP --deployment-type binary"
 echo "===== make sure you have done above ===="
 
-while getopts ":b" opt; do
+while getopts ":ba:" opt; do
   case ${opt} in
     b)
       echo "-b will build the war first!" >&2
       mvn clean package -DskipTests
       ;;
+    a)
+      echo ">> override app name to $OPTARG"
+      APP=$OPTARG
+      ;;
     \?)
-      echo "Invalid option: -$OPTARG. Accepts -b to build the war first" >&2
+      echo "Invalid option: -$OPTARG. Accepts -b to build the war first. -a <appname> to override openshift app name" >&2
       ;;
   esac
 done
