@@ -32,6 +32,7 @@ import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
+import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -48,17 +49,16 @@ public class WorkServiceImpl implements WorkService {
     private Repository<SyncWorkConfig, Long> syncWorkConfigRepository;
 
     @Override
-    public void deleteWork(Long id) throws WorkNotFoundException {
-        checkWorkExist(id);
+    public void deleteWork(Long id) {
+
         try {
-            schedulerServiceImpl.deleteJob(id, JobType.REPO_SYNC);
-            schedulerServiceImpl.deleteJob(id, JobType.SERVER_SYNC);
-            syncWorkConfigRepository.delete(id);
-            // TODO pahuang revisit these catch clause
+            if (checkWorkExist(id)) {
+                schedulerServiceImpl.deleteJob(id, JobType.REPO_SYNC);
+                schedulerServiceImpl.deleteJob(id, JobType.SERVER_SYNC);
+                syncWorkConfigRepository.delete(id);
+            }
         } catch (SchedulerException e) {
-            log.warn("Error when delete job in work", e);
-        } catch (JobNotFoundException e) {
-            log.debug("No job found for work", e);
+            throw Throwables.propagate(e);
         }
     }
 
@@ -67,9 +67,7 @@ public class WorkServiceImpl implements WorkService {
         syncWorkConfigRepository.persist(syncWorkConfig);
     }
 
-    private void checkWorkExist(Long id) throws WorkNotFoundException {
-        if(!syncWorkConfigRepository.load(id).isPresent()) {
-            throw new WorkNotFoundException(id.toString());
-        };
+    private boolean checkWorkExist(Long id) {
+        return syncWorkConfigRepository.load(id).isPresent();
     }
 }

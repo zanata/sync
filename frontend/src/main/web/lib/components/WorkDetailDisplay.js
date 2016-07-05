@@ -4,6 +4,9 @@ import EnableOrDisableIcon from './EnableOrDisableIcon'
 import cx from 'classnames'
 import { isError, isSuccess, isRunning } from '../constants/Enums'
 import { duration, datePropValidator, formatDate } from '../utils/DateTime'
+import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
+import SessionTimedOut from './SessionTimedOut'
+import GenericErrorBar from './GenericErrorBar'
 
 const ToggleReveal = React.createClass({
   getInitialState() {
@@ -44,7 +47,8 @@ export default React.createClass({
         startTime: datePropValidator,
         endTime: datePropValidator
       }))
-    })
+    }),
+    deleteWork: PropTypes.func.isRequired
   },
 
   componentDidMount() {
@@ -52,7 +56,17 @@ export default React.createClass({
   },
 
   render() {
-    if (!this.props.workDetail) {
+    const {error, workDetail} = this.props
+
+    if (error) {
+      if (isUnauthorized(error)) {
+        return <SessionTimedOut />
+      } else {
+        return <GenericErrorBar error={error} />
+      }
+    }
+
+    if (!workDetail) {
       return (<ProgressBar loading={true} />)
     }
 
@@ -60,7 +74,7 @@ export default React.createClass({
       srcRepoPluginConfig,
       syncToServerEnabled, syncToRepoEnabled,
       syncToZanataCron, syncToRepoCron, jobRunHistory
-    } = this.props.workDetail
+    } = workDetail
 
     const descDisplay = description ? (<p>{description}</p>) : null
 
@@ -80,12 +94,19 @@ export default React.createClass({
       )
     })
 
+    const deleteCallback = (e) => this.props.deleteWork(this.props.routeParams.id)
+
     return (
       <div className='container-fluid'>
         <div className='row'>
           <div className='panel panel-info'>
             <div className='panel-heading'>
-              <h3 className='panel-title text-center'>{name}</h3>
+              <h3 className='panel-title text-center'>
+                {name}
+                <button type="button" onClick={deleteCallback}
+                  className='pull-right btn btn-danger btn-xs'>Delete
+                </button>
+              </h3>
             </div>
             <div className='panel-body'>
               <blockquote>

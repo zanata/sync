@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
 import SessionTimedOut from './SessionTimedOut'
+import GenericErrorBar from './GenericErrorBar'
 import {route} from '../utils'
 import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
 
@@ -34,7 +35,7 @@ export default React.createClass({
       if (isUnauthorized(error)) {
         return (<SessionTimedOut />)
       }
-      errorMessage = (<h3 className='bg-danger'>{extractErrorMessage(error)}</h3>)
+      errorMessage = <GenericErrorBar error={error} />
     }
     const summaries = workSummaries.map(work => {
       return (

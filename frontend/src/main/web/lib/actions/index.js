@@ -170,3 +170,20 @@ export function getWorkDetail(id) {
     })
   }
 }
+
+// =========== delete a single work
+export const DELETE_WORK_REQUEST = 'DELETE_WORK_REQUEST'
+export const DELETE_WORK_SUCCESS = 'DELETE_WORK_SUCCESS'
+export const DELETE_WORK_FAILURE = 'DELETE_WORK_FAILURE'
+export function deleteWork(id) {
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/work/${id}`,
+        method: 'DELETE',
+        credentials: 'include',
+        types: [DELETE_WORK_REQUEST, DELETE_WORK_SUCCESS, DELETE_WORK_FAILURE]
+      }
+    })
+  }
+}

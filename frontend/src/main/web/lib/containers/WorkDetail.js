@@ -1,4 +1,4 @@
-import { getWorkDetail } from '../actions'
+import { getWorkDetail, deleteWork } from '../actions'
 import { connect } from 'react-redux'
 import WorkDetailDisplay from '../components/WorkDetailDisplay'
 
@@ -11,7 +11,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    loadWorkDetail: (id) => dispatch(getWorkDetail(id))
+    loadWorkDetail: (id) => dispatch(getWorkDetail(id)),
+    deleteWork: (id) => dispatch(deleteWork(id))
   }
 }
 

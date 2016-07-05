@@ -173,13 +173,10 @@ public class WorkResource {
     }
 
     @DELETE
-    public Response deleteWork(@QueryParam("id") Long id) {
-        try {
-            workServiceImpl.deleteWork(id);
-        } catch (WorkNotFoundException e) {
-            log.error("No work found", e);
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    @Path("/{id}")
+    public Response deleteWork(@PathParam("id") Long id) {
+        log.info("========== about to delete {}", id);
+        workServiceImpl.deleteWork(id);
         return Response.status(Response.Status.OK).build();
     }
 

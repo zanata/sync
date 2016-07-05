@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react'
 import Select from './form/Select'
 import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
+import GenericErrorBar from './GenericErrorBar'
 
 // represents user has not yet selected a zanata server
 const NO_SELECTION_OPT = '...'
@@ -52,7 +53,7 @@ export default React.createClass(
 
       let message = null
       if (error && !isUnauthorized(error)) {
-        message = (<h3 className='bg-danger'>{extractErrorMessage(error)}</h3>)
+        message = <GenericErrorBar error={error} />
       }
 
       const zanataServerUrls = [NO_SELECTION_OPT, ...this.props.zanataServerUrls];

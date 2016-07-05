@@ -215,14 +215,11 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public void deleteJob(Long id, JobType type)
-            throws SchedulerException, JobNotFoundException {
-        Optional<SyncWorkConfig> workConfigOptional =
-                syncWorkConfigRepository.load(id);
-        if (!workConfigOptional.isPresent()) {
-            throw new JobNotFoundException(id.toString());
+    public void deleteJob(Long id, JobType type) throws SchedulerException {
+        boolean foundAndDeleted = cronTrigger.deleteJob(type.toJobKey(id));
+        if (foundAndDeleted) {
+            log.info("config id {} and job type {} found and deleted", id, type);
         }
-        cronTrigger.deleteJob(id, type);
     }
 
     @Override

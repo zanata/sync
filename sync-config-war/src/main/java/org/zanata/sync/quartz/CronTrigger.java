@@ -176,9 +176,8 @@ public class CronTrigger {
         scheduler.interrupt(jobKey);
     }
 
-    public void deleteJob(Long id, JobType type) throws SchedulerException {
-        JobKey jobKey = type.toJobKey(id);
-        scheduler.deleteJob(jobKey);
+    public boolean deleteJob(JobKey jobKey) throws SchedulerException {
+        return scheduler.deleteJob(jobKey);
     }
 
     public void disableJob(Long id, JobType type) throws SchedulerException {
@@ -193,7 +192,7 @@ public class CronTrigger {
 
     public void deleteAndReschedule(SyncWorkConfig syncWorkConfig, JobType type)
             throws SchedulerException {
-        deleteJob(syncWorkConfig.getId(), type);
+        deleteJob(type.toJobKey(syncWorkConfig.getId()));
         scheduleMonitor(syncWorkConfig, type);
     }
 
