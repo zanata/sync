@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.controller.SyncWorkForm;
+import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.WorkDetail;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.exception.WorkNotFoundException;

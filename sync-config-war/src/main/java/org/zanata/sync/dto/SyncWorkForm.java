@@ -1,4 +1,24 @@
-package org.zanata.sync.controller;
+/*
+ * Copyright 2016, Red Hat, Inc. and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.zanata.sync.dto;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -10,7 +30,6 @@ import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -20,53 +39,36 @@ import lombok.Setter;
 public class SyncWorkForm implements Serializable {
     public final static String repoSettingsPrefix = "sourceRepoSettings.";
 
-    @Setter
     private Long id;
 
     @Size(min = 5, max = 100)
     @NotEmpty
-    @Setter
     private String name;
 
     @Size(max = 255)
-    @Setter
     private String description;
 
-    @Setter
     private CronType syncToZanataCron;
 
-    @Setter
     private SyncOption syncOption = SyncOption.SOURCE;
 
-    @Setter
     private CronType syncToRepoCron;
 
     // TODO change this to srcRepoType instead
     @NotEmpty
     @Size(max = 255)
-    @Setter
     private String srcRepoPluginName;
 
-    /**
-     * If specified, it will encrypt field listed in config properties whose
-     * value matches key in {@link SyncWorkForm#srcRepoPluginConfig} and {@link
-     * SyncWorkForm#transServerPluginConfig}
-     */
     @Size(max = 16)
-    @Setter
     private String encryptionKey;
 
-    @Setter
     private Map<String, String> srcRepoPluginConfig = new HashMap<>();
 
 
-    @Setter
     private Map<String, String> transServerPluginConfig = new HashMap<>();
 
-    @Setter
     private boolean syncToZanataEnabled = true;
 
-    @Setter
     private boolean syncToRepoEnabled = true;
 
 }

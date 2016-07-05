@@ -1,13 +1,11 @@
 package org.zanata.sync.model;
 
-import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.zanata.sync.controller.SyncWorkForm;
+import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.util.CronType;
 import org.zanata.sync.util.JSONObjectMapper;
-import com.google.common.base.Strings;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

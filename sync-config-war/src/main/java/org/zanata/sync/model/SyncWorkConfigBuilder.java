@@ -20,7 +20,7 @@
  */
 package org.zanata.sync.model;
 
-import org.zanata.sync.controller.SyncWorkForm;
+import org.zanata.sync.dto.SyncWorkForm;
 
 public interface SyncWorkConfigBuilder {
     SyncWorkConfig buildObject(SyncWorkForm syncWorkForm);
