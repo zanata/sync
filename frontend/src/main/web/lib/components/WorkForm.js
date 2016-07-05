@@ -5,6 +5,7 @@ import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
 import cx from 'classnames'
 import {route} from '../utils'
+import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
 
 export default React.createClass({
   propTypes: {
@@ -46,7 +47,6 @@ export default React.createClass({
   },
 
   _handleReset() {
-    console.log('Reset')
     this.setState(this.getInitialState())
   },
 
@@ -69,15 +69,16 @@ export default React.createClass({
       'bg-danger': this.props.error,
       'bg-success': this.props.created,
     })
+
+    const error = this.props.error
     let msgContent
 
     if (this.props.created) {
       // TODO maybe put up a toastr message and then reset the form to initial state or redirect to other page?
       msgContent = 'Saved successfully'
-    } else if (this.props.error) {
-      const errResponse = this.props.error.response
-      // TODO display error message properly
-      msgContent = errResponse ? JSON.stringify(errResponse) : this.props.error.message
+    } else if (error) {
+      if (isUnauthorized(error))
+      msgContent = extractErrorMessage(error)
     }
 
     const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)
@@ -153,7 +154,8 @@ export default React.createClass({
                 disabled={saveBtnDisabled}>
                 {saveBtnText}
               </button>
-              <button type="button" className="btn btn-default">Cancel</button>
+              <button type="button" className="btn btn-default"
+                onClick={this._handleReset}>Cancel</button>
             </div>
           </div>
         </form>

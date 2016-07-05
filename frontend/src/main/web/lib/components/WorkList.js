@@ -1,7 +1,8 @@
-import React from 'react'
+import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
+import SessionTimedOut from './SessionTimedOut'
 import {route} from '../utils'
-const {PropTypes} = React
+import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
 
 export default React.createClass({
   propTypes: {
@@ -22,18 +23,19 @@ export default React.createClass({
     if (zanataUsername) {
       loadWorkSummaries(zanataUsername)
     } else {
-      // TODO use props not Configs for basename
       route.redirectToSignIn(this.context.router)
     }
   },
 
-  componentWillUnmount() {
-    // TODO discard loaded data? do we need to as we are using props not state? https://github.com/reactjs/react-router/blob/master/docs/guides/ComponentLifecycle.md
-
-  },
-
   render() {
-    const {runJob, workSummaries, runningJobs} = this.props
+    const {runJob, workSummaries, runningJobs, error} = this.props
+    let errorMessage = null
+    if (error) {
+      if (isUnauthorized(error)) {
+        return (<SessionTimedOut />)
+      }
+      errorMessage = (<h3 className='bg-danger'>{extractErrorMessage(error)}</h3>)
+    }
     const summaries = workSummaries.map(work => {
       return (
         <WorkSummary key={work.id} id={work.id} name={work.name}
@@ -47,6 +49,7 @@ export default React.createClass({
     })
     return (
       <div className='row row-cards-pf'>
+        {errorMessage}
         {summaries}
       </div>
     )

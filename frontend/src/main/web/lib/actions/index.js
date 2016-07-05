@@ -7,6 +7,24 @@ export const NEW_WORK_FAILURE = 'NEW_WORK_FAILURE'
 
 // const newWorkAction = createAction(NEW_WORK_SUBMIT)
 
+// =========== check whether server session is still logged in
+export const CHECK_SESSION_REQUEST = 'CHECK_SESSION_REQUEST'
+export const CHECK_SESSION_SUCCESS = 'CHECK_SESSION_SUCCESS'
+export const CHECK_SESSION_FAILURE = 'CHECK_SESSION_FAILURE'
+export function checkSession() {
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/work`,
+        method: 'HEAD',
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include',
+        types: [CHECK_SESSION_REQUEST, CHECK_SESSION_SUCCESS, CHECK_SESSION_FAILURE]
+      }
+    })
+  }
+}
+
 export function submitNewWork(payload) {
   console.log('======== new work button clicked:', payload)
   const entity = {

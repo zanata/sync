@@ -1,5 +1,6 @@
-import React from 'react'
+import React, {PropTypes} from 'react'
 import Select from './form/Select'
+import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
 
 // represents user has not yet selected a zanata server
 const NO_SELECTION_OPT = '...'
@@ -7,10 +8,11 @@ const NO_SELECTION_OPT = '...'
 export default React.createClass(
   {
     propTypes:{
-      zanataUser: React.PropTypes.object,
-      onSignIn: React.PropTypes.func.isRequired,
-      zanataServerUrls: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-      zanataOAuthUrl: React.PropTypes.string
+      zanataUser: PropTypes.object,
+      onSignIn: PropTypes.func.isRequired,
+      zanataServerUrls: PropTypes.arrayOf(React.PropTypes.string).isRequired,
+      isSessionLoggedIn: PropTypes.func.isRequired,
+      zanataOAuthUrl: PropTypes.string
     },
 
     getInitialState() {
@@ -36,16 +38,28 @@ export default React.createClass(
        }
     },
 
+    componentWillMount() {
+      // check whether server session is still logged in
+      this.props.isSessionLoggedIn()
+    },
+
     render() {
-      const user = this.props.zanataUser
-      if (user) {
-        return <div>Welcome {user.name}</div>
+      const {zanataUser, error} = this.props
+
+      if (!error && zanataUser) {
+        return <div>Welcome {zanataUser.name}</div>
+      }
+
+      let message = null
+      if (error && !isUnauthorized(error)) {
+        message = (<h3 className='bg-danger'>{extractErrorMessage(error)}</h3>)
       }
 
       const zanataServerUrls = [NO_SELECTION_OPT, ...this.props.zanataServerUrls];
 
       return (
         <div>
+          {message}
           <form className="form-horizontal">
             <Select name='zanataServer' label='Zanata Servers'
               onChange={this._changeZanataServer}

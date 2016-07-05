@@ -43,13 +43,7 @@ export default (maxPollCount) => handleActions(
         runningJobs
       }
     },
-    [RUN_JOB_FAILURE]: (state, action) => {
-      console.error('run job failed', action)
-      return {
-        ...state,
-        error: action.payload.message
-      }
-    },
+    [RUN_JOB_FAILURE]: reducer.errorHandler,
     [GET_JOB_STATUS_REQUEST]: (state, action) => {
       return {
         ...state
@@ -83,14 +77,7 @@ export default (maxPollCount) => handleActions(
         runningJobs
       }
     },
-    [GET_JOB_STATUS_FAILURE]: (state, action) => {
-      console.error('get job status failed', action)
-      return {
-        ...state,
-        error: action.payload.message
-      }
-    }
+    [GET_JOB_STATUS_FAILURE]: reducer.errorHandler
   },
   defaultState
 )
-

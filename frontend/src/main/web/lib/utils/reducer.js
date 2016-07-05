@@ -11,7 +11,7 @@ export const errorHandler = (state, action) => {
   console.error('api error:', action.payload)
   return {
     ...state,
-    error: action.payload.message,
+    error: action.payload,
     loading: false
   }
 }
