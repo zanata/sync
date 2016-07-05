@@ -50,7 +50,7 @@ public class InitListener implements ServletContextListener {
         Preconditions.checkNotNull(configWarUrl,
                 "You must set system property:" +
                         ResourceProducer.CONFIG_WAR_URL_KEY);
-        if (configWarUrl.matches("//localhost")) {
+        if (configWarUrl.matches("http://localhost.*")) {
             log.info("=== skip config war health check for localhost ===");
             return;
         }

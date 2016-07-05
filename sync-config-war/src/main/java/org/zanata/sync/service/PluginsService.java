@@ -2,6 +2,9 @@ package org.zanata.sync.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.exception.UnableLoadPluginException;
@@ -13,10 +16,7 @@ public interface PluginsService {
 
     List<RepoExecutor> getAvailableSourceRepoPlugins();
 
-    RepoExecutor getNewSourceRepoPlugin(String className);
-
-    RepoExecutor getNewSourceRepoPlugin(String className,
-            Map<String, String> fields) throws UnableLoadPluginException;
+    Optional<RepoExecutor> getSourceRepoPlugin(String className);
 
     void init();
 }

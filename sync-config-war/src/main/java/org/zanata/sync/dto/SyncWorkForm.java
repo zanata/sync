@@ -23,19 +23,16 @@ package org.zanata.sync.dto;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Getter
-@NoArgsConstructor
 public class SyncWorkForm implements Serializable {
     public final static String repoSettingsPrefix = "sourceRepoSettings.";
 
@@ -48,10 +45,13 @@ public class SyncWorkForm implements Serializable {
     @Size(max = 255)
     private String description;
 
+    @NotNull
     private CronType syncToZanataCron;
 
+    @NotNull
     private SyncOption syncOption = SyncOption.SOURCE;
 
+    @NotNull
     private CronType syncToRepoCron;
 
     // TODO change this to srcRepoType instead
@@ -65,10 +65,51 @@ public class SyncWorkForm implements Serializable {
     private Map<String, String> srcRepoPluginConfig = new HashMap<>();
 
 
-    private Map<String, String> transServerPluginConfig = new HashMap<>();
-
     private boolean syncToZanataEnabled = true;
 
     private boolean syncToRepoEnabled = true;
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public CronType getSyncToZanataCron() {
+        return syncToZanataCron;
+    }
+
+    public SyncOption getSyncOption() {
+        return syncOption;
+    }
+
+    public CronType getSyncToRepoCron() {
+        return syncToRepoCron;
+    }
+
+    public String getSrcRepoPluginName() {
+        return srcRepoPluginName;
+    }
+
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public Map<String, String> getSrcRepoPluginConfig() {
+        return srcRepoPluginConfig;
+    }
+
+    public boolean isSyncToZanataEnabled() {
+        return syncToZanataEnabled;
+    }
+
+    public boolean isSyncToRepoEnabled() {
+        return syncToRepoEnabled;
+    }
 }

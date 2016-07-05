@@ -72,11 +72,8 @@ public class RemoteJobExecutor {
         jobDetail.put("srcRepoBranch", srcRepoPluginConfig.get("branch"));
         jobDetail.put("syncToZanataOption", workConfig.getSyncToZanataOption().name());
         jobDetail.put("srcRepoType", workConfig.getSrcRepoPluginName());
-
-        Map<String, String> transServerConfig =
-                workConfig.getTransServerPluginConfig();
-        jobDetail.put("zanataUsername", transServerConfig.get("username"));
-        jobDetail.put("zanataSecret", transServerConfig.get("secret"));
+        jobDetail.put("zanataUsername", workConfig.getZanataUsername());
+        jobDetail.put("zanataSecret", workConfig.getZanataSecret());
         log.debug("about to execute job remotely with: {}", jobDetail);
         Response response;
         switch (jobType) {

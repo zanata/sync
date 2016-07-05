@@ -22,6 +22,7 @@ package org.zanata.sync.validation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -64,15 +65,14 @@ public class SyncWorkFormValidator {
         return errors;
     }
 
-    // TODO pahuang this is not doing anything since we pass in 'git' not the class name
     private Map<String, String> validateRepoFields(
-            Map<String, String> config, String executorClass) {
-        RepoExecutor executor = pluginsService.getNewSourceRepoPlugin(
-                executorClass);
-        if(executor == null) {
+            Map<String, String> config, String pluginName) {
+        Optional<RepoExecutor> executor = pluginsService.getSourceRepoPlugin(
+                pluginName);
+        if (!executor.isPresent()) {
             return new HashMap<>();
         }
-        return validateFields(config, executor, SyncWorkForm.repoSettingsPrefix);
+        return validateFields(config, executor.get(), SyncWorkForm.repoSettingsPrefix);
     }
 
     private Map<String, String> validateFields(Map<String, String> config,

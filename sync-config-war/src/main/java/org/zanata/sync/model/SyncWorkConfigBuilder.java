@@ -21,7 +21,9 @@
 package org.zanata.sync.model;
 
 import org.zanata.sync.dto.SyncWorkForm;
+import org.zanata.sync.dto.ZanataAccount;
 
 public interface SyncWorkConfigBuilder {
-    SyncWorkConfig buildObject(SyncWorkForm syncWorkForm);
+    SyncWorkConfig buildObject(SyncWorkForm syncWorkForm,
+            ZanataAccount zanataAccount);
 }

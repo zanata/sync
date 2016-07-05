@@ -51,8 +51,6 @@ public class SyncWorkConfigSerializerEncryptionDecorator
         for (String field : fieldsNeedEncryption) {
             directConvert.getSrcRepoPluginConfig().computeIfPresent(field,
                     decryptFunc);
-            directConvert.getTransServerPluginConfig().computeIfPresent(field,
-                    decryptFunc);
         }
 
         return directConvert;
@@ -77,8 +75,6 @@ public class SyncWorkConfigSerializerEncryptionDecorator
                 (key, value) -> encryptionUtil.encrypt(value);
         for (String field : fieldsNeedEncryption) {
             syncWorkConfig.getSrcRepoPluginConfig().computeIfPresent(field,
-                    encryptFunc);
-            syncWorkConfig.getTransServerPluginConfig().computeIfPresent(field,
                     encryptFunc);
         }
 

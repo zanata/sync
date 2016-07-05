@@ -2,7 +2,6 @@ package org.zanata.sync.model;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +19,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.ws.rs.core.GenericType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,6 @@ public class SyncWorkConfig {
     private static final Logger log =
             LoggerFactory.getLogger(SyncWorkConfig.class);
 
-    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -64,11 +61,8 @@ public class SyncWorkConfig {
 
     @Transient
     private Map<String, String> srcRepoPluginConfig;
-    @Transient
-    private Map<String, String> transServerPluginConfig;
 
     private String srcRepoPluginConfigJson;
-    private String transServerConfigJson;
 
     private String srcRepoPluginName;
 
@@ -79,6 +73,8 @@ public class SyncWorkConfig {
     private boolean syncToRepoEnabled = true;
 
     private String zanataUsername;
+    private String zanataSecret;
+    private String zanataServerUrl;
 
     @Setter(AccessLevel.PROTECTED)
     @Temporal(TemporalType.TIMESTAMP)
@@ -95,8 +91,8 @@ public class SyncWorkConfig {
             String srcRepoPluginName,
             String encryptionKey,
             boolean syncToServerEnabled, boolean syncToRepoEnabled,
-            String username, String srcRepoPluginConfigJson,
-            String transServerPluginConfigJson) {
+            String srcRepoPluginConfigJson, String zanataUsername,
+            String zanataSecret, String zanataServerUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -107,10 +103,10 @@ public class SyncWorkConfig {
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.syncToZanataCron = syncToZanataCron;
         this.syncToRepoCron = syncToRepoCron;
-        this.zanataUsername = username;
-
         this.srcRepoPluginConfigJson = srcRepoPluginConfigJson;
-        this.transServerConfigJson = transServerPluginConfigJson;
+        this.zanataUsername = zanataUsername;
+        this.zanataSecret = zanataSecret;
+        this.zanataServerUrl = zanataServerUrl;
     }
 
     public Map<String, String> getSrcRepoPluginConfig() {
@@ -120,17 +116,9 @@ public class SyncWorkConfig {
         return srcRepoPluginConfig;
     }
 
-    public Map<String, String> getTransServerPluginConfig() {
-        if (transServerPluginConfig == null) {
-            transServerPluginConfig = fromJson(transServerConfigJson);
-        }
-        return transServerPluginConfig;
-    }
-
     @PostLoad
     protected void postLoad() {
         getSrcRepoPluginConfig();
-        getTransServerPluginConfig();
     }
 
     private static <T> T fromJson(String jsonString) {

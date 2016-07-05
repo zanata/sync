@@ -93,15 +93,13 @@ public class WorkResource {
     public Response createWork(SyncWorkForm form) {
         Map<String, String> errors = formValidator.validateJobForm(form);
         if (!errors.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
+                    .build();
         }
-        // TODO pahuang this is a quick hack to make it work with old code
         ZanataAccount zanataAccount = securityTokens.getAccount();
-        form.getTransServerPluginConfig().put("username",
-                zanataAccount.getUsername());
-        form.getTransServerPluginConfig()
-                .put("secret", zanataAccount.getApiKey());
-        SyncWorkConfig syncWorkConfig = syncWorkConfigBuilder.buildObject(form);
+
+        SyncWorkConfig syncWorkConfig =
+                syncWorkConfigBuilder.buildObject(form, zanataAccount);
         // TODO pahuang here we should persist the refresh token
         try {
             workServiceImpl.updateOrPersist(syncWorkConfig);
@@ -124,7 +122,9 @@ public class WorkResource {
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }
-        SyncWorkConfig syncWorkConfig = syncWorkConfigBuilder.buildObject(form);
+        ZanataAccount zanataAccount = securityTokens.getAccount();
+        SyncWorkConfig syncWorkConfig = syncWorkConfigBuilder.buildObject(form,
+                zanataAccount);
 
         try {
             workServiceImpl.updateOrPersist(syncWorkConfig);
@@ -149,16 +149,4 @@ public class WorkResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private Response getAllWork(String type) {
-        try {
-            if(!type.equals("summary")) {
-                return Response.ok(schedulerServiceImpl.getAllWork()).build();
-            } else {
-                return Response.ok(schedulerServiceImpl.getAllWorkSummary()).build();
-            }
-        } catch (SchedulerException e) {
-            log.error("fail getting all jobs", e);
-            return Response.serverError().build();
-        }
-    }
 }

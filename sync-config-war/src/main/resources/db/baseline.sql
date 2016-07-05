@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     syncToZanataCron        VARCHAR(255),
     syncToZanataOption      VARCHAR(255),
     zanataUsername          VARCHAR(255) NOT NULL,
-    transServerConfigJson   TEXT,
+    zanataSecret            VARCHAR(255) NOT NULL,
+    zanataServerUrl         VARCHAR(255) NOT NULL,
     srcRepoPluginConfigJson TEXT,
     INDEX config_name_idx (name),
     INDEX config_zanata_username_idx (zanataUsername)

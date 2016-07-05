@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 
 /**
+ * TODO move this to sync-common and share between jobs-war and sync-config-war
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public enum JobDetailEntry {

@@ -1,9 +1,5 @@
 package org.zanata.sync.dao;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +29,9 @@ public class JobStatusDAOTest {
     public void canSaveNewStatusAndUpdate() {
         SyncWorkConfig syncWorkConfig =
                 new SyncWorkConfig(null, "name", null, null, null,
-                        SyncOption.SOURCE, "git", null, true, true, "username",
-                        "{}", "{}");
+                        SyncOption.SOURCE, "git", null, true, true, "{}",
+                        "username",
+                        "apiKey", "http://localhost:8080/zanata");
         entityManagerRule.getEm().persist(syncWorkConfig);
         JobStatus jobStatus =
                 new JobStatus("id", syncWorkConfig, JobType.REPO_SYNC,
