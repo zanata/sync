@@ -69,10 +69,15 @@ export default React.createClass({
       'bg-danger': this.props.error,
       'bg-success': this.props.created,
     })
-    let msgContent = this.props.error ? this.props.error.message : undefined
+    let msgContent
+
     if (this.props.created) {
       // TODO maybe put up a toastr message and then reset the form to initial state or redirect to other page?
       msgContent = 'Saved successfully'
+    } else if (this.props.error) {
+      const errResponse = this.props.error.response
+      // TODO display error message properly
+      msgContent = errResponse ? JSON.stringify(errResponse) : this.props.error.message
     }
 
     const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)
