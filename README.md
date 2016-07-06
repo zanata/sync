@@ -40,7 +40,7 @@ TODO:
 
 ### Tips
 
-- use ```./build.sh``` to build (-H to see help)
+- use ```./build.sh``` to build and deploy to your local server (-H to see help)
 - use ```./openshift_deploy_config_war.sh``` to deploy sync-config-war artifact
   to openshift.
 - use ```./openshift_deploy_jobs_war.sh``` to deploy jobs-war artifact to
