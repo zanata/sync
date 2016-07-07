@@ -4,7 +4,7 @@ import cx from 'classnames'
 const NotificationBar = (props) => {
   const className = cx("alert alert-fixed", {
     'alert-danger': props.isError,
-    'alert-info': !props.isError
+    'alert-success': !props.isError
   })
   const closeCallback = e => {
     e.stopPropagation()

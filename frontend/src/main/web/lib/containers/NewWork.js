@@ -1,11 +1,14 @@
-import { submitNewWork } from '../actions'
+import { submitNewWork, closeNotification } from '../actions'
 import { connect } from 'react-redux'
 import WorkForm from '../components/WorkForm'
+import { API_DONE, API_IN_PROGRESS} from '../constants/commonStateKeys'
+
 
 const mapStateToProps = (state) => {
   const user = state.configs.user
   return {
-    created: state.workConfig.created,
+    saving: state.workConfig[API_IN_PROGRESS],
+    notification: state.global.notification,
     srcRepoPlugins: state.configs.srcRepoPlugins,
     zanataUser: user
   }
@@ -13,7 +16,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onSaveNewWork: (workForm) => dispatch(submitNewWork(workForm))
+    onSaveNewWork: (workForm) => dispatch(submitNewWork(workForm)),
+    dismissNotification: () => dispatch(closeNotification())
   }
 }
 

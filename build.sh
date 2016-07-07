@@ -2,8 +2,8 @@
 # Author: Patrick Huang
 set -e
 
-SYNC_WAR=$(find sync-config-war/target -type f -name "*.war")
-JOBS_WAR=$(find jobs-war/target -type f -name "*.war")
+SYNC_WAR=$(find sync-config-war/ -type f -name "*.war")
+JOBS_WAR=$(find jobs-war/ -type f -name "*.war")
 
 # default to build (skip tests) and deploy everything
 BUILD="mvn clean package"
@@ -63,7 +63,7 @@ while getopts ":cxfjw:ts:H" opt; do
       echo "-w <mysqlpassword> : will display command to wipe out the data in your local database (sync_local)"
       echo "-H                 : display help"
       echo "-s <jboss home>    : will override JBOSS_HOME. Default is ${JBOSS_HOME}"
-      echo "If no option is given, it will try to build and deploy everything"
+      echo "NOTE: You can only give one of [-f -c -x -j]. If none of these options is given, it will try to build and deploy everything"
       exit
       ;;
     \?)

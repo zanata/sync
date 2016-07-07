@@ -3,6 +3,7 @@ import Select from './form/Select'
 import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
+import NotificationBar from './NotificationBar'
 import cx from 'classnames'
 import {route} from '../utils'
 import { API_DONE, API_ERROR, API_IN_PROGRESS} from '../constants/commonStateKeys'
@@ -10,10 +11,11 @@ import { API_DONE, API_ERROR, API_IN_PROGRESS} from '../constants/commonStateKey
 export default React.createClass({
   propTypes: {
     onSaveNewWork: PropTypes.func.isRequired,
-    created: PropTypes.bool.isRequired,
-    // TODO use shape to be more specific
+    // TODO use shape to be more specific,
+    saving: PropTypes.bool.isRequired,
     srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    zanataUser: PropTypes.object
+    zanataUser: PropTypes.object,
+    dismissNotification: PropTypes.func.isRequired
   },
   getInitialState() {
     return {
@@ -62,22 +64,18 @@ export default React.createClass({
 
     const saveCallback = e => this.props.onSaveNewWork(this.state)
 
-    const saveBtnText = this.props[API_IN_PROGRESS] ? 'Saving...' : 'Save'
-    const saveBtnDisabled = this.props[API_IN_PROGRESS]
-    const msgClass = cx('col-md-3', 'text-right', {
-      'bg-danger': this.props.error,
-      'bg-success': this.props.created,
-    })
+    const {notification, dismissNotification, saving} = this.props
 
-    const error = this.props[API_ERROR]
-    let msgContent
+    const saveBtnText = saving ? 'Saving...' : 'Save'
+    const saveBtnDisabled = saving
 
-    if (this.props.created) {
-      // TODO maybe put up a toastr message and then reset the form to initial state or redirect to other page?
-      // TODO dispatch an action to reset state. e.g. created back to false and maybe re-route to somewhere else
-      msgContent = 'Saved successfully'
-    } else if (error) {
-      msgContent = 'Save failed'
+    let notificationBar = null
+    if (notification.message && !notification.isError) {
+      notificationBar = (
+        <NotificationBar isError={false} message={notification.message}
+          onDismiss={dismissNotification}
+        />
+      )
     }
 
     const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)
@@ -87,7 +85,6 @@ export default React.createClass({
     const selectedPlugin = this.props.srcRepoPlugins.filter(
       plugin => plugin.name === selectedPluginName
     )[0]
-
 
     const selectedPluginFields = Object.keys(selectedPlugin.fields).map(key => {
       // TODO field tooltip
@@ -101,6 +98,7 @@ export default React.createClass({
 
     return (
       <div>
+        {notificationBar}
         <form className="form-horizontal">
           <TextInput name='name' onChange={callbackFor('name')}
             placeholder='work name' inputValue={this.state.name}/>
@@ -146,7 +144,7 @@ export default React.createClass({
           </ToggleFieldSet>
 
           <div className="form-group">
-            <div className={msgClass}>{msgContent}</div>
+            <div className='col-md-3'></div>
             <div className="col-md-7 ">
               <button type="button" className="btn btn-primary"
                 onClick={saveCallback}

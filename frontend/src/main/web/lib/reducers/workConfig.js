@@ -10,7 +10,7 @@ const defaultState = {
   [API_ERROR]: null,
   [API_IN_PROGRESS]: false,
   [API_DONE]: false,
-  created: false,
+  newConfigSaved: false,
   workDetail: null
 }
 
@@ -18,11 +18,9 @@ export default handleActions(
   {
     [NEW_WORK_REQUEST]: requestHandler,
     [NEW_WORK_SUCCESS]: (state, action) => {
-      // TODO need another action to reset state back to created: false after success
       const successState = commonSuccessState(state)
       return {
-        ...successState,
-        created: true
+        ...successState
       }
     },
     [NEW_WORK_FAILURE]: errorHandler,

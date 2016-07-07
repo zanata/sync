@@ -39,11 +39,11 @@ const App = React.createClass({
     const routeComponent = isUnauthorized && !isIndexRoute ?
       (<SessionTimedOut />) : children
 
-    // display any notification
+    // only display global notification if there is an error
     let notificationBar = null
-    if (notification.message) {
+    if (notification.message && notification.isError) {
       notificationBar = (
-        <NotificationBar isError={notification.isError}
+        <NotificationBar isError={true}
           message={notification.message} onDismiss={dismissNotification}/>
       )
     }
