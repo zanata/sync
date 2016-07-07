@@ -83,7 +83,7 @@ export default React.createClass(
         hidden: !this.state.showNavMenu
       })
       return (
-        <nav className="navbar navbar-default navbar-pf" role="navigation">
+        <nav className="navbar navbar-fixed-top navbar-pf" role="navigation">
           <div className="navbar-header">
             <button type="button" className="navbar-toggle"
               data-toggle="collapse" onClick={this._toggleNav}>

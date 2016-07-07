@@ -1,6 +1,6 @@
 import React, {PropTypes} from 'react'
 import NavBanner from '../components/NavBanner'
-import { logout } from '../actions'
+import { logout, closeNotification } from '../actions'
 import { connect } from 'react-redux'
 import SessionTimedOut from '../components/SessionTimedOut'
 import NotificationBar from '../components/NotificationBar'
@@ -12,7 +12,8 @@ const App = React.createClass({
     loggedOut: PropTypes.bool,
     onLogout: PropTypes.func.isRequired,
     isUnauthorized: PropTypes.bool.isRequired,
-    notification: PropTypes.object
+    notification: PropTypes.object,
+    dismissNotification: PropTypes.func.isRequired
   },
 
   componentWillReceiveProps(nextProps) {
@@ -23,7 +24,8 @@ const App = React.createClass({
   },
 
   render() {
-    const {isUnauthorized, zanataUser, location, children, notification} = this.props
+    const {isUnauthorized, zanataUser, location,
+      children, notification, dismissNotification} = this.props
     let message = 'Please sign in to a Zanata server'
     if (zanataUser) {
        message = `${zanataUser.name}@${zanataUser.zanataServer}`
@@ -40,7 +42,10 @@ const App = React.createClass({
     // display any notification
     let notificationBar = null
     if (notification.message) {
-      notificationBar = (<NotificationBar isError={notification.isError} message={notification.message} />)
+      notificationBar = (
+        <NotificationBar isError={notification.isError}
+          message={notification.message} onDismiss={dismissNotification}/>
+      )
     }
     return (
       <div>
@@ -48,13 +53,9 @@ const App = React.createClass({
           zanataServer={zanataUser && zanataUser.zanataServer}
           onLogout={this.props.onLogout}
         />
+        {notificationBar}
         <h2 className='text-center'>Zanata Sync {message}</h2>
         <div className="container-fluid container-cards-pf">
-          <div className="row">
-            <div className="col-sm-6 col-md-8 col-sm-push-3 col-md-push-2">
-              {notificationBar}
-            </div>
-          </div>
           <div className="row">
             <div className="col-sm-6 col-md-8 col-sm-push-3 col-md-push-2">
               {/* this is passed down by nested react router */}
@@ -78,7 +79,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatcherToProps = (dispatch) => {
   return {
-    onLogout: () => dispatch(logout())
+    onLogout: () => dispatch(logout()),
+    dismissNotification: () => dispatch(closeNotification())
   }
 }
 

@@ -9,11 +9,10 @@ export default store => next => action => {
 
   // here we assume only two level of nesting in state
   // (e.g. every reducer create a simple object without nesting)
-  // const reducerStates = Object.keys(state).map(key => state[key])
   Object.keys(state).forEach(reducer => {
     const reducerState = state[reducer]
     const error = reducerState[API_ERROR]
-    const notification = state.global
+    const notification = state.global.notification
     // this assumes we only have one notification at a time
     // (implication: two ajax calls and the later one will override the earlier
     //  one)
@@ -27,7 +26,7 @@ export default store => next => action => {
         'You are not authorized to access this resource!' :
         extractErrorMessage(error);
       next(showNotification({
-        source: [reducer],
+        source: reducer,
         isError: true,
         isUnauthorized: unauthorized,
         reason: error,

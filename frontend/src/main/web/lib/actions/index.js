@@ -5,6 +5,9 @@ import { CALL_API } from 'redux-api-middleware'
 export const SHOW_NOTIFICATION = 'SHOW_NOTIFICATION'
 export const showNotification = createAction(SHOW_NOTIFICATION)
 
+export const CLOSE_NOTIFICATION = 'CLOSE_NOTIFICATION'
+export const closeNotification = createAction(CLOSE_NOTIFICATION)
+
 // =========== check whether server session is still logged in
 export const CHECK_SESSION_REQUEST = 'CHECK_SESSION_REQUEST'
 export const CHECK_SESSION_SUCCESS = 'CHECK_SESSION_SUCCESS'

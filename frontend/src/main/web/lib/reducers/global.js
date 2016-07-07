@@ -1,11 +1,11 @@
 import { handleActions } from 'redux-actions'
-import {SHOW_NOTIFICATION} from '../actions'
+import {SHOW_NOTIFICATION, CLOSE_NOTIFICATION} from '../actions'
 
 const defaultState = {
   notification: {
     source: null,
-    isError: false,
     reason: null,
+    isError: false,
     message: ''
   },
   isUnauthorized: false
@@ -17,17 +17,30 @@ const defaultState = {
  */
 export default handleActions(
   {
-    [SHOW_NOTIFICATION] : (state, action) => {
+    [SHOW_NOTIFICATION]: (state, action) => {
       // see ../middleware/apiCallStateChecker.js
       const {source, reason, message, isError, isUnauthorized} = action.payload
       return {
         ...state,
         notification: {
+          source,
+          reason,
           isError,
-          isUnauthorized,
           message
         },
         isUnauthorized
+      }
+    },
+    [CLOSE_NOTIFICATION]: (state, action) => {
+      const {source, reason} = state.notification
+      return {
+        ...state,
+        notification: {
+          source,
+          reason,
+          isError: false,
+          message: ''
+        }
       }
     }
   },

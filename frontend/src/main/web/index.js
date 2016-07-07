@@ -16,6 +16,7 @@ import apiCallStateChecker from './lib/middleware/apiCallStateChecker'
 // import 'zanata-ui/lib/styles/index.css'
 import 'patternfly/dist/css/patternfly.min.css'
 import 'patternfly/dist/css/patternfly-additions.min.css'
+import './app.css'
 
 /**
  * Process attributes in dom element:id='main-content'
