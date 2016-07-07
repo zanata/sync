@@ -5,12 +5,11 @@ import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
 import cx from 'classnames'
 import {route} from '../utils'
-import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
+import { API_DONE, API_ERROR, API_IN_PROGRESS} from '../constants/commonStateKeys'
 
 export default React.createClass({
   propTypes: {
     onSaveNewWork: PropTypes.func.isRequired,
-    creating: PropTypes.bool.isRequired,
     created: PropTypes.bool.isRequired,
     // TODO use shape to be more specific
     srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.object).isRequired,
@@ -63,22 +62,22 @@ export default React.createClass({
 
     const saveCallback = e => this.props.onSaveNewWork(this.state)
 
-    const saveBtnText = this.props.creating ? 'Saving...' : 'Save'
-    const saveBtnDisabled = this.props.creating
+    const saveBtnText = this.props[API_IN_PROGRESS] ? 'Saving...' : 'Save'
+    const saveBtnDisabled = this.props[API_IN_PROGRESS]
     const msgClass = cx('col-md-3', 'text-right', {
       'bg-danger': this.props.error,
       'bg-success': this.props.created,
     })
 
-    const error = this.props.error
+    const error = this.props[API_ERROR]
     let msgContent
 
     if (this.props.created) {
       // TODO maybe put up a toastr message and then reset the form to initial state or redirect to other page?
+      // TODO dispatch an action to reset state. e.g. created back to false and maybe re-route to somewhere else
       msgContent = 'Saved successfully'
     } else if (error) {
-      if (isUnauthorized(error))
-      msgContent = extractErrorMessage(error)
+      msgContent = 'Save failed'
     }
 
     const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)

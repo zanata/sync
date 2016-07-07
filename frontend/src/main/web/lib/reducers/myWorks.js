@@ -4,51 +4,44 @@ import {
   RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE,
   GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS, GET_JOB_STATUS_FAILURE
 } from '../actions'
-import { reducer } from '../utils'
+import { requestHandler, errorHandler, commonSuccessState } from '../utils/reducer'
 import { isJobFinished, toJobSummaryKeyName } from '../constants/Enums'
+import { API_DONE, API_ERROR, API_IN_PROGRESS} from '../constants/commonStateKeys'
 
 const defaultState = {
-  error: undefined,
-  loading: false,
+  [API_ERROR]: null,
+  [API_IN_PROGRESS]: false,
+  [API_DONE]: false,
   workSummaries: [],
   runningJobs: {}
 }
 
 export default (maxPollCount) => handleActions(
   {
-    [LOAD_WORKS_REQUEST]: reducer.requestHandler,
+    [LOAD_WORKS_REQUEST]: requestHandler,
     [LOAD_WORKS_SUCCESS]: (state, action) => {
-      const summaries = action.payload
+      const successState = commonSuccessState(state)
       return {
-        ...state,
-        workSummaries: summaries,
-        loading: false
+        ...successState,
+        workSummaries: action.payload
       }
     },
-    [LOAD_WORKS_FAILURE]: reducer.errorHandler,
-    // [RUN_JOB_REQUEST]: (state, action) => {
-    //   // we do nothing... for now
-    //   return {
-    //     ...state
-    //   }
-    // },
+    [LOAD_WORKS_FAILURE]: errorHandler,
+    [RUN_JOB_REQUEST]: requestHandler,
     [RUN_JOB_SUCCESS]: (state, action) => {
+      const successState = commonSuccessState(state)
       const {workId, jobType} = action.payload
       // we use work id and job type as identifier for a job...
       // see JobResource.java
       const runningJobs = Object.assign({}, state.runningJobs)
       runningJobs[workId + jobType] = 1
       return {
-        ...state,
+        ...successState,
         runningJobs
       }
     },
-    [RUN_JOB_FAILURE]: reducer.errorHandler,
-    [GET_JOB_STATUS_REQUEST]: (state, action) => {
-      return {
-        ...state
-      }
-    },
+    [RUN_JOB_FAILURE]: errorHandler,
+    [GET_JOB_STATUS_REQUEST]: requestHandler,
     [GET_JOB_STATUS_SUCCESS]: (state, action) => {
       const {workId, jobType, status, startTime, endTime} = action.payload
       const runningJobs = Object.assign({}, state.runningJobs)
@@ -72,12 +65,13 @@ export default (maxPollCount) => handleActions(
         workSummary[job].lastJobStatus.status = 'Timeout polling result'
       }
 
+      const successState = commonSuccessState(state)
       return {
-        ...state,
+        ...successState,
         runningJobs
       }
     },
-    [GET_JOB_STATUS_FAILURE]: reducer.errorHandler
+    [GET_JOB_STATUS_FAILURE]: errorHandler
   },
   defaultState
 )

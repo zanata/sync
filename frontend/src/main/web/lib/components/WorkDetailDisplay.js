@@ -4,9 +4,6 @@ import EnableOrDisableIcon from './EnableOrDisableIcon'
 import cx from 'classnames'
 import { isError, isSuccess, isRunning } from '../constants/Enums'
 import { duration, datePropValidator, formatDate } from '../utils/DateTime'
-import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
-import SessionTimedOut from './SessionTimedOut'
-import GenericErrorBar from './GenericErrorBar'
 
 const ToggleReveal = React.createClass({
   getInitialState() {
@@ -56,18 +53,10 @@ export default React.createClass({
   },
 
   render() {
-    const {error, workDetail} = this.props
-
-    if (error) {
-      if (isUnauthorized(error)) {
-        return <SessionTimedOut />
-      } else {
-        return <GenericErrorBar error={error} />
-      }
-    }
+    const {workDetail} = this.props
 
     if (!workDetail) {
-      return (<ProgressBar loading={true} />)
+      return null
     }
 
     const {name, description, createdDate, srcRepoPluginName,
@@ -141,7 +130,6 @@ export default React.createClass({
             </tbody>
           </table>
         </div>
-
       </div>
     )
   }

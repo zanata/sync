@@ -1,11 +1,9 @@
 import { createAction } from 'redux-actions'
 import { CALL_API } from 'redux-api-middleware'
 
-export const NEW_WORK_REQUEST = 'NEW_WORK_REQUEST'
-export const NEW_WORK_SUCCESS = 'NEW_WORK_SUCCESS'
-export const NEW_WORK_FAILURE = 'NEW_WORK_FAILURE'
 
-// const newWorkAction = createAction(NEW_WORK_SUBMIT)
+export const SHOW_NOTIFICATION = 'SHOW_NOTIFICATION'
+export const showNotification = createAction(SHOW_NOTIFICATION)
 
 // =========== check whether server session is still logged in
 export const CHECK_SESSION_REQUEST = 'CHECK_SESSION_REQUEST'
@@ -25,6 +23,10 @@ export function checkSession() {
   }
 }
 
+// ============ submit/save a new work config
+export const NEW_WORK_REQUEST = 'NEW_WORK_REQUEST'
+export const NEW_WORK_SUCCESS = 'NEW_WORK_SUCCESS'
+export const NEW_WORK_FAILURE = 'NEW_WORK_FAILURE'
 export function submitNewWork(payload) {
   console.log('======== new work button clicked:', payload)
   const entity = {

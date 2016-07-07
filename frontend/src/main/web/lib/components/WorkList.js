@@ -1,9 +1,6 @@
 import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
-import SessionTimedOut from './SessionTimedOut'
-import GenericErrorBar from './GenericErrorBar'
 import {route} from '../utils'
-import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
 
 export default React.createClass({
   propTypes: {
@@ -29,14 +26,7 @@ export default React.createClass({
   },
 
   render() {
-    const {runJob, workSummaries, runningJobs, error} = this.props
-    let errorMessage = null
-    if (error) {
-      if (isUnauthorized(error)) {
-        return (<SessionTimedOut />)
-      }
-      errorMessage = <GenericErrorBar error={error} />
-    }
+    const {runJob, workSummaries, runningJobs} = this.props
     const summaries = workSummaries.map(work => {
       return (
         <WorkSummary key={work.id} id={work.id} name={work.name}
@@ -50,7 +40,6 @@ export default React.createClass({
     })
     return (
       <div className='row row-cards-pf'>
-        {errorMessage}
         {summaries}
       </div>
     )

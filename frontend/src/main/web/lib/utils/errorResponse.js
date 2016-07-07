@@ -13,5 +13,5 @@ export function extractErrorMessage(errorPayload) {
 }
 
 export function isUnauthorized(errorPayload) {
-  return errorPayload.status && errorPayload.status === 401
+  return errorPayload && errorPayload.status && errorPayload.status === 401
 }

@@ -30,6 +30,11 @@ app.get('/api/oauth/url', function (req, res) {
   }))
 })
 
+app.post('/api/work', function (req, res) {
+  commonHeaders(req, res)
+  res.send()
+})
+
 app.post('/api/oauth/logout', function (req, res) {
   commonHeaders(req, res)
   res.send()

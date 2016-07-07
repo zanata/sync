@@ -1,7 +1,5 @@
 import React, {PropTypes} from 'react'
 import Select from './form/Select'
-import { isUnauthorized, extractErrorMessage } from '../utils/errorResponse'
-import GenericErrorBar from './GenericErrorBar'
 
 // represents user has not yet selected a zanata server
 const NO_SELECTION_OPT = '...'
@@ -34,7 +32,6 @@ export default React.createClass(
 
     componentWillReceiveProps(nextProps) {
        if (nextProps.zanataOAuthUrl) {
-         console.log(nextProps.zanataOAuthUrl)
          window.location = nextProps.zanataOAuthUrl
        }
     },
@@ -45,22 +42,17 @@ export default React.createClass(
     },
 
     render() {
-      const {zanataUser, error} = this.props
+      const {zanataUser} = this.props
 
-      if (!error && zanataUser) {
+      if (zanataUser) {
         return <div>Welcome {zanataUser.name}</div>
-      }
-
-      let message = null
-      if (error && !isUnauthorized(error)) {
-        message = <GenericErrorBar error={error} />
       }
 
       const zanataServerUrls = [NO_SELECTION_OPT, ...this.props.zanataServerUrls];
 
+      // TODO if zanataServerUrls has only one option, don't use selection
       return (
         <div>
-          {message}
           <form className="form-horizontal">
             <Select name='zanataServer' label='Zanata Servers'
               onChange={this._changeZanataServer}

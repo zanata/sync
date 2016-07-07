@@ -4,7 +4,6 @@ import WorkDetailDisplay from '../components/WorkDetailDisplay'
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    error: state.workConfig.error,
     workDetail: state.workConfig.workDetail
   }
 }

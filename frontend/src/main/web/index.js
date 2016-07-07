@@ -10,6 +10,7 @@ import { syncHistoryWithStore } from 'react-router-redux'
 import { apiMiddleware } from 'redux-api-middleware'
 import createLogger from 'redux-logger'
 import rootReducer from './lib/reducers'
+import apiCallStateChecker from './lib/middleware/apiCallStateChecker'
 
 // import _ from 'lodash';
 // import 'zanata-ui/lib/styles/index.css'
@@ -84,6 +85,7 @@ const store = createStore(
   applyMiddleware(
     thunk,
     apiMiddleware,
+    apiCallStateChecker,
     logger
   )
 )

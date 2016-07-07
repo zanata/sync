@@ -5,9 +5,7 @@ import WorkForm from '../components/WorkForm'
 const mapStateToProps = (state) => {
   const user = state.configs.user
   return {
-    creating: state.workConfig.creating,
     created: state.workConfig.created,
-    error: state.workConfig.error,
     srcRepoPlugins: state.configs.srcRepoPlugins,
     zanataUser: user
   }

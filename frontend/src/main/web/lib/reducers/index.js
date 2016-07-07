@@ -4,6 +4,7 @@ import invariant from 'invariant'
 import workConfig from './workConfig'
 import security from './security'
 import myWorks from './myWorks'
+import global from './global'
 
 export function createReducersWithConfigs(configs) {
   const {zanataServerUrls, srcRepoPlugins, pollInterval, maxPollTimeout} = configs
@@ -17,7 +18,8 @@ export function createReducersWithConfigs(configs) {
     workConfig,
     security,
     configs: () => configs,
-    myWorks: myWorks(configs.maxPollCount)
+    myWorks: myWorks(configs.maxPollCount),
+    global
   })
 }
 
