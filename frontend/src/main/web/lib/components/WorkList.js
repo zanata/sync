@@ -19,7 +19,7 @@ export default React.createClass({
   componentWillMount() {
     const {zanataUsername, loadWorkSummaries} = this.props
     if (zanataUsername) {
-      loadWorkSummaries(zanataUsername)
+      loadWorkSummaries()
     } else {
       route.redirectToSignIn(this.context.router)
     }

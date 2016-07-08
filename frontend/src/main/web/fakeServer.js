@@ -32,7 +32,7 @@ app.get('/api/oauth/url', function (req, res) {
 
 app.post('/api/work', function (req, res) {
   commonHeaders(req, res)
-  res.send()
+  res.send(201, '{"link": "/api/work/1"}')
 })
 
 app.post('/api/oauth/logout', function (req, res) {

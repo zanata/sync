@@ -1,9 +1,8 @@
 import React, {PropTypes} from 'react'
 import NavBanner from '../components/NavBanner'
-import { logout, closeNotification } from '../actions'
+import { logout } from '../actions'
 import { connect } from 'react-redux'
 import SessionTimedOut from '../components/SessionTimedOut'
-import NotificationBar from '../components/NotificationBar'
 
 // this represents the root of the app
 const App = React.createClass({
@@ -11,9 +10,7 @@ const App = React.createClass({
     zanataUser: PropTypes.object,
     loggedOut: PropTypes.bool,
     onLogout: PropTypes.func.isRequired,
-    isUnauthorized: PropTypes.bool.isRequired,
-    notification: PropTypes.object,
-    dismissNotification: PropTypes.func.isRequired
+    serverReturnUnauthorized: PropTypes.bool.isRequired,
   },
 
   componentWillReceiveProps(nextProps) {
@@ -24,8 +21,8 @@ const App = React.createClass({
   },
 
   render() {
-    const {isUnauthorized, zanataUser, location,
-      children, notification, dismissNotification} = this.props
+    const {serverReturnUnauthorized, zanataUser, location,
+      children} = this.props
     let message = 'Please sign in to a Zanata server'
     if (zanataUser) {
        message = `${zanataUser.name}@${zanataUser.zanataServer}`
@@ -36,24 +33,15 @@ const App = React.createClass({
     // this.props.children is passed down by nested react router.
     // if unauthorized and is not index route, then replace children to
     // SessionTimedOut
-    const routeComponent = isUnauthorized && !isIndexRoute ?
+    const routeComponent = serverReturnUnauthorized && !isIndexRoute ?
       (<SessionTimedOut />) : children
 
-    // only display global notification if there is an error
-    let notificationBar = null
-    if (notification.message && notification.isError) {
-      notificationBar = (
-        <NotificationBar isError={true}
-          message={notification.message} onDismiss={dismissNotification}/>
-      )
-    }
     return (
       <div>
         <NavBanner name={zanataUser && zanataUser.name}
           zanataServer={zanataUser && zanataUser.zanataServer}
           onLogout={this.props.onLogout}
         />
-        {notificationBar}
         <h2 className='text-center'>Zanata Sync {message}</h2>
         <div className="container-fluid container-cards-pf">
           <div className="row">
@@ -72,15 +60,13 @@ const mapStateToProps = (state) => {
   return {
     zanataUser: state.configs.user,
     loggedOut: state.security.loggedOut,
-    isUnauthorized: state.global.isUnauthorized,
-    notification: state.global.notification
+    serverReturnUnauthorized: state.security.serverReturnUnauthorized
   }
 }
 
 const mapDispatcherToProps = (dispatch) => {
   return {
-    onLogout: () => dispatch(logout()),
-    dismissNotification: () => dispatch(closeNotification())
+    onLogout: () => dispatch(logout())
   }
 }
 

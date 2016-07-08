@@ -4,7 +4,7 @@ import invariant from 'invariant'
 import workConfig from './workConfig'
 import security from './security'
 import myWorks from './myWorks'
-import global from './global'
+import {reducer as toastrReducer} from 'react-redux-toastr'
 
 export function createReducersWithConfigs(configs) {
   const {zanataServerUrls, srcRepoPlugins, pollInterval, maxPollTimeout} = configs
@@ -19,7 +19,7 @@ export function createReducersWithConfigs(configs) {
     security,
     configs: () => configs,
     myWorks: myWorks(configs.maxPollCount),
-    global
+    toastr: toastrReducer
   })
 }
 

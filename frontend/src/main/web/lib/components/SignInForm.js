@@ -11,7 +11,8 @@ export default React.createClass(
       onSignIn: PropTypes.func.isRequired,
       zanataServerUrls: PropTypes.arrayOf(React.PropTypes.string).isRequired,
       isSessionLoggedIn: PropTypes.func.isRequired,
-      zanataOAuthUrl: PropTypes.string
+      zanataOAuthUrl: PropTypes.string,
+      serverReturnUnauthorized: PropTypes.bool.isRequired
     },
 
     getInitialState() {
@@ -42,9 +43,9 @@ export default React.createClass(
     },
 
     render() {
-      const {zanataUser} = this.props
+      const {zanataUser, serverReturnUnauthorized} = this.props
 
-      if (zanataUser) {
+      if (zanataUser && !serverReturnUnauthorized) {
         return <div>Welcome {zanataUser.name}</div>
       }
 

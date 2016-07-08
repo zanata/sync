@@ -13,7 +13,7 @@ export default React.createClass({
       'text-capitalize'
     )
     return (
-      <label className={classNames} for={this.props.forId}>
+      <label className={classNames} htmlFor={this.props.forId}>
         {this.props.label}
       </label>
     )

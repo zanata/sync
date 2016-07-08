@@ -7,7 +7,8 @@ const mapStateToProps = (state) => {
   return {
     zanataServerUrls: state.configs.zanataServerUrls,
     zanataOAuthUrl: state.security.zanataOAuthUrl,
-    zanataUser: state.configs.user
+    zanataUser: state.configs.user,
+    serverReturnUnauthorized: state.security.serverReturnUnauthorized
   }
 }
 

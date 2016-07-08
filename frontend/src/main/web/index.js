@@ -11,12 +11,13 @@ import { apiMiddleware } from 'redux-api-middleware'
 import createLogger from 'redux-logger'
 import rootReducer from './lib/reducers'
 import apiCallStateChecker from './lib/middleware/apiCallStateChecker'
+import ReduxToastr from 'react-redux-toastr'
 
 // import _ from 'lodash';
 // import 'zanata-ui/lib/styles/index.css'
 import 'patternfly/dist/css/patternfly.min.css'
 import 'patternfly/dist/css/patternfly-additions.min.css'
-import './app.css'
+import 'react-redux-toastr/lib/css/react-redux-toastr.min.css'
 
 /**
  * Process attributes in dom element:id='main-content'
@@ -101,7 +102,10 @@ const history = syncHistoryWithStore(hashHistory, store)
 
 render(
   <Provider store={store}>
-    <Router routes={routes} history={history} />
+    <div>
+      <Router routes={routes} history={history} />
+      <ReduxToastr />
+    </div>
   </Provider>, mountNode
 )
 

@@ -15,11 +15,11 @@ const mapStateToProps = (state) => {
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = (dispatch) => {
 
   return {
-    loadWorkSummaries: (username) => {
-      dispatch(loadWorkSummaries(ownProps.apiUrl))
+    loadWorkSummaries: () => {
+      dispatch(loadWorkSummaries())
     },
     runJob: (workId, jobType) => {
       dispatch(runJob(workId, jobType))

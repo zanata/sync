@@ -3,19 +3,16 @@ import Select from './form/Select'
 import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
-import NotificationBar from './NotificationBar'
-import cx from 'classnames'
 import {route} from '../utils'
-import { API_DONE, API_ERROR, API_IN_PROGRESS} from '../constants/commonStateKeys'
 
 export default React.createClass({
   propTypes: {
     onSaveNewWork: PropTypes.func.isRequired,
-    // TODO use shape to be more specific,
     saving: PropTypes.bool.isRequired,
+    saveFailed: PropTypes.bool.isRequired,
+    // TODO use shape to be more specific,
     srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    zanataUser: PropTypes.object,
-    dismissNotification: PropTypes.func.isRequired
+    zanataUser: PropTypes.object
   },
   getInitialState() {
     return {
@@ -64,19 +61,10 @@ export default React.createClass({
 
     const saveCallback = e => this.props.onSaveNewWork(this.state)
 
-    const {notification, dismissNotification, saving} = this.props
+    const {saving, saveFailed} = this.props
 
     const saveBtnText = saving ? 'Saving...' : 'Save'
     const saveBtnDisabled = saving
-
-    let notificationBar = null
-    if (notification.message && !notification.isError) {
-      notificationBar = (
-        <NotificationBar isError={false} message={notification.message}
-          onDismiss={dismissNotification}
-        />
-      )
-    }
 
     const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)
 
@@ -98,7 +86,6 @@ export default React.createClass({
 
     return (
       <div>
-        {notificationBar}
         <form className="form-horizontal">
           <TextInput name='name' onChange={callbackFor('name')}
             placeholder='work name' inputValue={this.state.name}/>

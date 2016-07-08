@@ -1,13 +1,19 @@
+import {InternalError, InvalidRSAA, RequestError, ApiError, getJSON} from 'redux-api-middleware'
+
 /**
  * Method to convert a failed API (redux-api-middleware) call action payload
  * @param errorPayload
  */
 export function extractErrorMessage(errorPayload) {
-  if (errorPayload.response) {
+  const isApiError = errorPayload instanceof ApiError
+  const isOtherError = errorPayload instanceof InternalError 
+    || errorPayload instanceof InvalidRSAA 
+    || errorPayload instanceof RequestError
+  if (isApiError && errorPayload.response) {
     // TODO properly display error response
     return JSON.stringify(errorPayload.response)
-  } else if (errorPayload.message) {
-    return errorPayload.message
+  } else if (isOtherError) {
+    return `${errorPayload.name} - ${errorPayload.message}`
   }
   return JSON.stringify(errorPayload)
 }

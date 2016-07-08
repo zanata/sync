@@ -2,8 +2,8 @@ import { createAction } from 'redux-actions'
 import { CALL_API } from 'redux-api-middleware'
 
 
-export const SHOW_NOTIFICATION = 'SHOW_NOTIFICATION'
-export const createNotification = createAction(SHOW_NOTIFICATION)
+export const UNAUTHORIZED = 'UNAUTHORIZED'
+export const becomeUnauthorized = createAction(UNAUTHORIZED)
 
 export const CLOSE_NOTIFICATION = 'CLOSE_NOTIFICATION'
 export const closeNotification = createAction(CLOSE_NOTIFICATION)
@@ -94,7 +94,7 @@ export function selectZanataServer(zanataUrl) {
 export const LOAD_WORKS_REQUEST = 'LOAD_WORKS_REQUEST'
 export const LOAD_WORKS_SUCCESS = 'LOAD_WORKS_SUCCESS'
 export const LOAD_WORKS_FAILURE = 'LOAD_WORKS_FAILURE'
-export function loadWorkSummaries(username) {
+export function loadWorkSummaries() {
   return (dispatch, getState) => {
     dispatch({
       [CALL_API]: {
