@@ -1,8 +1,8 @@
 import { handleActions } from 'redux-actions'
 import {
-  LOAD_WORKS_REQUEST, LOAD_WORKS_SUCCESS, LOAD_WORKS_FAILURE,
-  RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE,
-  GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS, GET_JOB_STATUS_FAILURE
+  LOAD_WORKS_SUCCESS,
+  RUN_JOB_SUCCESS,
+  GET_JOB_STATUS_SUCCESS
 } from '../actions'
 import { isJobFinished, toJobSummaryKeyName } from '../constants/Enums'
 
@@ -13,18 +13,13 @@ const defaultState = {
 
 export default (maxPollCount) => handleActions(
   {
-    // [LOAD_WORKS_REQUEST]: requestHandler,
     [LOAD_WORKS_SUCCESS]: (state, action) => {
-      // const successState = commonSuccessState(state)
       return {
         ...state,
         workSummaries: action.payload
       }
     },
-    // [LOAD_WORKS_FAILURE]: errorHandler,
-    // [RUN_JOB_REQUEST]: requestHandler,
     [RUN_JOB_SUCCESS]: (state, action) => {
-      // const successState = commonSuccessState(state)
       const {workId, jobType} = action.payload
       // we use work id and job type as identifier for a job...
       // see JobResource.java
@@ -35,8 +30,6 @@ export default (maxPollCount) => handleActions(
         runningJobs
       }
     },
-    // [RUN_JOB_FAILURE]: errorHandler,
-    // [GET_JOB_STATUS_REQUEST]: requestHandler,
     [GET_JOB_STATUS_SUCCESS]: (state, action) => {
       const {workId, jobType, status, startTime, endTime} = action.payload
       const runningJobs = Object.assign({}, state.runningJobs)
@@ -65,7 +58,6 @@ export default (maxPollCount) => handleActions(
         runningJobs
       }
     }
-    // [GET_JOB_STATUS_FAILURE]: errorHandler
   },
   defaultState
 )

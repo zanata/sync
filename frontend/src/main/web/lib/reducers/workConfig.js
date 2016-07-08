@@ -1,7 +1,8 @@
 import { handleActions } from 'redux-actions'
-import { NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE,
-  LOAD_WORK_REQUEST, LOAD_WORK_SUCCESS, LOAD_WORK_FAILURE,
-  DELETE_WORK_REQUEST, DELETE_WORK_SUCCESS, DELETE_WORK_FAILURE
+import { 
+  NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE,
+  LOAD_WORK_SUCCESS,
+  DELETE_WORK_SUCCESS
 } from '../actions'
 
 const defaultState = {
@@ -21,7 +22,6 @@ export default handleActions(
       }
     },
     [NEW_WORK_SUCCESS]: (state, action) => {
-      // const successState = commonSuccessState(state)
       return {
         ...state,
         saving: false,
@@ -42,16 +42,13 @@ export default handleActions(
         workDetail: action.payload
       }
     },
-    // [LOAD_WORK_FAILURE]: errorHandler,
     [DELETE_WORK_SUCCESS]: (state, action) => {
-      // const successState = commonSuccessState(state)
       return {
         ...state,
         workDetail: null,
         deleted: true
       }
     }
-    // [DELETE_WORK_FAILURE]: errorHandler
   },
   defaultState
 )

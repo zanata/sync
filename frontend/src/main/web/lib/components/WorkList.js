@@ -1,6 +1,6 @@
 import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
-import {route} from '../utils'
+import {redirectToSignIn} from '../utils/route'
 
 export default React.createClass({
   propTypes: {
@@ -21,7 +21,7 @@ export default React.createClass({
     if (zanataUsername) {
       loadWorkSummaries()
     } else {
-      route.redirectToSignIn(this.context.router)
+      redirectToSignIn(this.context.router)
     }
   },
 

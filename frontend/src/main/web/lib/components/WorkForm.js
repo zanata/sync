@@ -3,7 +3,7 @@ import Select from './form/Select'
 import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
-import {route} from '../utils'
+import {redirectToSignIn} from '../utils/route'
 
 export default React.createClass({
   propTypes: {
@@ -50,7 +50,7 @@ export default React.createClass({
 
   componentWillMount() {
     if (!this.props.zanataUser) {
-      route.redirectToSignIn(this.context.router)
+      redirectToSignIn(this.context.router)
     }
   },
 
