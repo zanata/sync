@@ -1,0 +1,15 @@
+<jboss-web xmlns="http://www.jboss.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="7.0">
+
+  <!--<resource-ref>-->
+    <!--<res-ref-name>jdbc/zanata</res-ref-name>-->
+    <!--<jndi-name>java:jboss/datasources/zanataDatasource</jndi-name>-->
+  <!--</resource-ref>-->
+
+  <enable-websockets>true</enable-websockets>
+
+
+  <!-- This is where the webapp context root (eg /zanata or /) can be overridden: -->
+  <!-- _context_root_ -->
+
+</jboss-web>
