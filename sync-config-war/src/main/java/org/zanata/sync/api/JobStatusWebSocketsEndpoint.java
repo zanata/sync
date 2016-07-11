@@ -20,19 +20,26 @@
  */
 package org.zanata.sync.api;
 
+import javax.inject.Inject;
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
+import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
+import org.zanata.sync.security.SecurityTokens;
+import com.google.common.collect.Sets;
+
 /**
- * @author Patrick Huang <a
- *         href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @ServerEndpoint("/websocket/jobStatus")
 public class JobStatusWebSocketsEndpoint {
+//    @Inject
+//    private SecurityTokens securityTokens;
 
     @OnMessage
     public String sayHello(String name) {
@@ -42,7 +49,13 @@ public class JobStatusWebSocketsEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
+//        if (!securityTokens.hasAccess()) {
+//            throw new AccessDeniedException(
+//                    Sets.newHashSet(() -> "You need to sign in first"));
+//        }
         System.out.println("WebSocket opened: " + session.getId());
+        RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
+        asyncRemote.sendText("hello from the server");
     }
 
     @OnClose
