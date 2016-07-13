@@ -168,22 +168,20 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     private void fireWebSocketEvent(Optional<JobStatus> jobStatus,
             Long configId) {
-        if (jobStatus.isPresent()) {
-            JobStatus status = jobStatus.get();
-            JobRunStatus jobRunStatus = JobRunStatus
-                    .fromEntity(status, configId,
-                            status.getJobType());
-            webSocketSessions.forEach((id, session) -> {
-                if (session.isOpen()) {
-                    String asJson = objectMapper.toJSON(jobRunStatus);
-                    log.info("----- sending result for {}", jobRunStatus);
-                    session.getAsyncRemote().sendText(
-                            asJson, (sendResult) -> {
-                                log.info("---- websocket send result ok:{} for status: {}", sendResult.isOK(), jobRunStatus);
-                            });
-                }
-            });
+        if (!jobStatus.isPresent()) {
+            return;
         }
+        JobStatus status = jobStatus.get();
+        JobRunStatus jobRunStatus = JobRunStatus
+                .fromEntity(status, configId, status.getJobType());
+        webSocketSessions.forEach((id, session) -> {
+            if (session.isOpen()) {
+                String asJson = objectMapper.toJSON(jobRunStatus);
+                log.debug("sending result for {}", jobRunStatus);
+                session.getAsyncRemote().sendText(
+                        asJson, (sendResult) -> log.debug("websocket send result ok:{} for status: {}", sendResult.isOK(), jobRunStatus));
+            }
+        });
     }
 
     private Optional<Date> getNextFireTime(Long workId, JobType jobType) {
@@ -297,6 +295,7 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @Override
     public List<WorkSummary> getWorkFor(String username) {
+        // TODO will also need to consider the server when making the query
         List<SyncWorkConfig> syncWorkConfigs = syncWorkConfigRepository
                 .findByCriteria((cb, root) -> new Predicate[]{
                         cb.equal(root.get("zanataUsername"), username) });

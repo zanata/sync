@@ -61,7 +61,7 @@ public class GitSyncService implements RepoSyncService {
     public void cloneRepo()
             throws RepoSyncException {
 
-        log.debug("doing git clone");
+        log.info("doing git clone: {}", url);
         doGitClone(url, workingDir);
         checkOutBranch(workingDir, this.branch);
     }
@@ -79,6 +79,7 @@ public class GitSyncService implements RepoSyncService {
                 .setCredentialsProvider(user);
         try {
             clone.call();
+            log.info("git clone finished: {}", repoUrl);
         } catch (GitAPIException e) {
             throw new RepoSyncException(e);
         }

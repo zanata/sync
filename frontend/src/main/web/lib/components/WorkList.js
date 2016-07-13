@@ -1,6 +1,9 @@
 import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
 import {redirectToSignIn} from '../utils/route'
+import startWebSocket from '../utils/startWebSocket'
+
+const websocketEndpoint = `ws://${location.host}${location.pathname}websocket/jobStatus`
 
 export default React.createClass({
   propTypes: {
@@ -8,7 +11,8 @@ export default React.createClass({
     zanataUsername: PropTypes.string,
     loadWorkSummaries: PropTypes.func.isRequired,
     runJob: PropTypes.func.isRequired,
-    runningJobs: PropTypes.object.isRequired
+    runningJobs: PropTypes.object.isRequired,
+    onJobStatusUpdate: PropTypes.func.isRequired
   },
 
   // ask for `router` from context
@@ -17,9 +21,10 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    const {zanataUsername, loadWorkSummaries} = this.props
+    const {zanataUsername, loadWorkSummaries, onJobStatusUpdate} = this.props
     if (zanataUsername) {
       loadWorkSummaries()
+      startWebSocket(websocketEndpoint, onJobStatusUpdate)
     } else {
       redirectToSignIn(this.context.router)
     }

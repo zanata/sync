@@ -51,7 +51,7 @@ public class JobRunner {
             Either<RepoSyncService, Response> srcRepoPlugin,
             Either<ZanataSyncService, Response> zanataSyncService,
             String id) {
-        log.info("running sync to zanata job for id: {}", id);
+        log.debug("running sync to zanata job for id: {}", id);
         try (AutoCleanablePath workingDir = new AutoCleanablePath(
                 Files.createTempDirectory(id))) {
             Response response = srcRepoPlugin
@@ -64,7 +64,7 @@ public class JobRunner {
 
             jobStatusPublisher.publishStatus(id, response);
         } catch (Exception e) {
-            log.error("Failed to sync to Zanata: {}", e.getMessage());
+            log.error("Failed to sync to Zanata", e);
             jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
         }
         return new AsyncResult<>(null);
@@ -73,7 +73,7 @@ public class JobRunner {
     public Future<Void> syncToSrcRepo(String id,
             Either<RepoSyncService, Response> srcRepoPlugin,
             Either<ZanataSyncService, Response> zanataSyncService) {
-        log.info("running sync to repo job for id: {}", id);
+        log.debug("running sync to repo job for id: {}", id);
 
         try (AutoCleanablePath workingDir = new AutoCleanablePath(
                 Files.createTempDirectory(id))) {
@@ -88,7 +88,7 @@ public class JobRunner {
                     }, Function.identity()), Function.identity());
             jobStatusPublisher.publishStatus(id, response);
         } catch (Exception e) {
-            log.error("Failed to sync to source repo: {}", e.getMessage());
+            log.error("Failed to sync to source repo", e);
             jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
         }
         return new AsyncResult<>(null);

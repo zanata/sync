@@ -66,10 +66,6 @@ public class JobStatusWebSocketsEndpoint {
     @Inject
     private JSONObjectMapper objectMapper;
 
-
-    private Session session;
-//    private SecurityTokens securityTokens;
-
     @OnMessage
     public String areWeThereYet(String jobKeyJson) {
         log.debug("user query job status: {}", jobKeyJson);
@@ -92,24 +88,14 @@ public class JobStatusWebSocketsEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        this.session = session;
-//        if (!securityTokens.hasAccess()) {
-//            throw new AccessDeniedException(
-//                    Sets.newHashSet(() -> "You need to sign in first"));
-//        }
         log.info("WebSocket opened: {}", session.getId());
         schedulerService.addWebSocketSession(session);
-//        webSocketSessions.put(session.getId(), session);
-//        RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
-//        asyncRemote.sendText("hello from the server");
     }
 
     @OnClose
     public void onClose(CloseReason reason, Session session) {
         log.info("Closing a WebSocket {} due to ", session.getId(),
                 reason.getReasonPhrase());
-        this.session = null;
         schedulerService.removeWebSocketSession(session);
-//        webSocketSessions.remove(session.getId());
     }
 }

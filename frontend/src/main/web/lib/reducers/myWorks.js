@@ -4,14 +4,14 @@ import {
   RUN_JOB_REQUEST, RUN_JOB_SUCCESS,
   UPDATE_JOB_STATUS
 } from '../actions'
-import { toJobSummaryKeyName } from '../constants/Enums'
+import { toJobSummaryKeyName, isJobFinished } from '../constants/Enums'
 
 const defaultState = {
   workSummaries: [],
   runningJobs: {}
 }
 
-export default (maxPollCount) => handleActions(
+export default handleActions(
   {
     [LOAD_WORKS_SUCCESS]: (state, action) => {
       return {
@@ -35,7 +35,9 @@ export default (maxPollCount) => handleActions(
       const runningJobs = Object.assign({}, state.runningJobs)
       const runningJobKey = workId + jobType
 
-      delete runningJobs[runningJobKey]
+      if (isJobFinished(status)) {
+        delete runningJobs[runningJobKey]
+      }
 
       const workSummary = state.workSummaries.find(work => work.id === workId)
       const job = toJobSummaryKeyName(jobType)

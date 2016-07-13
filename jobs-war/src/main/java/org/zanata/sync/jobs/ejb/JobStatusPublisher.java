@@ -54,7 +54,7 @@ public class JobStatusPublisher {
     private Client client;
 
     void putStatus(String jobId, JobStatusType statusType) {
-        log.info("put job status {} -> {}", jobId, statusType);
+        log.debug("put job status {} -> {}", jobId, statusType);
         Response response = null;
         try {
             response = client.target(configWarUrl).path("api").path("job")
@@ -65,7 +65,6 @@ public class JobStatusPublisher {
                     .accept(APPLICATION_JSON_TYPE)
                     .put(Entity.json(null));
             log.info("put job status {} -> {} done", jobId, statusType);
-            log.debug("update job status response: {} - {}", response.getStatus(), response.getEntity());
         } catch (Exception e) {
             // TODO do we retry or do we just gave up?
             log.error("Error publishing job status", e);
@@ -77,7 +76,7 @@ public class JobStatusPublisher {
     }
 
     void publishStatus(String jobId, Response response) {
-        log.info("publish job status {} -> {}", jobId, response.getStatus());
+        log.debug("publish job status {} -> {}", jobId, response.getStatus());
         if (response.getStatus() ==
                 Response.Status.OK.getStatusCode()) {
             putStatus(jobId, JobStatusType.COMPLETED);

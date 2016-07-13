@@ -1,11 +1,13 @@
 import {w3cwebsocket as W3CWebSocket} from 'websocket'
-import {updateJobStatus} from '../actions'
+import invariant from 'invariant'
 
 
-export default function (store) {
-  const server = `ws://${location.host}${location.pathname}websocket/jobStatus`
+export default function (server, onMessageCallback) {
+  invariant(typeof onMessageCallback === 'function', 'you need to pass in a function(obj) in second argument as callback on websocket message')
   console.log(`==== ${server}`)
   const ws = new W3CWebSocket(server)
+
+
 
   ws.onerror = error => {
     console.error(`Connect Error: ${error.toString()}`);
@@ -21,8 +23,8 @@ export default function (store) {
 
   ws.onmessage = e => {
     if (typeof e.data === 'string') {
-      const jobStatus = JSON.parse(e.data)
-      store.dispatch(updateJobStatus(jobStatus));
+      const message = JSON.parse(e.data)
+      onMessageCallback(message)
     }
   }
 

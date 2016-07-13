@@ -13,10 +13,6 @@ import rootReducer from './lib/reducers'
 import apiCallStateChecker from './lib/middleware/apiCallStateChecker'
 import ReduxToastr from 'react-redux-toastr'
 
-import startWebSocket from './lib/utils/startWebSocket'
-
-// import _ from 'lodash';
-// import 'zanata-ui/lib/styles/index.css'
 import 'patternfly/dist/css/patternfly.min.css'
 import 'patternfly/dist/css/patternfly-additions.min.css'
 import 'react-redux-toastr/lib/css/react-redux-toastr.min.css'
@@ -43,24 +39,9 @@ const dev = data.dev;
 const user = dataUser ? JSON.parse(dataUser): undefined
 // const user = undefined
 
-function secondsToMilli(num) {
-  return num * 1000
-}
-
-function minutesToMilli(num) {
-  return num * 1000 * 60
-}
-
-const pollInterval = secondsToMilli(2)
-const maxPollTimeout = minutesToMilli(5)
-const maxPollCount = maxPollTimeout / pollInterval
-
 const Configs = {
   user,
   apiUrl: `${apiUrl}${basename}`,
-  pollInterval,
-  maxPollTimeout,
-  maxPollCount,
   zanataServerUrls,
   srcRepoPlugins
 }
@@ -93,8 +74,6 @@ const store = createStore(
     logger
   )
 )
-
-startWebSocket(store)
 
 // Run our app under the /base URL.
 // TODO this is not working. Will need to hard code full path in routes.js or make this work

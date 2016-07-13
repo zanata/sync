@@ -24,7 +24,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.ws.rs.client.Client;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 
 /**
  * Single place to produce anything system wide. Althouth it's
@@ -61,6 +65,16 @@ public class ResourceProducer {
     @RestClient
     protected Client client(@JAXRSClientConnectionPoolSize int poolSize) {
         // This will create a threadsafe JAX-RS client using pooled connections.
-        return new ResteasyClientBuilder().connectionPoolSize(poolSize).build();
+        // Per default this implementation will create no more than than 2
+        // concurrent connections per given route and no more 20 connections in
+        // total. (see javadoc of PoolingHttpClientConnectionManager)
+        PoolingHttpClientConnectionManager cm =
+                new PoolingHttpClientConnectionManager();
+
+        CloseableHttpClient closeableHttpClient =
+                HttpClientBuilder.create().setConnectionManager(cm).build();
+        ApacheHttpClient4Engine engine =
+                new ApacheHttpClient4Engine(closeableHttpClient);
+        return new ResteasyClientBuilder().httpEngine(engine).build();
     }
 }
