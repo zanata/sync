@@ -13,6 +13,8 @@ import rootReducer from './lib/reducers'
 import apiCallStateChecker from './lib/middleware/apiCallStateChecker'
 import ReduxToastr from 'react-redux-toastr'
 
+import startWebSocket from './lib/utils/startWebSocket'
+
 // import _ from 'lodash';
 // import 'zanata-ui/lib/styles/index.css'
 import 'patternfly/dist/css/patternfly.min.css'
@@ -91,6 +93,8 @@ const store = createStore(
     logger
   )
 )
+
+startWebSocket(store)
 
 // Run our app under the /base URL.
 // TODO this is not working. Will need to hard code full path in routes.js or make this work

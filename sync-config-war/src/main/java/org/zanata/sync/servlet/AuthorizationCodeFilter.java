@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
+import org.zanata.sync.util.UrlUtil;
 import org.zanata.sync.util.ZanataRestClient;
 import com.google.common.base.Throwables;
 
@@ -119,7 +120,7 @@ public class AuthorizationCodeFilter implements Filter {
         try {
             // TODO pahuang we only need to get access token and refresh token once (then we should persist the refresh token)
             OAuthClientRequest request = OAuthClientRequest
-                    .tokenLocation(zanataUrl + "/rest/oauth/token")
+                    .tokenLocation(UrlUtil.concatUrlPath(zanataUrl, "/rest/oauth/token"))
                     .setGrantType(GrantType.AUTHORIZATION_CODE)
                     .setClientId("zanata_sync")
                     .setClientSecret("we_do_not_have_a_secret")

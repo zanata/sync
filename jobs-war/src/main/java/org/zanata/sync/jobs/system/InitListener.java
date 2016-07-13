@@ -41,15 +41,16 @@ public class InitListener implements ServletContextListener {
     private static final Logger log =
             LoggerFactory.getLogger(InitListener.class);
     @Inject
-    @SysConfig(ResourceProducer.CONFIG_WAR_URL_KEY)
+    @ConfigWarUrl
     private String configWarUrl;
+
+    @Inject
+    @JAXRSClientConnectionPoolSize
+    private int poolSize;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        // we should check all the system configurations here to make sure they are all set
-        Preconditions.checkNotNull(configWarUrl,
-                "You must set system property:" +
-                        ResourceProducer.CONFIG_WAR_URL_KEY);
+        // we should check all the system state here to make sure they are all set
         if (configWarUrl.matches("http://localhost.*")) {
             log.info("=== skip config war health check for localhost ===");
             return;
@@ -67,6 +68,11 @@ public class InitListener implements ServletContextListener {
         } finally {
             client.close();
         }
+
+        log.info("==== system config ====");
+        log.info("==== config war: {}", configWarUrl);
+        log.info("==== JAXRS client connection pool size: {}", poolSize);
+        log.info("==== system config ====");
     }
 
     @Override

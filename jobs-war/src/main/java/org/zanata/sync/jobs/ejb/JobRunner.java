@@ -64,7 +64,7 @@ public class JobRunner {
 
             jobStatusPublisher.publishStatus(id, response);
         } catch (Exception e) {
-            log.error("Failed to sync to Zanata", e);
+            log.error("Failed to sync to Zanata: {}", e.getMessage());
             jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
         }
         return new AsyncResult<>(null);
@@ -88,7 +88,7 @@ public class JobRunner {
                     }, Function.identity()), Function.identity());
             jobStatusPublisher.publishStatus(id, response);
         } catch (Exception e) {
-            log.error("Failed to sync to source repo", e);
+            log.error("Failed to sync to source repo: {}", e.getMessage());
             jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
         }
         return new AsyncResult<>(null);

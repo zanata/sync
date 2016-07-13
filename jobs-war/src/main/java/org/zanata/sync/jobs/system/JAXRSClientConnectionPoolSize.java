@@ -18,46 +18,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.security;
+package org.zanata.sync.jobs.system;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.SessionScoped;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zanata.sync.dto.ZanataAccount;
-import com.google.common.base.MoreObjects;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
 /**
+ * Qualifier for JAX-RS client connection pool size.
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@SessionScoped
-public class SecurityTokens implements Serializable {
-    private static final Logger log =
-            LoggerFactory.getLogger(SecurityTokens.class);
-
-    private ZanataAccount account;
-
-    public boolean hasAccess() {
-        return account != null;
-    }
-
-    @Nullable public ZanataAccount getAccount() {
-        return account;
-    }
-
-    public void setAuthenticatedAccount(ZanataAccount authenticatedAccount) {
-        this.account = authenticatedAccount;
-    }
-
-    @PreDestroy
-    public void onDestroy() {
-        String user = account == null ? "<ANONYMOUS>" : account.getUsername();
-        log.info("log out as {}", user);
-    }
-
+@Qualifier
+@Documented
+@Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD,
+        ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface JAXRSClientConnectionPoolSize {
 }

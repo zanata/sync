@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.security.SecurityTokens;
+import org.zanata.sync.util.UrlUtil;
 import com.google.common.base.Strings;
 
 /**
@@ -97,12 +98,7 @@ public class SecurityResource {
     }
 
     private String generateOAuthURL(String zanataUrl) {
-        String authorizeUri = "oauth/";
-        if (zanataUrl.endsWith("/")) {
-            return zanataUrl + authorizeUri;
-        } else {
-            return zanataUrl + "/" + authorizeUri;
-        }
+        return UrlUtil.concatUrlPath(zanataUrl, "oauth");
     }
 
     private String appRoot() {

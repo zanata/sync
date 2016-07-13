@@ -22,6 +22,9 @@ package org.zanata.sync.jobs.system;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.ws.rs.client.Client;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
  * Single place to produce anything system wide. Althouth it's
@@ -34,13 +37,30 @@ import javax.enterprise.inject.Produces;
  */
 @ApplicationScoped
 public class ResourceProducer {
-    public static final String CONFIG_WAR_URL_KEY = "sync.config.war.url";
+    private static final String CONFIG_WAR_URL_KEY = "sync.config.war.url";
+    private static final String JAXRS_CLIENT_CONN_POOL_SIZE =
+            "jaxrs.connection.pool.size";
 
     @Produces
-    @SysConfig(ResourceProducer.CONFIG_WAR_URL_KEY)
+    @ConfigWarUrl
     protected String configWarUrl() {
         // we have a default value for development.
         // We also check its availability in InitListener
-        return System.getProperty(CONFIG_WAR_URL_KEY, "http://localhost:8080/sync");
+        return System
+                .getProperty(CONFIG_WAR_URL_KEY, "http://localhost:8080/sync");
+    }
+
+    @Produces
+    @JAXRSClientConnectionPoolSize
+    protected int jaxrsClientConnectionPoolSize() {
+        return Integer
+                .valueOf(System.getProperty(JAXRS_CLIENT_CONN_POOL_SIZE, "20"));
+    }
+
+    @Produces
+    @RestClient
+    protected Client client(@JAXRSClientConnectionPoolSize int poolSize) {
+        // This will create a threadsafe JAX-RS client using pooled connections.
+        return new ResteasyClientBuilder().connectionPoolSize(poolSize).build();
     }
 }

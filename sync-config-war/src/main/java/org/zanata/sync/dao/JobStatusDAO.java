@@ -80,7 +80,7 @@ public class JobStatusDAO {
     }
 
     @TransactionAttribute
-    public void updateJobStatus(String jobId, @Nullable Date endTime,
+    public Optional<JobStatus> updateJobStatus(String jobId, @Nullable Date endTime,
             @Nullable Date nextFireTime, JobStatusType statusType) {
         JobStatus entity =
                 entityManager.find(JobStatus.class, jobId);
@@ -88,8 +88,10 @@ public class JobStatusDAO {
             entity.changeState(endTime, nextFireTime, statusType);
             log.debug("JobStatus for {} updated. endTime: {}, nextFireTime: {}, status: {}", jobId,
                     endTime, nextFireTime, statusType);
+            return Optional.of(entity);
         } else {
             log.warn("job {} not found", jobId);
+            return Optional.empty();
         }
     }
 

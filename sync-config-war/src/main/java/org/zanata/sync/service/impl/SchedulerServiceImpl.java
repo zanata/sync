@@ -1,14 +1,18 @@
 package org.zanata.sync.service.impl;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
+import javax.websocket.Session;
 
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -34,9 +38,11 @@ import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.quartz.CronTrigger;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
+import org.zanata.sync.util.JSONObjectMapper;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -62,6 +68,13 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     private Cache<JobKey, String> runningJobs =
             CacheBuilder.newBuilder().build();
+
+    private Map<String, Session> webSocketSessions =
+            Collections.synchronizedMap(
+                    Maps.newHashMap());
+
+    @Inject
+    private JSONObjectMapper objectMapper;
 
     public void onStartUp(@Observes ResourceReadyEvent resourceReadyEvent) {
         log.info("=====================================================");
@@ -98,16 +111,17 @@ public class SchedulerServiceImpl implements SchedulerService {
         log.warn("=======================================");
     }
 
-    // TODO: fire websocket
     public void onJobProgressUpdate(@Observes JobProgressEvent event) {
         log.info(event.toString());
 
         Optional<SyncWorkConfig> workConfig =
                 syncWorkConfigRepository.load(event.getConfigId());
         if (workConfig.isPresent()) {
-            jobStatusRepository.updateJobStatus(event.getFiringId(), null,
-                    event.getNextFireTime(),
-                    JobStatusType.RUNNING);
+            Optional<JobStatus> jobStatus = jobStatusRepository
+                    .updateJobStatus(event.getFiringId(), null,
+                            event.getNextFireTime(),
+                            JobStatusType.RUNNING);
+            fireWebSocketEvent(jobStatus, event.getConfigId());
         }
     }
 
@@ -138,15 +152,37 @@ public class SchedulerServiceImpl implements SchedulerService {
                 syncWorkConfigRepository.load(event.getConfigId());
         if (syncWorkConfigOpt.isPresent()) {
             SyncWorkConfig syncWorkConfig = syncWorkConfigOpt.get();
-            log.debug("Job: " + event.getJobType() + "-" +
+            log.info("Job: " + event.getJobType() + "-" +
                     syncWorkConfig.getName() + " is completed.");
 
             Date endTime = event.getEndTime();
             Date nextFireTime =
                     getNextFireTime(syncWorkConfig.getId(), event.getJobType())
                             .orElse(null);
-            jobStatusRepository.updateJobStatus(event.getJobFireId(), endTime,
-                    nextFireTime, event.getJobStatusType());
+            Optional<JobStatus> jobStatus = jobStatusRepository
+                    .updateJobStatus(event.getJobFireId(), endTime,
+                            nextFireTime, event.getJobStatusType());
+            fireWebSocketEvent(jobStatus, event.getConfigId());
+        }
+    }
+
+    private void fireWebSocketEvent(Optional<JobStatus> jobStatus,
+            Long configId) {
+        if (jobStatus.isPresent()) {
+            JobStatus status = jobStatus.get();
+            JobRunStatus jobRunStatus = JobRunStatus
+                    .fromEntity(status, configId,
+                            status.getJobType());
+            webSocketSessions.forEach((id, session) -> {
+                if (session.isOpen()) {
+                    String asJson = objectMapper.toJSON(jobRunStatus);
+                    log.info("----- sending result for {}", jobRunStatus);
+                    session.getAsyncRemote().sendText(
+                            asJson, (sendResult) -> {
+                                log.info("---- websocket send result ok:{} for status: {}", sendResult.isOK(), jobRunStatus);
+                            });
+                }
+            });
         }
     }
 
@@ -233,12 +269,12 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public void triggerJob(Long id, JobType type)
+    public boolean triggerJob(Long id, JobType type)
             throws JobNotFoundException, SchedulerException {
         String firingId = runningJobs.getIfPresent(type.toJobKey(id));
         if (firingId != null) {
             log.info("job is already running. firing id: {}", firingId);
-            return;
+            return false;
         }
         Optional<SyncWorkConfig> workConfigOptional =
                 syncWorkConfigRepository.load(id);
@@ -246,6 +282,7 @@ public class SchedulerServiceImpl implements SchedulerService {
             throw new JobNotFoundException(id.toString());
         }
         cronTrigger.triggerJob(id, type);
+        return true;
     }
 
     @Override
@@ -284,6 +321,27 @@ public class SchedulerServiceImpl implements SchedulerService {
             return jobStatusRepository.getJobStatusList(config.get());
         }
         throw new WorkNotFoundException("id not found:" + configId);
+    }
+
+    @Override
+    public void addWebSocketSession(Session session) {
+        webSocketSessions.put(session.getId(), session);
+    }
+
+    @Override
+    public void removeWebSocketSession(Session session) {
+        webSocketSessions.remove(session.getId());
+    }
+
+    @Override
+    public void publishEvent(JobRunStatus status) {
+        webSocketSessions.forEach((id, session) -> {
+            if (session.isOpen()) {
+                String asJson = objectMapper.toJSON(status);
+                session.getAsyncRemote().sendText(
+                        asJson);
+            }
+        });
     }
 
     @Override

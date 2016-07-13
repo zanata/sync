@@ -23,9 +23,6 @@ const mapDispatchToProps = (dispatch) => {
     },
     runJob: (workId, jobType) => {
       dispatch(runJob(workId, jobType))
-    },
-    pollJobStatus: (workId, jobType) => {
-      dispatch(getLatestJobStatus(workId, jobType))
     }
 
     // TODO add a prop to reload work summary?

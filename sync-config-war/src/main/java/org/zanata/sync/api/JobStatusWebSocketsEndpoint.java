@@ -25,42 +25,91 @@ import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
-import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
-import org.zanata.sync.security.SecurityTokens;
-import com.google.common.collect.Sets;
+import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.sync.dto.JobRunStatus;
+import org.zanata.sync.dto.RunningJobKey;
+import org.zanata.sync.exception.JobNotFoundException;
+import org.zanata.sync.model.JobStatus;
+import org.zanata.sync.service.SchedulerService;
+import org.zanata.sync.util.JSONObjectMapper;
 
 /**
+ * WebSocket endpoint doesn't seem to support RequestScoped and SessionScoped
+ * injection.
+ * <p>
+ * Similar to JAX-RS endpoints, websocket endpoint is one instance per
+ * connection by default. It's lifecycle differ from the one in CDI.
+ * <p>
+ * See below for reference:
+ * <pre>
+ * <ul>
+ *     <li> see https://issues.jboss.org/browse/CDI-370</li>
+ *     <li> see https://abhirockzz.wordpress.com/2015/02/10/integrating-cdi-and-websockets/</li>
+ *     <li> see https://netbeans.org/kb/docs/javaee/maven-websocketapi.html</li>
+ * </ul>
+ * </pre>
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @ServerEndpoint("/websocket/jobStatus")
 public class JobStatusWebSocketsEndpoint {
-//    @Inject
+    private static final Logger log =
+            LoggerFactory.getLogger(JobStatusWebSocketsEndpoint.class);
+    @Inject
+    private SchedulerService schedulerService;
+
+    @Inject
+    private JSONObjectMapper objectMapper;
+
+
+    private Session session;
 //    private SecurityTokens securityTokens;
 
     @OnMessage
-    public String sayHello(String name) {
-        System.out.println("Say hello to '" + name + "'");
-        return ("Hello" + name);
+    public String areWeThereYet(String jobKeyJson) {
+        log.debug("user query job status: {}", jobKeyJson);
+        RunningJobKey runningJobKey =
+                objectMapper.fromJSON(RunningJobKey.class, jobKeyJson);
+        try {
+            JobStatus jobStatus = schedulerService
+                    .getLatestJobStatus(runningJobKey.getWorkId(),
+                            runningJobKey.getJobType());
+            JobRunStatus jobRunStatus = JobRunStatus
+                    .fromEntity(jobStatus, runningJobKey.getWorkId(),
+                            runningJobKey.getJobType());
+            return objectMapper.toJSON(jobRunStatus);
+        } catch (SchedulerException | JobNotFoundException e) {
+            log.warn("exception happened in websocket onMessage",
+                    e.getMessage());
+        }
+        return null;
     }
 
     @OnOpen
     public void onOpen(Session session) {
+        this.session = session;
 //        if (!securityTokens.hasAccess()) {
 //            throw new AccessDeniedException(
 //                    Sets.newHashSet(() -> "You need to sign in first"));
 //        }
-        System.out.println("WebSocket opened: " + session.getId());
-        RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
-        asyncRemote.sendText("hello from the server");
+        log.info("WebSocket opened: {}", session.getId());
+        schedulerService.addWebSocketSession(session);
+//        webSocketSessions.put(session.getId(), session);
+//        RemoteEndpoint.Async asyncRemote = session.getAsyncRemote();
+//        asyncRemote.sendText("hello from the server");
     }
 
     @OnClose
-    public void onClose(CloseReason reason) {
-        System.out.println("Closing a WebSocket due to "
-                + reason.getReasonPhrase());
+    public void onClose(CloseReason reason, Session session) {
+        log.info("Closing a WebSocket {} due to ", session.getId(),
+                reason.getReasonPhrase());
+        this.session = null;
+        schedulerService.removeWebSocketSession(session);
+//        webSocketSessions.remove(session.getId());
     }
 }

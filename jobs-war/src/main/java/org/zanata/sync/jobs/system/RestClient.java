@@ -22,24 +22,15 @@ package org.zanata.sync.jobs.system;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 /**
- * Qualifier for any system configuration value.
- *
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * Qualifier for JAX-RS client
  */
 @Qualifier
 @Documented
 @Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD,
         ElementType.PARAMETER })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface SysConfig {
-    /**
-     * @return the key for this system configuration.
-     */
-    String value();
+public @interface RestClient {
 }

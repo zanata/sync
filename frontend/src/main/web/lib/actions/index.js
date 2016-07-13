@@ -5,9 +5,6 @@ import { CALL_API } from 'redux-api-middleware'
 export const UNAUTHORIZED = 'UNAUTHORIZED'
 export const becomeUnauthorized = createAction(UNAUTHORIZED)
 
-export const CLOSE_NOTIFICATION = 'CLOSE_NOTIFICATION'
-export const closeNotification = createAction(CLOSE_NOTIFICATION)
-
 // =========== check whether server session is still logged in
 export const CHECK_SESSION_REQUEST = 'CHECK_SESSION_REQUEST'
 export const CHECK_SESSION_SUCCESS = 'CHECK_SESSION_SUCCESS'
@@ -118,7 +115,14 @@ export function runJob(workId, jobType) {
         endpoint: `${getState().configs.apiUrl}/api/job/start?id=${workId}&type=${jobType}`,
         method: 'POST',
         credentials: 'include',
-        types: [RUN_JOB_REQUEST, RUN_JOB_SUCCESS, RUN_JOB_FAILURE]
+        types: [
+          {
+            type: RUN_JOB_REQUEST,
+            meta: {
+              workId: workId,
+              jobType: jobType
+            }
+          }, RUN_JOB_SUCCESS, RUN_JOB_FAILURE]
       }
     })
   }
@@ -141,6 +145,10 @@ export function getLatestJobStatus(workId, jobType) {
     })
   }
 }
+
+// ============= web socket update job status
+export const UPDATE_JOB_STATUS = 'UPDATE_JOB_STATUS'
+export const updateJobStatus = createAction(UPDATE_JOB_STATUS)
 
 // ============ log out
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'

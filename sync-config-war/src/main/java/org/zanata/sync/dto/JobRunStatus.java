@@ -27,6 +27,7 @@ import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.util.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.google.common.base.MoreObjects;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -79,6 +80,17 @@ public class JobRunStatus {
                 null, null, null);
     }
 
+    /**
+     * Used when a job is already triggered and running but the user choose to trigger it again.
+     * @param configId
+     * @param jobType
+     * @return
+     */
+    public static JobRunStatus running(Long configId, JobType jobType) {
+        return new JobRunStatus(configId, null, JobStatusType.RUNNING, jobType,
+                null, null, null);
+    }
+
     public Long getWorkId() {
         return workId;
     }
@@ -105,5 +117,15 @@ public class JobRunStatus {
 
     public Date getNextStartTime() {
         return nextStartTime;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("workId", workId)
+                .add("jobType", jobType)
+                .add("id", id)
+                .add("status", status)
+                .toString();
     }
 }

@@ -146,6 +146,7 @@ public class JobResource {
         Either<ZanataSyncService, Response> zanataSyncService =
                 createZanataSyncService(jobDetail);
 
+        log.info(">>>>>> about to run 2zanata job for {}", id);
         jobRunner.syncToZanata(srcRepoPlugin, zanataSyncService, id);
         // TODO return a URI to get access to the async job
         return Response.created(URI.create(id)).build();
@@ -226,6 +227,8 @@ public class JobResource {
                 createRepoSyncService(jobDetail);
         Either<ZanataSyncService, Response> zanataSyncService =
                 createZanataSyncService(jobDetail);
+
+        log.info(">>>>>> about to run 2repo job for {}", id);
         jobRunner.syncToSrcRepo(id, srcRepoPlugin, zanataSyncService);
 
         // TODO create URI to access running async job

@@ -43,7 +43,6 @@
 
     <jboss-javaee-6.version>3.0.2.Final-redhat-4</jboss-javaee-6.version>
     <guava.version>19.0</guava.version>
-    <cdi-api.version>1.0-SP4</cdi-api.version>
     <validation-api.version>1.0.0.GA</validation-api.version>
     <!-- N.B. resteasy provider uses version 2.6.3-->
     <jackson.version>2.6.3</jackson.version>
@@ -125,14 +124,12 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
         <version>${jackson.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <version>${cdi-api.version}</version>
-        <scope>provided</scope>
-      </dependency>
-
       <!-- resteasy -->
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>jaxrs-api</artifactId>
+        <version>${resteasy.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-servlet-initializer</artifactId>
@@ -320,6 +317,32 @@ jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <dependencies>
+    <!-- CDI -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.servlet</groupId>
+      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
   <profiles>
     <profile>

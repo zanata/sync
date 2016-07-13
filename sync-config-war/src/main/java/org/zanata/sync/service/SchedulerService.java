@@ -3,8 +3,13 @@ package org.zanata.sync.service;
 import java.util.List;
 import java.util.Optional;
 
+import javax.websocket.Session;
+
+import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.UnableToInterruptJobException;
+import org.zanata.sync.dto.JobRunStatus;
+import org.zanata.sync.dto.RunningJobKey;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
@@ -42,7 +47,19 @@ public interface SchedulerService {
 
     void enableJob(Long id, JobType type) throws SchedulerException;
 
-    void triggerJob(Long id, JobType type)
+    /**
+     * trigger a job
+     *
+     * @param id
+     *         config id
+     * @param type
+     *         job type
+     * @return true if the job is triggered of false if the job is alreayd
+     * running.
+     * @throws JobNotFoundException
+     * @throws SchedulerException
+     */
+    boolean triggerJob(Long id, JobType type)
             throws JobNotFoundException, SchedulerException;
 
     SyncWorkConfig getWorkById(Long id) throws WorkNotFoundException;
@@ -52,4 +69,14 @@ public interface SchedulerService {
     Optional<JobStatus> getJobStatusByFiringId(String jobFiringId);
 
     List<JobStatus> getAllJobStatus(Long configId) throws WorkNotFoundException;
+
+    void addWebSocketSession(Session session);
+
+    void removeWebSocketSession(Session session);
+
+    /**
+     * Publish websocket event
+     * @param status
+     */
+    void publishEvent(JobRunStatus status);
 }

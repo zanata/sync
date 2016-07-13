@@ -1,6 +1,6 @@
 import React, {PropTypes} from 'react'
 import ProgressBar from './ProgressBar'
-import { toJobDescription, isJobFinished } from '../constants/Enums'
+import { toJobDescription } from '../constants/Enums'
 import { formatDate } from '../utils/DateTime'
 
 function description(label, value) {
@@ -21,18 +21,17 @@ export default React.createClass({
       status: PropTypes.string.isRequired
     }),
     running: PropTypes.bool.isRequired,
-    pollInterval: PropTypes.number.isRequired,
-    pollJobStatus: PropTypes.func.isRequired
+    pollInterval: PropTypes.number.isRequired
   },
   render() {
     const {workId, jobType, runJob, lastJobStatus,
-      running, pollJobStatus, pollInterval} = this.props
+      running} = this.props
     const runJobCallback = (e) => runJob(workId, jobType)
     const jobDescription = toJobDescription(jobType)
 
     if (running) {
       // poll job status every certain seconds
-      setTimeout(() => pollJobStatus(workId, jobType), pollInterval)
+      // setTimeout(() => pollJobStatus(workId, jobType), pollInterval)
     }
 
     let statusDisplay = null

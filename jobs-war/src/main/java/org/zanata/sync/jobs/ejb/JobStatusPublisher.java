@@ -21,21 +21,15 @@
 package org.zanata.sync.jobs.ejb;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.jobs.system.ResourceProducer;
-import org.zanata.sync.jobs.system.SysConfig;
+import org.zanata.sync.jobs.system.ConfigWarUrl;
+import org.zanata.sync.jobs.system.RestClient;
 import org.zanata.sync.model.JobStatusType;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -52,47 +46,43 @@ public class JobStatusPublisher {
             LoggerFactory.getLogger(JobStatusPublisher.class);
 
     @Inject
-    @SysConfig(ResourceProducer.CONFIG_WAR_URL_KEY)
+    @ConfigWarUrl
     private String configWarUrl;
 
+    @Inject
+    @RestClient
     private Client client;
 
-    public JobStatusPublisher() {
-        // This will create a threadsafe JAX-RS client using pooled connections.
-        // Per default this implementation will create no more than than 2
-        // concurrent connections per given route and no more 20 connections in
-        // total. (see javadoc of PoolingHttpClientConnectionManager)
-        PoolingHttpClientConnectionManager cm =
-                new PoolingHttpClientConnectionManager();
-
-        CloseableHttpClient closeableHttpClient =
-                HttpClientBuilder.create().setConnectionManager(cm).build();
-        ApacheHttpClient4Engine engine =
-                new ApacheHttpClient4Engine(closeableHttpClient);
-        client = new ResteasyClientBuilder().httpEngine(engine).build();
-    }
-
     void putStatus(String jobId, JobStatusType statusType) {
-        log.debug("put job status {} -> {}", jobId, statusType);
+        log.info("put job status {} -> {}", jobId, statusType);
+        Response response = null;
         try {
-            client.target(configWarUrl).path("api").path("job").path("status")
+            response = client.target(configWarUrl).path("api").path("job")
+                    .path("status")
                     .queryParam("id", jobId)
                     .queryParam("status", statusType)
                     .request(APPLICATION_JSON_TYPE)
                     .accept(APPLICATION_JSON_TYPE)
                     .put(Entity.json(null));
+            log.info("put job status {} -> {} done", jobId, statusType);
+            log.debug("update job status response: {} - {}", response.getStatus(), response.getEntity());
         } catch (Exception e) {
             // TODO do we retry or do we just gave up?
             log.error("Error publishing job status", e);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 
     void publishStatus(String jobId, Response response) {
+        log.info("publish job status {} -> {}", jobId, response.getStatus());
         if (response.getStatus() ==
                 Response.Status.OK.getStatusCode()) {
             putStatus(jobId, JobStatusType.COMPLETED);
         } else {
-            log.debug("job response is not ok: {}",
+            log.info("job response is not ok: {}",
                     response.getStatus());
             putStatus(jobId, JobStatusType.ERROR);
         }
