@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -65,20 +64,10 @@ public class FrontendDataProviderFilter implements Filter {
     @Inject
     private SecurityTokens securityTokens;
 
-    private String zanataServerUrls;
     private String plugins;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        String supportedZanataServer = System.getProperty("zanata.server.urls");
-        if (Strings.isNullOrEmpty(supportedZanataServer)) {
-            supportedZanataServer =
-                    "http://localhost:8080/zanata,http://localhost:8180/zanata";
-        }
-        List<String> urls = ImmutableList
-                .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
-                        .split(supportedZanataServer));
-        zanataServerUrls = objectMapper.toJSON(urls);
 
         pluginsService.init();
         List<RepoExecutor> srcRepoPlugins =
@@ -95,12 +84,24 @@ public class FrontendDataProviderFilter implements Filter {
         plugins = objectMapper.toJSON(pluginsList);
     }
 
+    private String getZanataServerUrlsAsJson() {
+        String supportedZanataServer = System.getProperty("zanata.server.urls");
+        if (Strings.isNullOrEmpty(supportedZanataServer)) {
+            supportedZanataServer =
+                    "http://localhost:8080/zanata,http://localhost:8180/zanata";
+        }
+        List<String> urls = ImmutableList
+                .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
+                        .split(supportedZanataServer));
+        return objectMapper.toJSON(urls);
+    }
+
     @Override
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
                     throws IOException, ServletException {
         servletRequest.setAttribute("srcRepoPlugins", plugins);
-        servletRequest.setAttribute("zanataServerUrls", zanataServerUrls);
+        servletRequest.setAttribute("zanataServerUrls", getZanataServerUrlsAsJson());
 
         ZanataAccount account = securityTokens.getAccount();
         String accountAsJson = objectMapper.toJSON(account);
