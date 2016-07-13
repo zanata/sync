@@ -43,6 +43,22 @@ TODO:
                +------------+
 ```
 
+### Local Installation
+
+Update your standalone.xml:
+
+- add system properties:
+  ```<property name="zanata.support.oauth" value="true"/>``` and make sure you
+  are running a Zanata version that supports OAuth (current master is)
+- add a new datasource and bind it to JNDI ```java:jboss/datasources/syncDS```
+  (don't forget to create a new database too)
+- under ```<subsystem xmlns="urn:jboss:domain:web">```
+```diff
+- <connector name="http" protocol="HTTP/1.1" scheme="http" socket-binding="http"/>
++ <connector name="http" protocol="org.apache.coyote.http11.Http11NioProtocol"
++   scheme="http" socket-binding="http"/>
+```
+
 ### Tips
 
 - use ```./build.sh``` to build and deploy to your local server (-H to see help)
