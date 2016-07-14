@@ -23,23 +23,16 @@ package org.zanata.sync.api;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.deltaspike.core.api.common.DeltaSpike;
-import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.dto.Payload;
 import org.zanata.sync.security.SecurityTokens;
-import org.zanata.sync.util.UrlUtil;
-import com.google.common.base.Strings;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -56,37 +49,6 @@ public class SecurityResource {
     @Inject
     private SecurityTokens securityTokens;
 
-    @GET
-    @Path("/url")
-    @NoSecurityCheck
-    public Response getZanataAuthUrl(@QueryParam("z") String zanataUrl) {
-        if (Strings.isNullOrEmpty(zanataUrl)) {
-            String errorMessage =
-                    "You must select one production server";
-
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Payload.error(errorMessage)).build();
-        }
-        String zanataAuthUrl = generateOAuthURL(zanataUrl);
-
-        try {
-            // we prepend /auth/ to redirect url so that it can hit the web filter
-            // see AuthorizationCodeFilter
-            OAuthClientRequest request = OAuthClientRequest
-                    .authorizationLocation(zanataAuthUrl)
-                    .setClientId("zanata_sync")
-                    .setRedirectURI(appRoot() + "?z=" + zanataUrl)
-                    .buildQueryMessage();
-
-            log.debug("redirecting to {}", request.getLocationUri());
-            return Response.ok(Payload.ok(request.getLocationUri())).build();
-
-        } catch (OAuthSystemException e) {
-            return Response.serverError().entity(Payload.error(e.getMessage())).build();
-        }
-
-    }
-
     @POST
     @Path("/logout")
     public Response logout() {
@@ -95,19 +57,6 @@ public class SecurityResource {
             session.invalidate();
         }
         return Response.ok().build();
-    }
-
-    private String generateOAuthURL(String zanataUrl) {
-        return UrlUtil.concatUrlPath(zanataUrl, "oauth");
-    }
-
-    private String appRoot() {
-        String contextPath = request.getContextPath();
-        String scheme = request.getScheme();
-        int serverPort = request.getServerPort();
-        String serverName = request.getServerName();
-        String port = serverPort == 80 ? "" : ":" + serverPort;
-        return scheme + "://" + serverName + port + contextPath;
     }
 
 }
