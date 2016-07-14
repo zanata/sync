@@ -20,12 +20,20 @@
  */
 package org.zanata.sync.util;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class UrlUtil {
+    private static final Logger log = LoggerFactory.getLogger(UrlUtil.class);
 
     /**
      * Takes in two url parts and concatenate them to form a valid url. It
@@ -54,5 +62,46 @@ public class UrlUtil {
             sb.append(first).append(second);
         }
         return sb.toString();
+    }
+
+    /**
+     * This will return the Zanata OAuth landing url.
+     *
+     * @param appRoot
+     *         the root url of this app (sync config war)
+     * @param zanataServerUrl
+     *         zanata server root url
+     *
+     * @see org.zanata.sync.servlet.AuthorizationCodeFilter
+     * @return zanata OAuth page url
+     */
+    public static String zanataOAuthUrl(String appRoot,
+            String zanataServerUrl) {
+        String zanataAuthUrl = UrlUtil.concatUrlPath(zanataServerUrl, "oauth");
+        try {
+            OAuthClientRequest request = OAuthClientRequest
+                    .authorizationLocation(zanataAuthUrl)
+                    .setClientId("zanata_sync")
+                    .setRedirectURI(appRoot + "?z=" + zanataServerUrl)
+                    .buildQueryMessage();
+            log.debug("OAuth will redirect to {}", request.getLocationUri());
+            return request.getLocationUri();
+        } catch (OAuthSystemException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    /**
+     *
+     * @param request http servlet request
+     * @return root url of this app (sync config war)
+     */
+    public static String appRoot(HttpServletRequest request) {
+        String contextPath = request.getContextPath();
+        String scheme = request.getScheme();
+        int serverPort = request.getServerPort();
+        String serverName = request.getServerName();
+        String port = serverPort == 80 ? "" : ":" + serverPort;
+        return scheme + "://" + serverName + port + contextPath;
     }
 }

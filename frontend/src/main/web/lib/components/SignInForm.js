@@ -8,33 +8,26 @@ export default React.createClass(
   {
     propTypes:{
       zanataUser: PropTypes.object,
-      onSignIn: PropTypes.func.isRequired,
-      zanataServerUrls: PropTypes.arrayOf(React.PropTypes.string).isRequired,
       isSessionLoggedIn: PropTypes.func.isRequired,
-      zanataOAuthUrl: PropTypes.string,
+      zanataOAuthUrls: PropTypes.object.isRequired,
       serverReturnUnauthorized: PropTypes.bool.isRequired
     },
 
     getInitialState() {
       return {
-        zanataUrl: ''
+        zanataOAuthUrl: ''
       }
     },
 
     _signInWithZanata(e) {
-      return this.props.onSignIn(this.state.zanataUrl)
+      window.location = this.state.zanataOAuthUrl
+      return false
     },
 
     _changeZanataServer(url) {
        this.setState({
-         zanataUrl: url
+         zanataOAuthUrl: url
        })
-    },
-
-    componentWillReceiveProps(nextProps) {
-       if (nextProps.zanataOAuthUrl) {
-         window.location = nextProps.zanataOAuthUrl
-       }
     },
 
     componentWillMount() {
@@ -49,7 +42,12 @@ export default React.createClass(
         return <div>Welcome {zanataUser.name}</div>
       }
 
-      const zanataServerUrls = [NO_SELECTION_OPT, ...this.props.zanataServerUrls];
+      const zanataOAuthUrls = {[NO_SELECTION_OPT]: NO_SELECTION_OPT, ...this.props.zanataOAuthUrls}
+      const zanataServerUrls = Object.keys(zanataOAuthUrls)
+      const oauthUrls = zanataServerUrls.map(serverUrl => zanataOAuthUrls[serverUrl])
+
+      const selectedIndex = oauthUrls.findIndex(oauth => oauth === this.state.zanataOAuthUrl)
+      const chosenZanata = zanataServerUrls[selectedIndex]
 
       // TODO if zanataServerUrls has only one option, don't use selection
       return (
@@ -57,14 +55,16 @@ export default React.createClass(
           <form className="form-horizontal">
             <Select name='zanataServer' label='Zanata Servers'
               onChange={this._changeZanataServer}
-              options={zanataServerUrls}
-              selected={this.state.zanataUrl}
+              options={oauthUrls}
+              optionsDesc={zanataServerUrls}
+              selected={this.state.zanataOAuthUrl}
             />
             <div className="form-group">
               <div className="col-md-4 col-md-offset-3">
                 <button type="button" className="btn btn-primary"
-                  onClick={this._signInWithZanata} disabled={!this.state.zanataUrl || this.state.zanataUrl === NO_SELECTION_OPT}>
-                  Sign in to {this.state.zanataUrl || NO_SELECTION_OPT}
+                  onClick={this._signInWithZanata}
+                  disabled={!this.state.zanataOAuthUrl || this.state.zanataOAuthUrl === NO_SELECTION_OPT}>
+                  Sign in to {chosenZanata || NO_SELECTION_OPT}
                 </button>
               </div>
             </div>

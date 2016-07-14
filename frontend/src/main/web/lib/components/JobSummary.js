@@ -20,19 +20,13 @@ export default React.createClass({
     lastJobStatus: PropTypes.shape({
       status: PropTypes.string.isRequired
     }),
-    running: PropTypes.bool.isRequired,
-    pollInterval: PropTypes.number.isRequired
+    running: PropTypes.bool.isRequired
   },
   render() {
     const {workId, jobType, runJob, lastJobStatus,
       running} = this.props
     const runJobCallback = (e) => runJob(workId, jobType)
     const jobDescription = toJobDescription(jobType)
-
-    if (running) {
-      // poll job status every certain seconds
-      // setTimeout(() => pollJobStatus(workId, jobType), pollInterval)
-    }
 
     let statusDisplay = null
     if (lastJobStatus && !running) {

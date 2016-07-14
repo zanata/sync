@@ -1,5 +1,5 @@
 import {isUnauthorized, extractErrorMessage} from '../utils/errorResponse'
-import {becomeUnauthorized, NEW_WORK_SUCCESS, CHECK_SESSION_FAILURE } from '../actions'
+import {becomeUnauthorized, NEW_WORK_SUCCESS, CHECK_SESSION_FAILURE } from '../actions/index'
 import {InternalError, InvalidRSAA, RequestError, ApiError} from 'redux-api-middleware'
 
 import {bindActionCreators} from 'redux'
@@ -9,7 +9,7 @@ export default store => next => action => {
 
   let result = next(action)
   const toastr = bindActionCreators(toastrActions, next)
-  
+
   const {type, payload} = action
   // this assume we use redux-api-middleware so the error action may come in
   // several form. See https://www.npmjs.com/package/redux-api-middleware

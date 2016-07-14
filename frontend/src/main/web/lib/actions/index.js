@@ -17,7 +17,20 @@ export function checkSession() {
         method: 'HEAD',
         headers: {'Content-Type': 'application/json'},
         credentials: 'include',
-        types: [CHECK_SESSION_REQUEST, CHECK_SESSION_SUCCESS, CHECK_SESSION_FAILURE]
+        types: [CHECK_SESSION_REQUEST, {
+          type: CHECK_SESSION_SUCCESS,
+          payload: (action, state, res) => {
+            if (res) {
+              return {
+                status: res.status
+              }
+            } else {
+              return {
+                status: 'Network request failed'
+              }
+            }
+          }
+        }, CHECK_SESSION_FAILURE]
       }
     })
   }
@@ -65,23 +78,6 @@ export function submitNewWork(payload) {
         credentials: 'include',
         body: JSON.stringify(entity),
         types: [NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE]
-      }
-    })
-  }
-}
-
-// ========== selected a Zanata server for OAuth provider
-export const SELECT_ZANATA_REQUEST = 'SELECT_ZANATA_REQUEST'
-export const SELECT_ZANATA_SUCCESS = 'SELECT_ZANATA_SUCCESS'
-export const SELECT_ZANATA_FAILURE = 'SELECT_ZANATA_FAILURE'
-export function selectZanataServer(zanataUrl) {
-  return (dispatch, getState) => {
-    dispatch({
-      [CALL_API]: {
-        endpoint: `${getState().configs.apiUrl}/api/oauth/url?z=${zanataUrl}`,
-        method: 'GET',
-        credentials: 'include',
-        types: [SELECT_ZANATA_REQUEST, SELECT_ZANATA_SUCCESS, SELECT_ZANATA_FAILURE]
       }
     })
   }

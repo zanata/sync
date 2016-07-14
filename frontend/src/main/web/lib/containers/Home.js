@@ -1,12 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import SignInForm from '../components/SignInForm'
-import { selectZanataServer, checkSession } from '../actions'
+import { checkSession } from '../actions'
 
 const mapStateToProps = (state) => {
   return {
-    zanataServerUrls: state.configs.zanataServerUrls,
-    zanataOAuthUrl: state.security.zanataOAuthUrl,
+    zanataOAuthUrls: state.configs.zanataOAuthUrls,
     zanataUser: state.configs.user,
     serverReturnUnauthorized: state.security.serverReturnUnauthorized
   }
@@ -14,9 +13,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onSignIn: (zanataUrl) => {
-      dispatch(selectZanataServer(zanataUrl))
-    },
     isSessionLoggedIn: () => {
       dispatch(checkSession())
     }

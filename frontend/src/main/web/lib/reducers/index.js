@@ -7,8 +7,8 @@ import myWorks from './myWorks'
 import {reducer as toastrReducer} from 'react-redux-toastr'
 
 export function createReducersWithConfigs(configs) {
-  const {zanataServerUrls, srcRepoPlugins} = configs
-  invariant(zanataServerUrls && zanataServerUrls.length, 'you need to supply zanataServerUrls')
+  const {zanataOAuthUrls, srcRepoPlugins} = configs
+  invariant(zanataOAuthUrls && Object.keys(zanataOAuthUrls).length, 'you need to supply zanataOAuthUrls')
   invariant(srcRepoPlugins && srcRepoPlugins.length > 0, 'you need to provide at least one source repo plugin (in main-content element as attribute data-src-repo-plugins')
 
   return combineReducers({

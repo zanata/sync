@@ -32,15 +32,18 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
 
 import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.util.JSONObjectMapper;
+import org.zanata.sync.util.UrlUtil;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 /**
@@ -84,30 +87,47 @@ public class FrontendDataProviderFilter implements Filter {
         plugins = objectMapper.toJSON(pluginsList);
     }
 
-    private String getZanataServerUrlsAsJson() {
+    private List<String> getZanataUrls() {
         String supportedZanataServer = System.getProperty("zanata.server.urls");
         if (Strings.isNullOrEmpty(supportedZanataServer)) {
             supportedZanataServer =
                     "http://localhost:8080/zanata,http://localhost:8180/zanata";
         }
-        List<String> urls = ImmutableList
+        return ImmutableList
                 .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
                         .split(supportedZanataServer));
-        return objectMapper.toJSON(urls);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
                     throws IOException, ServletException {
+        if (!(servletRequest instanceof HttpServletRequest)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+        List<String> zanataUrls = getZanataUrls();
+        String appRoot = UrlUtil.appRoot((HttpServletRequest) servletRequest);
+
         servletRequest.setAttribute("srcRepoPlugins", plugins);
-        servletRequest.setAttribute("zanataServerUrls", getZanataServerUrlsAsJson());
+        servletRequest.setAttribute("zanataOAuthUrls",
+                objectMapper.toJSON(getZanataOAuthUrls(appRoot, zanataUrls)));
 
         ZanataAccount account = securityTokens.getAccount();
         String accountAsJson = objectMapper.toJSON(account);
         servletRequest.setAttribute("user", accountAsJson);
 
         filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    private Map<String, String> getZanataOAuthUrls(String appRoot,
+            List<String> zanataUrls) {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        for (String zanataUrl : zanataUrls) {
+            builder.put(zanataUrl, UrlUtil.zanataOAuthUrl(appRoot, zanataUrl));
+        }
+
+        return builder.build();
     }
 
     @Override

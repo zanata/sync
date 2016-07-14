@@ -21,18 +21,14 @@ function commonHeaders(req, res) {
   res.header('Content-Type', 'application/json')
 }
 
-app.get('/api/oauth/url', function (req, res) {
-  commonHeaders(req, res)
-  var zanataUrl = req.query.z
-  res.send(JSON.stringify({
-    error: false,
-    data: zanataUrl + '/authorize/?redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fsync%2Fauth%2F&client_id=zanata_sync'
-  }))
-})
-
 app.post('/api/work', function (req, res) {
   commonHeaders(req, res)
   res.send(201, '{"link": "/api/work/1"}')
+})
+
+app.head('/api/work', function (req, res) {
+  commonHeaders(req, res)
+  res.send()
 })
 
 app.post('/api/oauth/logout', function (req, res) {
