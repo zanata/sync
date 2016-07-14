@@ -76,9 +76,15 @@
         'http://localhost:8080/zanata': 'http://localhost:8080/zanata/oauth?redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsync%3Fz%3Dhttp%3A%2F%2Flocalhost%3A8080%2Fzanata&client_id=zanata_sync',
         'http://localhost:8180/zanata': 'http://localhost:8180/zanata/oauth?redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fsync%3Fz%3Dhttp%3A%2F%2Flocalhost%3A8180%2Fzanata&client_id=zanata_sync'
       }
+
+      var cronOptions = {
+        'Only run manually by user': '',
+        'Hourly': '0 0 0/1 * * ?'
+      }
       mountNode.setAttribute('data-src-repo-plugins', JSON.stringify(plugins))
       mountNode.setAttribute('data-user', JSON.stringify(user))
       mountNode.setAttribute('data-zanata-oauth-urls', JSON.stringify(oauthUrls))
+      mountNode.setAttribute('data-cron-options', JSON.stringify(cronOptions))
     }
     addTestData()
 

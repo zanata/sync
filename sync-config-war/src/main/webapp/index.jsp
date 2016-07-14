@@ -18,6 +18,7 @@
             data-user='${requestScope.user}'
             data-zanata-oauth-urls='${requestScope.zanataOAuthUrls}'
             data-src-repo-plugins='${requestScope.srcRepoPlugins}'
+            data-cron-options='${requestScope.cronOptions}'
             data='{ "dev": "false"}'
     >
     </div>

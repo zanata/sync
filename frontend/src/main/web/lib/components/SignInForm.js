@@ -1,5 +1,6 @@
 import React, {PropTypes} from 'react'
 import Select from './form/Select'
+import {objectToKeysAndValuesArray} from '../utils/general'
 
 // represents user has not yet selected a zanata server
 const NO_SELECTION_OPT = '...'
@@ -43,8 +44,9 @@ export default React.createClass(
       }
 
       const zanataOAuthUrls = {[NO_SELECTION_OPT]: NO_SELECTION_OPT, ...this.props.zanataOAuthUrls}
-      const zanataServerUrls = Object.keys(zanataOAuthUrls)
-      const oauthUrls = zanataServerUrls.map(serverUrl => zanataOAuthUrls[serverUrl])
+      const {keys, values} = objectToKeysAndValuesArray(zanataOAuthUrls)
+      const zanataServerUrls = keys
+      const oauthUrls = values
 
       const selectedIndex = oauthUrls.findIndex(oauth => oauth === this.state.zanataOAuthUrl)
       const chosenZanata = zanataServerUrls[selectedIndex]

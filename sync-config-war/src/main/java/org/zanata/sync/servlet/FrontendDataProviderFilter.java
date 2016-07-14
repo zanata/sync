@@ -38,6 +38,7 @@ import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.PluginsService;
+import org.zanata.sync.util.CronType;
 import org.zanata.sync.util.JSONObjectMapper;
 import org.zanata.sync.util.UrlUtil;
 import com.google.common.base.Splitter;
@@ -58,6 +59,7 @@ import com.google.common.collect.Maps;
 @WebFilter(filterName = "frontendDataProviderFilter")
 public class FrontendDataProviderFilter implements Filter {
 
+    private static Boolean devMode;
     @Inject
     private PluginsService pluginsService;
 
@@ -108,16 +110,26 @@ public class FrontendDataProviderFilter implements Filter {
         }
         List<String> zanataUrls = getZanataUrls();
         String appRoot = UrlUtil.appRoot((HttpServletRequest) servletRequest);
+        boolean isInDevMode = isInDevMode(servletRequest);
 
         servletRequest.setAttribute("srcRepoPlugins", plugins);
         servletRequest.setAttribute("zanataOAuthUrls",
                 objectMapper.toJSON(getZanataOAuthUrls(appRoot, zanataUrls)));
+        servletRequest.setAttribute("cronOptions",
+                objectMapper.toJSON(CronType.toMapWithDisplayAsKey(isInDevMode)));
 
         ZanataAccount account = securityTokens.getAccount();
         String accountAsJson = objectMapper.toJSON(account);
         servletRequest.setAttribute("user", accountAsJson);
 
         filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    private static boolean isInDevMode(ServletRequest request) {
+        if (devMode == null) {
+            devMode = request.getServerName().equals("localhost");
+        }
+        return devMode;
     }
 
     private Map<String, String> getZanataOAuthUrls(String appRoot,

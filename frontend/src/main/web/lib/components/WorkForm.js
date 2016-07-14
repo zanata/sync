@@ -4,6 +4,7 @@ import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
 import ToggleFieldSet from './form/ToggleFieldSet'
 import {redirectToSignIn} from '../utils/route'
+import {objectToKeysAndValuesArray} from '../utils/general'
 
 export default React.createClass({
   propTypes: {
@@ -12,6 +13,7 @@ export default React.createClass({
     saveFailed: PropTypes.bool.isRequired,
     // TODO use shape to be more specific,
     srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    cronOptions: PropTypes.object.isRequired,
     zanataUser: PropTypes.object
   },
   getInitialState() {
@@ -74,6 +76,10 @@ export default React.createClass({
       plugin => plugin.name === selectedPluginName
     )[0]
 
+    const {keys, values} = objectToKeysAndValuesArray(this.props.cronOptions)
+    const cronDisplays = keys
+    const cronValues = values
+
     const selectedPluginFields = Object.keys(selectedPlugin.fields).map(key => {
       // TODO field tooltip
       const field = selectedPlugin.fields[key]
@@ -104,8 +110,8 @@ export default React.createClass({
             />
             <Select name='syncToZanataCron' label='Runs'
               onChange={callbackFor('syncToZanataCron')}
-              options={['MANUAL', 'ONE_HOUR', 'TWO_HOUR', 'SIX_HOUR']}
-              optionsDesc={['Manually', 'Every hour', 'Every two hour', 'Every six hour']}
+              options={cronValues}
+              optionsDesc={cronDisplays}
               selected={this.state.syncToZanataCron}
             />
           </ToggleFieldSet>
@@ -117,8 +123,8 @@ export default React.createClass({
             enabled={this.state.syncToRepoEnabled}>
             <Select name='syncToRepoCron' label='Runs'
               onChange={callbackFor('syncToRepoCron')}
-              options={['MANUAL', 'ONE_HOUR', 'TWO_HOUR', 'SIX_HOUR']}
-              optionsDesc={['Manually', 'Every hour', 'Every two hour', 'Every six hour']}
+              options={cronValues}
+              optionsDesc={cronDisplays}
               selected={this.state.syncToRepoCron}
             />
             <Select name='srcRepoPlugin' label='Source repository plugin'
