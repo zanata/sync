@@ -28,13 +28,14 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
+import javax.validation.Validator;
+import javax.validation.groups.Default;
 
-import org.zanata.sync.common.model.Field;
 import org.zanata.sync.common.plugin.Plugin;
 import org.zanata.sync.common.plugin.RepoExecutor;
-import org.zanata.sync.common.plugin.Validator;
+import org.zanata.sync.dto.RepoSyncGroup;
 import org.zanata.sync.dto.SyncWorkForm;
+import org.zanata.sync.dto.ZanataSyncGroup;
 import org.zanata.sync.service.PluginsService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -46,53 +47,70 @@ import com.google.common.collect.Maps;
 public class SyncWorkFormValidator {
     @Inject
     PluginsService pluginsService;
+    private static Validator validator =
+            Validation.buildDefaultValidatorFactory().getValidator();
 
-    public Map<String, String> validateJobForm(SyncWorkForm form) {
-
-        // validate the input
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Set<ConstraintViolation<SyncWorkForm>> violations = factory.getValidator()
-                .validate(form);
-
+    public Map<String, String> validateForm(SyncWorkForm form) {
         Map<String, String> errors = new HashMap<>();
-        violations.stream().forEach(violation -> {
-            errors.put(violation.getPropertyPath().toString(), violation.getMessage());
-        });
+        validateThenAddErrors(form, errors, Default.class);
 
-        errors.putAll(validateRepoFields(form.getSrcRepoPluginConfig(),
-                form.getSrcRepoPluginName()));
+        boolean syncToRepoEnabled = form.isSyncToRepoEnabled();
+        if (syncToRepoEnabled) {
+            validateThenAddErrors(form, errors, RepoSyncGroup.class);
+            validateRepoFields(form.getSrcRepoPluginConfig(),
+                    form.getSrcRepoPluginName(), errors);
+        }
+
+        boolean syncToZanataEnabled = form.isSyncToZanataEnabled();
+        if (syncToZanataEnabled) {
+            validateThenAddErrors(form, errors, ZanataSyncGroup.class);
+        }
+
+        boolean atLeastOneEnabled = syncToRepoEnabled || syncToZanataEnabled;
+        if (!atLeastOneEnabled) {
+            errors.put("enabledJobs",
+                    "At least one type of job should be enabled");
+        }
 
         return errors;
     }
 
-    private Map<String, String> validateRepoFields(
-            Map<String, String> config, String pluginName) {
-        Optional<RepoExecutor> executor = pluginsService.getSourceRepoPlugin(
-                pluginName);
-        if (!executor.isPresent()) {
-            return new HashMap<>();
-        }
-        return validateFields(config, executor.get(), SyncWorkForm.repoSettingsPrefix);
+    private static void validateThenAddErrors(SyncWorkForm form,
+            Map<String, String> errors, Class<?>... validationGroups) {
+        Set<ConstraintViolation<SyncWorkForm>> violations =
+                validator.validate(form, validationGroups);
+        violations.forEach(violation -> {
+            errors.put(violation.getPropertyPath().toString(),
+                    violation.getMessage());
+        });
     }
 
-    private Map<String, String> validateFields(Map<String, String> config,
-            Plugin executor, String prefix) {
-        Map<String, String> errors = Maps.newHashMap();
-
-        for (Map.Entry<String, Field> fieldEntry : executor.getFields()
-                .entrySet()) {
-            String key = fieldEntry.getKey();
-
-            Field field = fieldEntry.getValue();
-            String configValue = config.get(key);
-            if (field.getValidator() != null) {
-                Validator validator = field.getValidator();
-                String message = validator.validate(configValue);
-                if (!Strings.isNullOrEmpty(message)) {
-                    errors.put(prefix + key, message);
-                }
-            }
+    private void validateRepoFields(
+            Map<String, String> config, String pluginName,
+            Map<String, String> errors) {
+        Optional<RepoExecutor> executor = pluginsService.getSourceRepoPlugin(
+                pluginName);
+        // we have already validated against supported plugin name
+        if (executor.isPresent()) {
+            Map<String, String> repoFieldErrors =
+                    validateFields(config, executor.get(),
+                            SyncWorkForm.repoSettingsPrefix);
+            errors.putAll(repoFieldErrors);
         }
+    }
+
+    private static Map<String, String> validateFields(
+            Map<String, String> config, Plugin executor, String prefix) {
+        Map<String, String> errors = Maps.newHashMap();
+        executor.getFields().forEach((name, field) -> {
+            String value = config.get(name);
+            field.getFieldValidator().ifPresent(validator -> {
+                String message = validator.validate(value);
+                if (!Strings.isNullOrEmpty(message)) {
+                    errors.put(prefix + name, message);
+                }
+            });
+        });
 
         return errors;
     }

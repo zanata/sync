@@ -24,13 +24,13 @@ import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.common.model.Field;
 import org.zanata.sync.common.model.FieldType;
 import org.zanata.sync.common.plugin.RepoExecutor;
-import org.zanata.sync.common.validator.UrlValidator;
+import org.zanata.sync.common.validator.UrlFieldValidator;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 @RepoPlugin
-public class Plugin extends RepoExecutor {
+public class GitPlugin extends RepoExecutor {
     private static final String NAME = "git";
     private static final String DESCRIPTION = Messages.getString("plugin.description");
 
@@ -38,7 +38,7 @@ public class Plugin extends RepoExecutor {
     public void initFields() {
         Field urlField = new Field("url", Messages.getString("field.url.label"),
                 "https://github.com/zanata/zanata-server.git", null,
-                new UrlValidator(), false, FieldType.TEXT);
+                new UrlFieldValidator(), false, FieldType.TEXT);
         Field branchField =
                 new Field("branch", Messages.getString("field.branch.label"),
                         "master", Messages.getString("field.branch.tooltip"),

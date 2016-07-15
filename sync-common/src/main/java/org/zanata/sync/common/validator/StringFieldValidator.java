@@ -2,13 +2,13 @@ package org.zanata.sync.common.validator;
 
 import lombok.AllArgsConstructor;
 import org.zanata.sync.common.Messages;
-import org.zanata.sync.common.plugin.Validator;
+import org.zanata.sync.common.plugin.FieldValidator;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 @AllArgsConstructor
-public class StringValidator implements Validator {
+public class StringFieldValidator implements FieldValidator {
     private Integer minLength;
     private Integer maxLength;
     //Allow empty string

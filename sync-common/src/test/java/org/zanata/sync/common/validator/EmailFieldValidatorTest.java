@@ -6,9 +6,9 @@ import org.junit.Test;
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
-public class EmailValidatorTest {
+public class EmailFieldValidatorTest {
 
-    private EmailValidator emailValidator = new EmailValidator();
+    private EmailFieldValidator emailValidator = new EmailFieldValidator();
 
     @Test
     public void validEmailTest() {

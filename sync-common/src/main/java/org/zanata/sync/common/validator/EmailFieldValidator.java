@@ -1,12 +1,12 @@
 package org.zanata.sync.common.validator;
 
 import org.zanata.sync.common.Messages;
-import org.zanata.sync.common.plugin.Validator;
+import org.zanata.sync.common.plugin.FieldValidator;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
-public class EmailValidator implements Validator {
+public class EmailFieldValidator implements FieldValidator {
     private final org.apache.commons.validator.routines.EmailValidator
         emailValidator =
         org.apache.commons.validator.routines.EmailValidator.getInstance();

@@ -34,7 +34,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.quartz.SchedulerException;
@@ -125,7 +124,7 @@ public class WorkResource {
 
     @POST
     public Response createWork(SyncWorkForm form) {
-        Map<String, String> errors = formValidator.validateJobForm(form);
+        Map<String, String> errors = formValidator.validateForm(form);
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
@@ -152,7 +151,7 @@ public class WorkResource {
         if(form.getId() == null) {
             return createWork(form);
         }
-        Map<String, String> errors = formValidator.validateJobForm(form);
+        Map<String, String> errors = formValidator.validateForm(form);
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }

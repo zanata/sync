@@ -2,9 +2,10 @@ package org.zanata.sync.common.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.zanata.sync.common.plugin.Validator;
+import org.zanata.sync.common.plugin.FieldValidator;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -24,7 +25,7 @@ public class Field implements Serializable {
     private String placeholder;
     private String tooltip;
     @JsonIgnore
-    private Validator validator;
+    private FieldValidator validator;
     private boolean isMasked;
 
     public Field() {
@@ -36,13 +37,18 @@ public class Field implements Serializable {
     }
 
     public Field(String key, String label, String placeholder, String tooltip,
-        Validator validator, boolean isMasked, FieldType type) {
+        FieldValidator fieldValidator, boolean isMasked, FieldType type) {
         this.key = key;
         this.label = label;
         this.placeholder = placeholder;
         this.tooltip = tooltip;
-        this.validator = validator;
+        this.validator = fieldValidator;
         this.isMasked = isMasked;
         this.type = type;
     }
+
+    public Optional<FieldValidator> getFieldValidator() {
+        return Optional.ofNullable(validator);
+    }
+
 }

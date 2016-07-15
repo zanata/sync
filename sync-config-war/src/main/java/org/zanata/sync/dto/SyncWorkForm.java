@@ -29,6 +29,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
+import org.zanata.sync.validation.SupportedRepo;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -45,18 +46,19 @@ public class SyncWorkForm implements Serializable {
     @Size(max = 255)
     private String description;
 
-    @NotNull
+    @NotNull(groups = ZanataSyncGroup.class)
     private CronType syncToZanataCron;
 
-    @NotNull
+    @NotNull(groups = RepoSyncGroup.class)
     private SyncOption syncOption = SyncOption.SOURCE;
 
-    @NotNull
+    @NotNull(groups = RepoSyncGroup.class)
     private CronType syncToRepoCron;
 
     // TODO change this to srcRepoType instead
-    @NotEmpty
-    @Size(max = 255)
+    @SupportedRepo(groups = RepoSyncGroup.class)
+    @NotEmpty(groups = RepoSyncGroup.class)
+    @Size(max = 50, groups = RepoSyncGroup.class)
     private String srcRepoPluginName;
 
     @Size(max = 16)
@@ -68,6 +70,28 @@ public class SyncWorkForm implements Serializable {
     private boolean syncToZanataEnabled = true;
 
     private boolean syncToRepoEnabled = true;
+
+    public SyncWorkForm(String name, String description,
+            CronType syncToZanataCron,
+            SyncOption syncOption, CronType syncToRepoCron,
+            String srcRepoPluginName, String encryptionKey,
+            Map<String, String> srcRepoPluginConfig,
+            boolean syncToZanataEnabled,
+            boolean syncToRepoEnabled) {
+        this.name = name;
+        this.description = description;
+        this.syncToZanataCron = syncToZanataCron;
+        this.syncOption = syncOption;
+        this.syncToRepoCron = syncToRepoCron;
+        this.srcRepoPluginName = srcRepoPluginName;
+        this.encryptionKey = encryptionKey;
+        this.srcRepoPluginConfig = srcRepoPluginConfig;
+        this.syncToZanataEnabled = syncToZanataEnabled;
+        this.syncToRepoEnabled = syncToRepoEnabled;
+    }
+
+    public SyncWorkForm() {
+    }
 
     public Long getId() {
         return id;

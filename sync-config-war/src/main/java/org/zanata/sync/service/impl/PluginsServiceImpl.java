@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
@@ -35,6 +36,7 @@ import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.scannotation.AnnotationDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.App;
 import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.exception.UnableLoadPluginException;
@@ -42,6 +44,7 @@ import org.zanata.sync.service.PluginsService;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 
 /**
@@ -126,4 +129,21 @@ public class PluginsServiceImpl implements PluginsService {
         return Optional.ofNullable(sourceRepoPluginMap.get(pluginName));
     }
 
+    @Produces
+    @App
+    public SupportedRepoTypes supportedSourceRepoTypes() {
+        return new SupportedRepoTypes(sourceRepoPluginMap.keySet());
+    }
+
+    public static class SupportedRepoTypes {
+        private final Set<String> types;
+
+        public SupportedRepoTypes(Set<String> types) {
+            this.types = ImmutableSet.copyOf(types);
+        }
+
+        public Set<String> getTypes() {
+            return types;
+        }
+    }
 }

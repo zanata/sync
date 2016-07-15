@@ -1,7 +1,7 @@
 package org.zanata.sync.common.validator;
 
 import org.zanata.sync.common.Messages;
-import org.zanata.sync.common.plugin.Validator;
+import org.zanata.sync.common.plugin.FieldValidator;
 
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEMES;
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
@@ -9,7 +9,7 @@ import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URL
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
-public class UrlValidator implements Validator {
+public class UrlFieldValidator implements FieldValidator {
 
     private final org.apache.commons.validator.routines.UrlValidator
         urlValidator = new

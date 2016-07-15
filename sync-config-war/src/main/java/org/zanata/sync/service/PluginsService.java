@@ -16,7 +16,7 @@ public interface PluginsService {
 
     List<RepoExecutor> getAvailableSourceRepoPlugins();
 
-    Optional<RepoExecutor> getSourceRepoPlugin(String className);
+    Optional<RepoExecutor> getSourceRepoPlugin(String pluginName);
 
     void init();
 }

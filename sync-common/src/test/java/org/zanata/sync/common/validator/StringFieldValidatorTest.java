@@ -6,15 +6,15 @@ import org.junit.Test;
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
-public class StringValidatorTest {
-    private StringValidator stringValidator;
+public class StringFieldValidatorTest {
+    private StringFieldValidator stringValidator;
 
     @Test
     public void test1() {
         int minLength = 0;
         int maxLength = 5;
         boolean notEmpty = true;
-        stringValidator = new StringValidator(minLength, maxLength, notEmpty);
+        stringValidator = new StringFieldValidator(minLength, maxLength, notEmpty);
 
         String value1 = "abc";
         Assertions.assertThat(stringValidator.validate(value1)).isNull();
@@ -31,7 +31,7 @@ public class StringValidatorTest {
         int minLength = 2;
         int maxLength = 5;
         boolean notEmpty = true;
-        stringValidator = new StringValidator(minLength, maxLength, notEmpty);
+        stringValidator = new StringFieldValidator(minLength, maxLength, notEmpty);
 
         String value1 = "a";
         Assertions.assertThat(stringValidator.validate(value1)).isNotNull();
@@ -49,7 +49,7 @@ public class StringValidatorTest {
     @Test
     public void test3() {
         boolean notEmpty = true;
-        stringValidator = new StringValidator(null, null, notEmpty);
+        stringValidator = new StringFieldValidator(null, null, notEmpty);
 
         String value1 = "a";
         Assertions.assertThat(stringValidator.validate(value1)).isNull();

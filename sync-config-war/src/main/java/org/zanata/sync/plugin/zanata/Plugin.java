@@ -7,7 +7,7 @@ import org.zanata.sync.common.annotation.TranslationServerPlugin;
 import org.zanata.sync.common.model.Field;
 import org.zanata.sync.common.model.FieldType;
 import org.zanata.sync.common.plugin.TranslationServerExecutor;
-import org.zanata.sync.common.validator.StringValidator;
+import org.zanata.sync.common.validator.StringFieldValidator;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
@@ -33,12 +33,12 @@ public class Plugin extends TranslationServerExecutor {
                 new Field("username",
                         Messages.getString("field.username.label"),
                         "", Messages.getString("field.username.tooltip"),
-                        new StringValidator(1, null, true), false, FieldType.TEXT);
+                        new StringFieldValidator(1, null, true), false, FieldType.TEXT);
         Field apiKeyField =
                 new Field("apiKey", Messages.getString("field.secret.label"),
                         "",
                         Messages.getString("field.secret.tooltip"),
-                        new StringValidator(1, null, true), false, FieldType.TEXT);
+                        new StringFieldValidator(1, null, true), false, FieldType.TEXT);
 
         fields.put(usernameField.getKey(), usernameField);
         fields.put(apiKeyField.getKey(), apiKeyField);
