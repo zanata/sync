@@ -1,8 +1,9 @@
 import React, {PropTypes} from 'react'
 import NavBanner from '../components/NavBanner'
-import { logout } from '../actions'
+import { logout, deleteWork, toggleDeleteConfirmation } from '../actions'
 import { connect } from 'react-redux'
 import SessionTimedOut from '../components/SessionTimedOut'
+import DeleteConfirmation from '../components/modal/Confirmation'
 
 // this represents the root of the app
 const App = React.createClass({
@@ -11,6 +12,10 @@ const App = React.createClass({
     loggedOut: PropTypes.bool,
     onLogout: PropTypes.func.isRequired,
     serverReturnUnauthorized: PropTypes.bool.isRequired,
+    showDeleteConfirmation: PropTypes.bool.isRequired,
+    selectedConfig: PropTypes.object,
+    onCloseDeleteConfirmation: PropTypes.func.isRequired,
+    onConfirmDeleteConfig: PropTypes.func.isRequired
   },
 
   componentWillReceiveProps(nextProps) {
@@ -22,7 +27,8 @@ const App = React.createClass({
 
   render() {
     const {serverReturnUnauthorized, zanataUser, location,
-      children} = this.props
+      children, selectedConfig, showDeleteConfirmation,
+      onCloseDeleteConfirmation, onConfirmDeleteConfig} = this.props
     let message = 'Please sign in to a Zanata server'
     if (zanataUser) {
        message = `${zanataUser.name}@${zanataUser.zanataServer}`
@@ -35,6 +41,8 @@ const App = React.createClass({
     // SessionTimedOut
     const routeComponent = serverReturnUnauthorized && !isIndexRoute ?
       (<SessionTimedOut />) : children
+
+    const selectedConfigName = (selectedConfig && selectedConfig.name)
 
     return (
       <div>
@@ -51,6 +59,13 @@ const App = React.createClass({
             </div>
           </div>
         </div>
+        <DeleteConfirmation id="deleteWorkConfirm" okBtnText="Delete"
+          title={`Delete ${selectedConfigName}?`}
+          content={`Are you sure you want to delete ${selectedConfigName}?`}
+          show={showDeleteConfirmation}
+          onClose={onCloseDeleteConfirmation}
+          onConfirm={onConfirmDeleteConfig}
+        />
       </div>
     )
   }
@@ -60,13 +75,19 @@ const mapStateToProps = (state) => {
   return {
     zanataUser: state.configs.user,
     loggedOut: state.security.loggedOut,
-    serverReturnUnauthorized: state.security.serverReturnUnauthorized
+    serverReturnUnauthorized: state.security.serverReturnUnauthorized,
+    showDeleteConfirmation: state.workConfig.showDeleteConfirmation,
+    selectedConfig: state.workConfig.workDetail
   }
 }
 
 const mapDispatcherToProps = (dispatch) => {
   return {
-    onLogout: () => dispatch(logout())
+    onLogout: () => dispatch(logout()),
+    onCloseDeleteConfirmation: (id) => dispatch(toggleDeleteConfirmation({
+      show: false
+    })),
+    onConfirmDeleteConfig: (id) => dispatch(deleteWork())
   }
 }
 

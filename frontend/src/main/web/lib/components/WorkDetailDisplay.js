@@ -83,7 +83,7 @@ export default React.createClass({
       )
     })
 
-    const deleteCallback = (e) => this.props.deleteWork(this.props.routeParams.id)
+    const deleteCallback = (e) => this.props.deleteWork()
 
     return (
       <div className='container-fluid'>
