@@ -24,9 +24,15 @@ export default React.createClass({
     const {zanataUsername, loadWorkSummaries, onJobStatusUpdate} = this.props
     if (zanataUsername) {
       loadWorkSummaries()
-      startWebSocket(websocketEndpoint, onJobStatusUpdate)
+      this.websocket = startWebSocket(websocketEndpoint, onJobStatusUpdate)
     } else {
       redirectToSignIn(this.context.router)
+    }
+  },
+
+  componentWillUnmount() {
+    if (this.websocket) {
+      this.websocket.close()
     }
   },
 

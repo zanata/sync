@@ -28,4 +28,5 @@ export default function (server, onMessageCallback) {
     }
   }
 
+  return ws
 }
