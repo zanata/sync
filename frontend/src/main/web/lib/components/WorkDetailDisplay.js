@@ -45,19 +45,32 @@ export default React.createClass({
         endTime: datePropValidator
       }))
     }),
-    deleteWork: PropTypes.func.isRequired
+    deleteWork: PropTypes.func.isRequired,
+    deleted: PropTypes.bool.isRequired
   },
 
   componentDidMount() {
     this.props.loadWorkDetail(this.props.routeParams.id)
   },
 
-  render() {
-    const {workDetail} = this.props
+  // ask for `router` from context
+  contextTypes: {
+    router: React.PropTypes.object
+  },
 
-    if (!workDetail) {
-      return null
+  render() {
+    const {workDetail, deleted} = this.props
+
+    if (deleted) {
+      this.context.router.push({
+        pathname: '/work/mine'
+      })
+      return <h2 className='text-danger'>Deleted</h2>
     }
+    if (!workDetail) {
+      return <ProgressBar loading={true}/>
+    }
+
 
     const {name, description, createdDate, srcRepoPluginName,
       srcRepoPluginConfig,

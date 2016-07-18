@@ -4,7 +4,8 @@ import WorkDetailDisplay from '../components/WorkDetailDisplay'
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    workDetail: state.workConfig.workDetail
+    workDetail: state.workConfig.workDetail,
+    deleted: state.workConfig.deleted
   }
 }
 
