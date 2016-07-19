@@ -33,6 +33,7 @@ const basename = mountNode.getAttribute('data-app-basename') || ''
 const zanataOAuthUrls = JSON.parse(mountNode.getAttribute('data-zanata-oauth-urls'))
 const srcRepoPlugins = JSON.parse(mountNode.getAttribute('data-src-repo-plugins'))
 const cronOptions = JSON.parse(mountNode.getAttribute('data-cron-options'))
+const websocketPort = mountNode.getAttribute('data-websocket-port')
   // user = JSON.parse(mountNode.getAttribute('user')),
 const data = JSON.parse(mountNode.getAttribute('data'))
 const dev = data.dev;
@@ -45,7 +46,8 @@ const Configs = {
   apiUrl: `${apiUrl}${basename}`,
   zanataOAuthUrls,
   srcRepoPlugins,
-  cronOptions
+  cronOptions,
+  websocketPort
 }
 
 console.log('Configs', Configs)

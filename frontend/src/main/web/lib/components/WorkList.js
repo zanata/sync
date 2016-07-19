@@ -3,8 +3,6 @@ import WorkSummary from './WorkSummary'
 import {redirectToSignIn} from '../utils/route'
 import startWebSocket from '../utils/startWebSocket'
 
-const websocketEndpoint = `ws://${location.host}${location.pathname}websocket/jobStatus`
-
 export default React.createClass({
   propTypes: {
     workSummaries: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -21,7 +19,12 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    const {zanataUsername, loadWorkSummaries, onJobStatusUpdate} = this.props
+    const {zanataUsername, loadWorkSummaries, onJobStatusUpdate,
+      websocketPort} = this.props
+    const port = websocketPort ? websocketPort : location.port
+    // openshift uses a different port for websocket
+    // see http://stackoverflow.com/a/19952072/345718
+    const websocketEndpoint = `ws://${location.hostname}:${port}${location.pathname}websocket/jobStatus`
     if (zanataUsername) {
       loadWorkSummaries()
       this.websocket = startWebSocket(websocketEndpoint, onJobStatusUpdate)

@@ -19,6 +19,7 @@
             data-zanata-oauth-urls='${requestScope.zanataOAuthUrls}'
             data-src-repo-plugins='${requestScope.srcRepoPlugins}'
             data-cron-options='${requestScope.cronOptions}'
+            data-websocket-port='${requestScope.websocketPort}'
             data='{ "dev": "false"}'
     >
     </div>

@@ -10,7 +10,7 @@ export default function (server, onMessageCallback) {
 
 
   ws.onerror = error => {
-    console.error(`Connect Error: ${error.toString()}`);
+    console.error('Connect Error:', error);
   }
 
   ws.onopen = () => {

@@ -117,6 +117,8 @@ public class FrontendDataProviderFilter implements Filter {
         String accountAsJson = objectMapper.toJSON(account);
         servletRequest.setAttribute("user", accountAsJson);
 
+        servletRequest.setAttribute("websocketPort", System.getenv("websocket_port"));
+
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
