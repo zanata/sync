@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react'
 import ProgressBar from './ProgressBar'
 import EnableOrDisableIcon from './EnableOrDisableIcon'
 import cx from 'classnames'
-import { isError, isSuccess, isRunning } from '../constants/Enums'
+import { isError, isSuccess, isRunning, toJobDescription } from '../constants/Enums'
 import { duration, datePropValidator, formatDate } from '../utils/DateTime'
 
 const ToggleReveal = React.createClass({
@@ -45,8 +45,7 @@ export default React.createClass({
         endTime: datePropValidator
       }))
     }),
-    deleteWork: PropTypes.func.isRequired,
-    deleted: PropTypes.bool.isRequired
+    deleteWork: PropTypes.func.isRequired
   },
 
   componentDidMount() {
@@ -59,21 +58,22 @@ export default React.createClass({
   },
 
   render() {
-    const {workDetail, deleted} = this.props
+    const {workDetail} = this.props
 
-    if (deleted) {
+    if (!workDetail || workDetail.id !== parseInt(this.props.routeParams.id)) {
+      return <ProgressBar loading={true}/>
+    }
+
+    if (workDetail.deleted && workDetail.id == parseInt(this.props.routeParams.id)) {
       this.context.router.push({
         pathname: '/work/mine'
       })
-      return <h2 className='text-danger'>Deleted</h2>
-    }
-    if (!workDetail) {
-      return <ProgressBar loading={true}/>
+      return <div>deleted</div>
     }
 
 
     const {name, description, createdDate, srcRepoPluginName,
-      srcRepoPluginConfig,
+      srcRepoPluginConfig, syncToZanataOption,
       syncToServerEnabled, syncToRepoEnabled,
       syncToZanataCron, syncToRepoCron, jobRunHistory
     } = workDetail
@@ -89,6 +89,7 @@ export default React.createClass({
       const durationDisplay = duration(status.startTime, status.endTime)
       return (
         <tr key={status.id}>
+            <td>{toJobDescription(status.jobType)}</td>
             <td className={className}>{status.status}</td>
             <td>{formatDate(status.startTime)}</td>
             <td>{durationDisplay}</td>
@@ -121,7 +122,7 @@ export default React.createClass({
                 </li>
                 <li className='list-group-item'>
                   <ul className="list-inline">
-                    <li>{syncToZanataCron} Sync to Zanata <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
+                    <li>{syncToZanataCron} Sync <strong className='text-info'>{syncToZanataOption}</strong> to Zanata <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
                     <li>{syncToRepoCron} Sync to repo <EnableOrDisableIcon enabled={syncToRepoEnabled} /></li>
                   </ul>
                 </li>
@@ -133,6 +134,7 @@ export default React.createClass({
           <table className='table table-striped'>
             <thead>
               <tr>
+                <th>Sync Job Type</th>
                 <th>Status</th>
                 <th>Start time</th>
                 <th>Duration</th>

@@ -104,7 +104,7 @@ export default React.createClass({
             onChange={callbackFor('syncToZanataEnabled')}
             enabled={this.state.syncToZanataEnabled}>
             <RadioGroup name='syncOption' label='Synchronization option'
-              options={['SOURCE', 'TRANSLATION', 'BOTH']}
+              options={['Source', 'Translation', 'Both']}
               onChange={callbackFor('syncOption')}
               selected={this.state.syncOption}
             />

@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions'
 import {
   NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE,
-  LOAD_WORK_SUCCESS,
+  LOAD_WORK_REQUEST, LOAD_WORK_SUCCESS,
   TOGGLE_DELETE_CONFIRMATION,
   DELETE_WORK_SUCCESS
 } from '../actions'
@@ -10,7 +10,6 @@ const defaultState = {
   saving: false,
   saveFailed: false,
   workDetail: null,
-  deleted: false,
   showDeleteConfirmation: false
 }
 
@@ -37,7 +36,12 @@ export default handleActions(
         saveFailed: true
       }
     },
-
+    [LOAD_WORK_REQUEST]: (state, action) => {
+      return {
+        ...state,
+        workDetail: null
+      }
+    },
     [LOAD_WORK_SUCCESS]: (state, action) => {
       return {
         ...state,
@@ -51,11 +55,14 @@ export default handleActions(
       }
     },
     [DELETE_WORK_SUCCESS]: (state, action) => {
+      const deleted = state.workDetail
       return {
         ...state,
-        workDetail: null,
-        showDeleteConfirmation: false,
-        deleted: true
+        workDetail: {
+          ...deleted,
+          deleted: true
+        },
+        showDeleteConfirmation: false
       }
     }
   },

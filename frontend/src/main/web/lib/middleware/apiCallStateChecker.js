@@ -1,6 +1,6 @@
 import {isUnauthorized, extractErrorMessage} from '../utils/errorResponse'
-import {becomeUnauthorized, NEW_WORK_SUCCESS, CHECK_SESSION_FAILURE } from '../actions/index'
-import {InternalError, InvalidRSAA, RequestError, ApiError} from 'redux-api-middleware'
+import {becomeUnauthorized, NEW_WORK_SUCCESS,
+  CHECK_SESSION_FAILURE } from '../actions/index'
 
 import {bindActionCreators} from 'redux'
 import {actions as toastrActions} from 'react-redux-toastr'
@@ -28,6 +28,7 @@ export default store => next => action => {
       timeOut: 1000
     })
   }
+  // TODO make the after success case something embeded in the action
 
   return result
 }

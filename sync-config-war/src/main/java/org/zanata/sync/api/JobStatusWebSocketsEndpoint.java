@@ -66,26 +66,6 @@ public class JobStatusWebSocketsEndpoint {
     @Inject
     private JSONObjectMapper objectMapper;
 
-    @OnMessage
-    public String areWeThereYet(String jobKeyJson) {
-        log.debug("user query job status: {}", jobKeyJson);
-        RunningJobKey runningJobKey =
-                objectMapper.fromJSON(RunningJobKey.class, jobKeyJson);
-        try {
-            JobStatus jobStatus = schedulerService
-                    .getLatestJobStatus(runningJobKey.getWorkId(),
-                            runningJobKey.getJobType());
-            JobRunStatus jobRunStatus = JobRunStatus
-                    .fromEntity(jobStatus, runningJobKey.getWorkId(),
-                            runningJobKey.getJobType());
-            return objectMapper.toJSON(jobRunStatus);
-        } catch (SchedulerException | JobNotFoundException e) {
-            log.warn("exception happened in websocket onMessage",
-                    e.getMessage());
-        }
-        return null;
-    }
-
     @OnOpen
     public void onOpen(Session session) {
         log.info("WebSocket opened: {}", session.getId());
