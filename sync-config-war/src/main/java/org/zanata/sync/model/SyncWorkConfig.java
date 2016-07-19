@@ -27,10 +27,8 @@ import org.zanata.sync.util.AutoCloseableDependentProvider;
 import org.zanata.sync.util.CronType;
 import org.zanata.sync.util.JSONObjectMapper;
 import com.google.common.base.MoreObjects;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import static org.zanata.sync.util.AutoCloseableDependentProvider.*;
 
@@ -59,11 +57,6 @@ public class SyncWorkConfig {
     @Enumerated(EnumType.STRING)
     private SyncOption syncToZanataOption;
 
-    @Transient
-    private Map<String, String> srcRepoPluginConfig;
-
-    private String srcRepoPluginConfigJson;
-
     private String srcRepoPluginName;
 
     private String encryptionKey;
@@ -76,9 +69,13 @@ public class SyncWorkConfig {
     private String zanataSecret;
     private String zanataServerUrl;
 
-    @Setter(AccessLevel.PROTECTED)
+    private String srcRepoUrl;
+    private String srcRepoUsername;
+    private String srcRepoSecret;
+    private String srcRepoBranch;
+
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private Date createdDate = new Date();
 
     @OneToMany(mappedBy = "workConfig")
     private List<JobStatus> jobStatusHistory = Collections.emptyList();
@@ -91,8 +88,9 @@ public class SyncWorkConfig {
             String srcRepoPluginName,
             String encryptionKey,
             boolean syncToServerEnabled, boolean syncToRepoEnabled,
-            String srcRepoPluginConfigJson, String zanataUsername,
-            String zanataSecret, String zanataServerUrl) {
+            String zanataUsername,
+            String zanataSecret, String zanataServerUrl, String srcRepoUrl,
+            String srcRepoUsername, String srcRepoSecret, String srcRepoBranch) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -103,33 +101,13 @@ public class SyncWorkConfig {
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.syncToZanataCron = syncToZanataCron;
         this.syncToRepoCron = syncToRepoCron;
-        this.srcRepoPluginConfigJson = srcRepoPluginConfigJson;
         this.zanataUsername = zanataUsername;
         this.zanataSecret = zanataSecret;
         this.zanataServerUrl = zanataServerUrl;
-    }
-
-    public Map<String, String> getSrcRepoPluginConfig() {
-        if (srcRepoPluginConfig == null) {
-            srcRepoPluginConfig = fromJson(srcRepoPluginConfigJson);
-        }
-        return srcRepoPluginConfig;
-    }
-
-    @PostLoad
-    protected void postLoad() {
-        getSrcRepoPluginConfig();
-    }
-
-    private static <T> T fromJson(String jsonString) {
-        try (AutoCloseableDependentProvider<JSONObjectMapper> provider =
-                forBean(JSONObjectMapper.class)) {
-            JSONObjectMapper objectMapper = provider.getBean();
-            return objectMapper.fromJSON(Map.class, jsonString);
-        } catch (Exception e) {
-            log.error("exception unmarshalling json: {}", jsonString);
-            return null;
-        }
+        this.srcRepoUrl = srcRepoUrl;
+        this.srcRepoUsername = srcRepoUsername;
+        this.srcRepoSecret = srcRepoSecret;
+        this.srcRepoBranch = srcRepoBranch;
     }
 
     @Override

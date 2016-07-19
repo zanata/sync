@@ -72,10 +72,11 @@ export default React.createClass({
     }
 
 
-    const {name, description, createdDate, srcRepoPluginName,
-      srcRepoPluginConfig, syncToZanataOption,
-      syncToServerEnabled, syncToRepoEnabled,
-      syncToZanataCron, syncToRepoCron, jobRunHistory
+    const {name, description, createdDate, syncToServerEnabled, syncToRepoEnabled,
+      srcRepoPluginName,
+      srcRepoUrl, srcRepoUsername, srcRepoSecret, srcRepoBranch, syncToRepoCron,
+      syncToZanataOption, syncToZanataCron,
+      jobRunHistory
     } = workDetail
 
     const descDisplay = description ? (<p>{description}</p>) : null
@@ -118,12 +119,12 @@ export default React.createClass({
               </blockquote>
               <ul className="list-group">
                 <li className="list-group-item">
-                  <span className='label label-info'>{srcRepoPluginName}</span>source repo: {srcRepoPluginConfig.username}:<ToggleReveal text={srcRepoPluginConfig.secret} />@{srcRepoPluginConfig.url}
+                  <span className='label label-info'>{srcRepoPluginName}</span>source repo <span className="text-muted">branch: {srcRepoBranch}</span> : {srcRepoUsername}:<ToggleReveal text={srcRepoSecret} />@{srcRepoUrl}
                 </li>
                 <li className='list-group-item'>
                   <ul className="list-inline">
-                    <li>{syncToZanataCron} Sync <strong className='text-info'>{syncToZanataOption}</strong> to Zanata <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
-                    <li>{syncToRepoCron} Sync to repo <EnableOrDisableIcon enabled={syncToRepoEnabled} /></li>
+                    <li>Sync <strong className='text-info'>{syncToZanataOption}</strong> to Zanata {syncToZanataCron} <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
+                    <li>Sync to repo {syncToRepoCron} <EnableOrDisableIcon enabled={syncToRepoEnabled} /></li>
                   </ul>
                 </li>
               </ul>

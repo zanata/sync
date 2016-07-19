@@ -96,7 +96,7 @@ export default React.createClass(
           <div className={navMenuClass} aria-expanded={ariaExpanded}>
           <NavHeader {...this.props} />
             <ul className="nav navbar-nav navbar-primary">
-              <NavLink to="/" onlyActiveOnIndex={true}>Home</NavLink>
+              <NavLink to="/" onlyActiveOnIndex>Home</NavLink>
               <NavLink to="/work/new">Create new work</NavLink>
               <NavLink to="/work/mine">View your works</NavLink>
             </ul>

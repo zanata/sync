@@ -46,23 +46,18 @@ export function submitNewWork(payload) {
     name: payload.name,
     description: payload.description,
     syncToZanataEnabled: payload.syncToZanataEnabled,
-    syncToRepoEnabled: payload.syncToRepoEnabled
+    syncToRepoEnabled: payload.syncToRepoEnabled,
+    srcRepoUrl: payload.srcRepoUrl,
+    srcRepoUsername: payload.srcRepoUsername,
+    srcRepoSecret: payload.srcRepoSecret,
+    srcRepoBranch: payload.srcRepoBranch,
+    srcRepoPluginName: payload.selectedRepoPluginName
   }
   if (payload.syncToZanataEnabled) {
     entity.syncToZanataCron = payload.syncToZanataCron
     entity.syncOption = payload.syncOption
   }
-  entity.srcRepoPluginName = payload.selectedRepoPluginName
-  const regex = new RegExp('^' + payload.selectedRepoPluginName + '(.+)$')
-  entity.srcRepoPluginConfig = {}
-  // see lib/components/WorkForm.js
-  Object.keys(payload).forEach(key => {
-    const match = regex.exec(key)
-    if (match && match.length === 2) {
-      //console.log('found ' + key + ' with value ' + payload[key])
-      entity.srcRepoPluginConfig[match[1]] = payload[key]
-    }
-  })
+
   if (payload.syncToRepoEnabled) {
     entity.syncToRepoCron = payload.syncToRepoCron
   }

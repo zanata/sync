@@ -49,8 +49,8 @@ public class SyncWorkConfigSerializerEncryptionDecorator
         BiFunction<String, String, String> decryptFunc =
                 (key, value) -> encryptionUtil.decrypt(value);
         for (String field : fieldsNeedEncryption) {
-            directConvert.getSrcRepoPluginConfig().computeIfPresent(field,
-                    decryptFunc);
+//            directConvert.getSrcRepoPluginConfig().computeIfPresent(field,
+//                    decryptFunc);
         }
 
         return directConvert;
@@ -74,8 +74,8 @@ public class SyncWorkConfigSerializerEncryptionDecorator
         BiFunction<String, String, String> encryptFunc =
                 (key, value) -> encryptionUtil.encrypt(value);
         for (String field : fieldsNeedEncryption) {
-            syncWorkConfig.getSrcRepoPluginConfig().computeIfPresent(field,
-                    encryptFunc);
+//            syncWorkConfig.getSrcRepoPluginConfig().computeIfPresent(field,
+//                    encryptFunc);
         }
 
         return delegate.toYaml(syncWorkConfig);

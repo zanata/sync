@@ -29,9 +29,11 @@ public class JobStatusDAOTest {
     public void canSaveNewStatusAndUpdate() {
         SyncWorkConfig syncWorkConfig =
                 new SyncWorkConfig(null, "name", null, null, null,
-                        SyncOption.SOURCE, "git", null, true, true, "{}",
+                        SyncOption.SOURCE, "git", null, true, true,
                         "username",
-                        "apiKey", "http://localhost:8080/zanata");
+                        "apiKey", "http://localhost:8080/zanata",
+                        "https://github.com/zanata/zanata-server.git",
+                        null, null, null);
         entityManagerRule.getEm().persist(syncWorkConfig);
         JobStatus jobStatus =
                 new JobStatus("id", syncWorkConfig, JobType.REPO_SYNC,

@@ -22,7 +22,6 @@ package org.zanata.sync.dto;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.zanata.sync.common.model.SyncOption;
@@ -47,7 +46,6 @@ public class WorkDetail {
     private SyncOption syncToZanataOption;
 
     private String srcRepoPluginName;
-    private Map<String, String> srcRepoPluginConfig;
 
     private boolean syncToServerEnabled = true;
     private boolean syncToRepoEnabled = true;
@@ -55,6 +53,11 @@ public class WorkDetail {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.ISO_JS_DATE_FMT)
     private Date createdDate;
     private List<JobRunStatus> jobRunHistory;
+
+    private String srcRepoUrl;
+    private String srcRepoUsername;
+    private String srcRepoSecret;
+    private String srcRepoBranch;
 
     @SuppressWarnings("unused")
     public WorkDetail() {
@@ -64,10 +67,10 @@ public class WorkDetail {
             CronType syncToZanataCron, CronType syncToRepoCron,
             SyncOption syncToZanataOption,
             String srcRepoPluginName,
-            Map<String, String> srcRepoPluginConfig,
             boolean syncToServerEnabled,
             boolean syncToRepoEnabled, Date createdDate,
-            List<JobRunStatus> jobRunHistory) {
+            List<JobRunStatus> jobRunHistory, String srcRepoUrl,
+            String srcRepoUsername, String srcRepoSecret, String srcRepoBranch) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -75,11 +78,14 @@ public class WorkDetail {
         this.syncToRepoCron = syncToRepoCron;
         this.syncToZanataOption = syncToZanataOption;
         this.srcRepoPluginName = srcRepoPluginName;
-        this.srcRepoPluginConfig = srcRepoPluginConfig;
         this.syncToServerEnabled = syncToServerEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.createdDate = createdDate;
         this.jobRunHistory = jobRunHistory;
+        this.srcRepoUrl = srcRepoUrl;
+        this.srcRepoUsername = srcRepoUsername;
+        this.srcRepoSecret = srcRepoSecret;
+        this.srcRepoBranch = srcRepoBranch;
     }
 
     public static WorkDetail fromEntity(SyncWorkConfig workConfig,
@@ -94,10 +100,12 @@ public class WorkDetail {
                 workConfig.getSyncToRepoCron(),
                 workConfig.getSyncToZanataOption(),
                 workConfig.getSrcRepoPluginName(),
-                workConfig.getSrcRepoPluginConfig(),
                 workConfig.isSyncToServerEnabled(),
                 workConfig.isSyncToRepoEnabled(),
-                workConfig.getCreatedDate(), statuses);
+                workConfig.getCreatedDate(), statuses,
+                workConfig.getSrcRepoUrl(),
+                workConfig.getSrcRepoUsername(), workConfig.getSrcRepoSecret(),
+                workConfig.getSrcRepoBranch());
     }
 
     public Long getId() {
@@ -124,10 +132,6 @@ public class WorkDetail {
         return syncToZanataOption;
     }
 
-    public Map<String, String> getSrcRepoPluginConfig() {
-        return srcRepoPluginConfig;
-    }
-
     public boolean isSyncToServerEnabled() {
         return syncToServerEnabled;
     }
@@ -146,5 +150,21 @@ public class WorkDetail {
 
     public String getSrcRepoPluginName() {
         return srcRepoPluginName;
+    }
+
+    public String getSrcRepoUrl() {
+        return srcRepoUrl;
+    }
+
+    public String getSrcRepoUsername() {
+        return srcRepoUsername;
+    }
+
+    public String getSrcRepoSecret() {
+        return srcRepoSecret;
+    }
+
+    public String getSrcRepoBranch() {
+        return srcRepoBranch;
     }
 }

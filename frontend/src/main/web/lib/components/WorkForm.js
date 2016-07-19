@@ -12,7 +12,7 @@ export default React.createClass({
     saving: PropTypes.bool.isRequired,
     saveFailed: PropTypes.bool.isRequired,
     // TODO use shape to be more specific,
-    srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.string).isRequired,
     cronOptions: PropTypes.object.isRequired,
     zanataUser: PropTypes.object
   },
@@ -24,9 +24,13 @@ export default React.createClass({
       syncOption: 'Source',
       syncToZanataCron: 'MANUAL',
       syncToRepoEnabled: true,
-      // srcRepoPlugins will never change so this is not an anti-pattern
-      selectedRepoPluginName: this.props.srcRepoPlugins[0].name,
-      syncToRepoCron: 'MANUAL'
+      // srcRepoPlugins and cronOptions will never change so this is not an anti-pattern
+      selectedRepoPluginName: this.props.srcRepoPlugins[0],
+      syncToRepoCron: 'MANUAL',
+      srcRepoUrl: '',
+      srcRepoUsername: '',
+      srcRepoSecret: '',
+      srcRepoBranch: ''
     }
   },
 
@@ -66,30 +70,9 @@ export default React.createClass({
     const saveBtnText = saving ? 'Saving...' : 'Save'
     const saveBtnDisabled = saving
 
-    const srcRepoPluginsName = this.props.srcRepoPlugins.map(plugin => plugin.name)
-
-    const selectedPluginName = this.state.selectedRepoPluginName
-
-    const selectedPlugin = this.props.srcRepoPlugins.filter(
-      plugin => plugin.name === selectedPluginName
-    )[0]
-
     const {keys, values} = objectToKeysAndValuesArray(this.props.cronOptions)
     const cronDisplays = keys
     const cronValues = values
-
-    const selectedPluginFields = Object.keys(selectedPlugin.fields).map(key => {
-      // TODO field tooltip
-      const field = selectedPlugin.fields[key]
-      const keyInState = `${selectedPluginName}${field.key}`
-      return (
-        <TextInput key={field.key} name={field.key} label={field.label}
-          onChange={callbackFor(keyInState)}
-          placeholder={field.placeholder} isSecret={field.masked}
-          inputValue={this.state[keyInState] || ''}
-        />
-      )
-    })
 
     return (
       <div>
@@ -130,10 +113,20 @@ export default React.createClass({
             />
             <Select name='srcRepoPlugin' label='Source repository plugin'
               onChange={callbackFor('srcRepoPlugin')}
-              options={srcRepoPluginsName}
+              options={this.props.srcRepoPlugins}
               selected={this.state.selectedRepoPluginName}
             />
-            {selectedPluginFields}
+            <TextInput name='srcRepoUrl' onChange={callbackFor('srcRepoUrl')}
+              placeholder='https://github.com/zanata/zanata-server.git'
+              inputValue={this.state.srcRepoUrl}/>
+            <TextInput name='srcRepoUsername' onChange={callbackFor('srcRepoUsername')}
+              inputValue={this.state.srcRepoUsername}/>
+            <TextInput name='srcRepoSecret' onChange={callbackFor('srcRepoSecret')}
+              inputValue={this.state.srcRepoSecret} isSecret
+            />
+            <TextInput name='srcRepoBranch' onChange={callbackFor('srcRepoBranch')}
+              placeholder='master'
+              inputValue={this.state.srcRepoBranch}/>
           </FieldSet>
 
           <div className="form-group">

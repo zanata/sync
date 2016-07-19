@@ -36,28 +36,6 @@ public class GitPlugin extends RepoExecutor {
 
     @Override
     public void initFields() {
-        Field urlField = new Field("url", Messages.getString("field.url.label"),
-                "https://github.com/zanata/zanata-server.git", null,
-                new UrlFieldValidator(), false, FieldType.TEXT);
-        Field branchField =
-                new Field("branch", Messages.getString("field.branch.label"),
-                        "master", Messages.getString("field.branch.tooltip"),
-                        false, FieldType.TEXT);
-        Field usernameField =
-                new Field("username",
-                        Messages.getString("field.username.label"),
-                        "", Messages.getString("field.username.tooltip"),
-                        false, FieldType.TEXT);
-        Field apiKeyField =
-                new Field("secret", Messages.getString("field.secret.label"),
-                        "",
-                        Messages.getString("field.secret.tooltip"),
-                        true, FieldType.TEXT);
-
-        fields.put(urlField.getKey(), urlField);
-        fields.put(branchField.getKey(), branchField);
-        fields.put(usernameField.getKey(), usernameField);
-        fields.put(apiKeyField.getKey(), apiKeyField);
     }
 
     @Override

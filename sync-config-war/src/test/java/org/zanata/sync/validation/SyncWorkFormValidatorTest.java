@@ -12,7 +12,6 @@ import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.plugin.git.GitPlugin;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.util.CronType;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,27 +44,27 @@ public class SyncWorkFormValidatorTest {
     public void canValidateCommonFields() {
         SyncWorkForm form =
                 new SyncWorkForm("a", null, null, null, null, "git",
-                        null, Maps.newHashMap(), DISABLE_ZANATA_SYNC,
-                        DISABLE_REPO_SYNC);
+                        null, DISABLE_ZANATA_SYNC,
+                        DISABLE_REPO_SYNC, null, null, null, null);
         Map<String, String> errors = validator.validateForm(form);
         assertThat(errors).containsOnly(
                 entry("name", "size must be between 5 and 100"),
                 entry("enabledJobs",
                         "At least one type of job should be enabled"),
-                entry("sourceRepoSettings.url", "must not be empty"));
+                entry("srcRepoUrl", "may not be empty"));
     }
 
     @Test
     public void canValidateZantaSyncFields() {
         SyncWorkForm form =
                 new SyncWorkForm("abcde", null, null, null, null, "git",
-                        null, Maps.newHashMap(), ENABLE_ZANATA_SYNC,
-                        DISABLE_REPO_SYNC);
+                        null, ENABLE_ZANATA_SYNC,
+                        DISABLE_REPO_SYNC, null, null, null, null);
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
                 .containsOnlyKeys("syncToZanataCron",
-                        "syncOption", "sourceRepoSettings.url");
+                        "syncOption", "srcRepoUrl");
 
     }
 
@@ -73,24 +72,27 @@ public class SyncWorkFormValidatorTest {
     public void canValidateRepoSyncFields() {
         SyncWorkForm form =
                 new SyncWorkForm("abcde", null, null, null, null, "git",
-                        null, Maps.newHashMap(), DISABLE_ZANATA_SYNC,
-                        ENABLE_REPO_SYNC);
+                        null, DISABLE_ZANATA_SYNC,
+                        ENABLE_REPO_SYNC, null, null, null, null);
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
-                .containsOnlyKeys("sourceRepoSettings.url", "syncToRepoCron");
+                .containsOnlyKeys("srcRepoUrl", "syncToRepoCron");
     }
 
     @Test
     public void canValidateUnknownSourceRepoPluginName() {
         SyncWorkForm form =
                 new SyncWorkForm("abcde", null, null, SyncOption.SOURCE,
-                        CronType.MANUAL, "unknown", null, Maps.newHashMap(),
-                        DISABLE_ZANATA_SYNC, ENABLE_REPO_SYNC);
+                        CronType.MANUAL, "unknown", null,
+                        DISABLE_ZANATA_SYNC, ENABLE_REPO_SYNC,
+                        null, null, null, null);
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
-                .containsExactly(entry("srcRepoPluginName",
-                        "unsupported source repository type"));
+                .containsOnly(
+                        entry("srcRepoPluginName",
+                                "unsupported source repository type"),
+                        entry("srcRepoUrl", "may not be empty"));
     }
 }

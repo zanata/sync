@@ -22,7 +22,6 @@ package org.zanata.sync.validation;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -31,14 +30,10 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
 
-import org.zanata.sync.common.plugin.Plugin;
-import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.dto.RepoSyncGroup;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.ZanataSyncGroup;
 import org.zanata.sync.service.PluginsService;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -58,8 +53,6 @@ public class SyncWorkFormValidator {
         if (syncToRepoEnabled) {
             validateThenAddErrors(form, errors, RepoSyncGroup.class);
         }
-        validateRepoFields(form.getSrcRepoPluginConfig(),
-                form.getSrcRepoPluginName(), errors);
 
         boolean syncToZanataEnabled = form.isSyncToZanataEnabled();
         if (syncToZanataEnabled) {
@@ -85,33 +78,4 @@ public class SyncWorkFormValidator {
         });
     }
 
-    private void validateRepoFields(
-            Map<String, String> config, String pluginName,
-            Map<String, String> errors) {
-        Optional<RepoExecutor> executor = pluginsService.getSourceRepoPlugin(
-                pluginName);
-        // we have already validated against supported plugin name
-        if (executor.isPresent()) {
-            Map<String, String> repoFieldErrors =
-                    validateFields(config, executor.get(),
-                            SyncWorkForm.repoSettingsPrefix);
-            errors.putAll(repoFieldErrors);
-        }
-    }
-
-    private static Map<String, String> validateFields(
-            Map<String, String> config, Plugin executor, String prefix) {
-        Map<String, String> errors = Maps.newHashMap();
-        executor.getFields().forEach((name, field) -> {
-            String value = config.get(name);
-            field.getFieldValidator().ifPresent(validator -> {
-                String message = validator.validate(value);
-                if (!Strings.isNullOrEmpty(message)) {
-                    errors.put(prefix + name, message);
-                }
-            });
-        });
-
-        return errors;
-    }
 }

@@ -64,12 +64,10 @@ public class RemoteJobExecutor {
 
     public void executeJob(String id, SyncWorkConfig workConfig, JobType jobType) {
         Map<String ,String> jobDetail = Maps.newHashMap();
-        Map<String, String> srcRepoPluginConfig =
-                workConfig.getSrcRepoPluginConfig();
-        jobDetail.put("srcRepoUrl", srcRepoPluginConfig.get("url"));
-        jobDetail.put("srcRepoUsername", srcRepoPluginConfig.get("username"));
-        jobDetail.put("srcRepoSecret", srcRepoPluginConfig.get("secret"));
-        jobDetail.put("srcRepoBranch", srcRepoPluginConfig.get("branch"));
+        jobDetail.put("srcRepoUrl", workConfig.getSrcRepoUrl());
+        jobDetail.put("srcRepoUsername", workConfig.getSrcRepoUsername());
+        jobDetail.put("srcRepoSecret", workConfig.getSrcRepoSecret());
+        jobDetail.put("srcRepoBranch", workConfig.getSrcRepoBranch());
         jobDetail.put("syncToZanataOption", workConfig.getSyncToZanataOption().name());
         jobDetail.put("srcRepoType", workConfig.getSrcRepoPluginName());
         jobDetail.put("zanataUsername", workConfig.getZanataUsername());

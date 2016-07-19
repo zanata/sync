@@ -35,7 +35,6 @@ import org.zanata.sync.validation.SupportedRepo;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class SyncWorkForm implements Serializable {
-    public final static String repoSettingsPrefix = "sourceRepoSettings.";
 
     private Long id;
 
@@ -64,20 +63,23 @@ public class SyncWorkForm implements Serializable {
     @Size(max = 16)
     private String encryptionKey;
 
-    private Map<String, String> srcRepoPluginConfig = new HashMap<>();
-
-
     private boolean syncToZanataEnabled = true;
 
     private boolean syncToRepoEnabled = true;
+
+    @NotEmpty
+    private String srcRepoUrl;
+    private String srcRepoUsername;
+    private String srcRepoSecret;
+    private String srcRepoBranch;
 
     public SyncWorkForm(String name, String description,
             CronType syncToZanataCron,
             SyncOption syncOption, CronType syncToRepoCron,
             String srcRepoPluginName, String encryptionKey,
-            Map<String, String> srcRepoPluginConfig,
             boolean syncToZanataEnabled,
-            boolean syncToRepoEnabled) {
+            boolean syncToRepoEnabled, String srcRepoUrl,
+            String srcRepoUsername, String srcRepoSecret, String srcRepoBranch) {
         this.name = name;
         this.description = description;
         this.syncToZanataCron = syncToZanataCron;
@@ -85,9 +87,12 @@ public class SyncWorkForm implements Serializable {
         this.syncToRepoCron = syncToRepoCron;
         this.srcRepoPluginName = srcRepoPluginName;
         this.encryptionKey = encryptionKey;
-        this.srcRepoPluginConfig = srcRepoPluginConfig;
         this.syncToZanataEnabled = syncToZanataEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
+        this.srcRepoUrl = srcRepoUrl;
+        this.srcRepoUsername = srcRepoUsername;
+        this.srcRepoSecret = srcRepoSecret;
+        this.srcRepoBranch = srcRepoBranch;
     }
 
     public SyncWorkForm() {
@@ -125,15 +130,27 @@ public class SyncWorkForm implements Serializable {
         return encryptionKey;
     }
 
-    public Map<String, String> getSrcRepoPluginConfig() {
-        return srcRepoPluginConfig;
-    }
-
     public boolean isSyncToZanataEnabled() {
         return syncToZanataEnabled;
     }
 
     public boolean isSyncToRepoEnabled() {
         return syncToRepoEnabled;
+    }
+
+    public String getSrcRepoUrl() {
+        return srcRepoUrl;
+    }
+
+    public String getSrcRepoUsername() {
+        return srcRepoUsername;
+    }
+
+    public String getSrcRepoSecret() {
+        return srcRepoSecret;
+    }
+
+    public String getSrcRepoBranch() {
+        return srcRepoBranch;
     }
 }

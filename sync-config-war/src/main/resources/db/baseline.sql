@@ -13,7 +13,10 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     zanataUsername          VARCHAR(255) NOT NULL,
     zanataSecret            VARCHAR(255) NOT NULL,
     zanataServerUrl         VARCHAR(255) NOT NULL,
-    srcRepoPluginConfigJson TEXT,
+    srcRepoUrl              VARCHAR(255) NOT NULL,
+    srcRepoUsername         VARCHAR(255) NOT NULL,
+    srcRepoSecret           VARCHAR(255) NOT NULL,
+    srcRepoBranch           VARCHAR(255) NOT NULL,
     INDEX config_name_idx (name),
     INDEX config_zanata_username_idx (zanataUsername)
 )

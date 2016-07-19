@@ -34,6 +34,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
+import org.zanata.sync.common.plugin.Plugin;
 import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
@@ -77,15 +78,9 @@ public class FrontendDataProviderFilter implements Filter {
         pluginsService.init();
         List<RepoExecutor> srcRepoPlugins =
                 pluginsService.getAvailableSourceRepoPlugins();
-        // TODO maybe use a DTO for json serialization
-        List<Map<String, Object>> pluginsList =
-                srcRepoPlugins.stream().map(plugin -> {
-                    Map<String, Object> pluginMap = Maps.newHashMap();
-                    pluginMap.put("name", plugin.getName());
-                    pluginMap.put("description", plugin.getDescription());
-                    pluginMap.put("fields", plugin.getFields());
-                    return pluginMap;
-                }).collect(Collectors.toList());
+        List<String> pluginsList =
+                srcRepoPlugins.stream().map(Plugin::getName)
+                        .collect(Collectors.toList());
         plugins = objectMapper.toJSON(pluginsList);
     }
 

@@ -21,42 +21,36 @@
 package org.zanata.sync.model;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.ZanataAccount;
-import org.zanata.sync.util.CronType;
-import org.zanata.sync.util.JSONObjectMapper;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RequestScoped
 public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
-    @Inject
-    private JSONObjectMapper objectMapper;
 
     @Override
     public SyncWorkConfig buildObject(SyncWorkForm syncWorkForm,
             ZanataAccount zanataAccount) {
-        String srcRepoPluginConfigJson =
-                objectMapper.toJSON(syncWorkForm.getSrcRepoPluginConfig());
-        CronType syncToZanataCron = syncWorkForm.getSyncToZanataCron();
-        CronType syncToRepoCron = syncWorkForm.getSyncToRepoCron();
         return new SyncWorkConfig(syncWorkForm.getId(),
                 syncWorkForm.getName(),
                 syncWorkForm.getDescription(),
-                syncToZanataCron,
-                syncToRepoCron,
+                syncWorkForm.getSyncToZanataCron(),
+                syncWorkForm.getSyncToRepoCron(),
                 syncWorkForm.getSyncOption(),
                 syncWorkForm.getSrcRepoPluginName(),
                 syncWorkForm.getEncryptionKey(),
                 syncWorkForm.isSyncToZanataEnabled(),
                 syncWorkForm.isSyncToRepoEnabled(),
-                srcRepoPluginConfigJson,
                 zanataAccount.getUsername(),
                 zanataAccount.getApiKey(),
-                zanataAccount.getZanataServer());
+                zanataAccount.getZanataServer(),
+                syncWorkForm.getSrcRepoUrl(),
+                syncWorkForm.getSrcRepoUsername(),
+                syncWorkForm.getSrcRepoSecret(),
+                syncWorkForm.getSrcRepoBranch());
     }
 
 }
