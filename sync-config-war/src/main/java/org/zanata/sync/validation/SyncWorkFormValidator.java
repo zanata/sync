@@ -57,9 +57,9 @@ public class SyncWorkFormValidator {
         boolean syncToRepoEnabled = form.isSyncToRepoEnabled();
         if (syncToRepoEnabled) {
             validateThenAddErrors(form, errors, RepoSyncGroup.class);
-            validateRepoFields(form.getSrcRepoPluginConfig(),
-                    form.getSrcRepoPluginName(), errors);
         }
+        validateRepoFields(form.getSrcRepoPluginConfig(),
+                form.getSrcRepoPluginName(), errors);
 
         boolean syncToZanataEnabled = form.isSyncToZanataEnabled();
         if (syncToZanataEnabled) {

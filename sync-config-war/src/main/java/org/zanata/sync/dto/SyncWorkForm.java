@@ -49,16 +49,16 @@ public class SyncWorkForm implements Serializable {
     @NotNull(groups = ZanataSyncGroup.class)
     private CronType syncToZanataCron;
 
-    @NotNull(groups = RepoSyncGroup.class)
+    @NotNull(groups = ZanataSyncGroup.class)
     private SyncOption syncOption = SyncOption.SOURCE;
 
     @NotNull(groups = RepoSyncGroup.class)
     private CronType syncToRepoCron;
 
     // TODO change this to srcRepoType instead
-    @SupportedRepo(groups = RepoSyncGroup.class)
-    @NotEmpty(groups = RepoSyncGroup.class)
-    @Size(max = 50, groups = RepoSyncGroup.class)
+    @SupportedRepo
+    @NotEmpty
+    @Size(max = 50)
     private String srcRepoPluginName;
 
     @Size(max = 16)

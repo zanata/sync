@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react'
 import Select from './form/Select'
 import TextInput from './form/TextInput'
 import RadioGroup from './form/RadioGroup'
-import ToggleFieldSet from './form/ToggleFieldSet'
+import FieldSet from './form/FieldSet'
 import {redirectToSignIn} from '../utils/route'
 import {objectToKeysAndValuesArray} from '../utils/general'
 
@@ -21,7 +21,7 @@ export default React.createClass({
       name: '',
       description: '',
       syncToZanataEnabled: true,
-      syncOption: 'SOURCE',
+      syncOption: 'Source',
       syncToZanataCron: 'MANUAL',
       syncToRepoEnabled: true,
       // srcRepoPlugins will never change so this is not an anti-pattern
@@ -99,7 +99,7 @@ export default React.createClass({
           <TextInput name='description' onChange={callbackFor('description')}
             lines={3} inputValue={this.state.description}/>
 
-          <ToggleFieldSet name='syncToZanataEnabled'
+          <FieldSet name='syncToZanataEnabled'
             legend='Sync to Zanata server settings'
             label='Enable sync to Zanata server'
             onChange={callbackFor('syncToZanataEnabled')}
@@ -115,9 +115,9 @@ export default React.createClass({
               optionsDesc={cronDisplays}
               selected={this.state.syncToZanataCron}
             />
-          </ToggleFieldSet>
+          </FieldSet>
 
-          <ToggleFieldSet name='syncToRepoEnabled'
+          <FieldSet name='syncToRepoEnabled'
             legend='Source repository settings'
             label='Enable sync to source repository'
             onChange={callbackFor('syncToRepoEnabled')}
@@ -134,8 +134,7 @@ export default React.createClass({
               selected={this.state.selectedRepoPluginName}
             />
             {selectedPluginFields}
-
-          </ToggleFieldSet>
+          </FieldSet>
 
           <div className="form-group">
             <div className='col-md-3'></div>

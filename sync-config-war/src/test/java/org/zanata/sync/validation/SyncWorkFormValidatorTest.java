@@ -44,25 +44,28 @@ public class SyncWorkFormValidatorTest {
     @Test
     public void canValidateCommonFields() {
         SyncWorkForm form =
-                new SyncWorkForm("a", null, null, null, null, null,
+                new SyncWorkForm("a", null, null, null, null, "git",
                         null, Maps.newHashMap(), DISABLE_ZANATA_SYNC,
                         DISABLE_REPO_SYNC);
         Map<String, String> errors = validator.validateForm(form);
-        assertThat(errors).containsExactly(
+        assertThat(errors).containsOnly(
                 entry("name", "size must be between 5 and 100"),
                 entry("enabledJobs",
-                        "At least one type of job should be enabled"));
+                        "At least one type of job should be enabled"),
+                entry("sourceRepoSettings.url", "must not be empty"));
     }
 
     @Test
     public void canValidateZantaSyncFields() {
         SyncWorkForm form =
-                new SyncWorkForm("abcde", null, null, null, null, "unknown",
+                new SyncWorkForm("abcde", null, null, null, null, "git",
                         null, Maps.newHashMap(), ENABLE_ZANATA_SYNC,
                         DISABLE_REPO_SYNC);
         Map<String, String> errors = validator.validateForm(form);
 
-        assertThat(errors).containsOnlyKeys("syncToZanataCron");
+        assertThat(errors)
+                .containsOnlyKeys("syncToZanataCron",
+                        "syncOption", "sourceRepoSettings.url");
 
     }
 
@@ -75,8 +78,7 @@ public class SyncWorkFormValidatorTest {
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
-                .containsOnlyKeys("sourceRepoSettings.url", "syncToRepoCron",
-                        "syncOption");
+                .containsOnlyKeys("sourceRepoSettings.url", "syncToRepoCron");
     }
 
     @Test

@@ -16,11 +16,8 @@ export default React.createClass({
     const id = `${name}-input`
     const label = this.props.label || name
     const callback = e => this.props.onChange(e.target.checked)
-    var enabled = this.props.enabled;
-    const fieldSetClass = cx({
-      show: enabled,
-      hidden: !enabled
-    })
+    const enabled = this.props.enabled
+
     return (
       <fieldset>
         <legend>{this.props.legend}</legend>
@@ -31,7 +28,7 @@ export default React.createClass({
               checked={enabled}/>
           </div>
         </div>
-        <div className={fieldSetClass}>
+        <div>
           {this.props.children}
         </div>
       </fieldset>
