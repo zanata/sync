@@ -24,10 +24,8 @@ export default React.createClass({
       syncOption: 'SOURCE',
       syncToZanataCron: 'MANUAL',
       syncToRepoEnabled: true,
-      // srcRepoPlugins, zanataUsername and zanataSecret will never change so this is not an anti-pattern
+      // srcRepoPlugins will never change so this is not an anti-pattern
       selectedRepoPluginName: this.props.srcRepoPlugins[0].name,
-      zanataUsername: this.props.zanataUsername,
-      zanataSecret: this.props.zanataSecret,
       syncToRepoCron: 'MANUAL'
     }
   },
@@ -47,7 +45,7 @@ export default React.createClass({
   },
 
   _handleReset() {
-    this.setState(this.getInitialState())
+    this.replaceState(this.getInitialState())
   },
 
   componentWillMount() {
@@ -83,10 +81,13 @@ export default React.createClass({
     const selectedPluginFields = Object.keys(selectedPlugin.fields).map(key => {
       // TODO field tooltip
       const field = selectedPlugin.fields[key]
+      const keyInState = `${selectedPluginName}${field.key}`
       return (
         <TextInput key={field.key} name={field.key} label={field.label}
-          onChange={callbackFor(`${selectedPluginName}${field.key}`)}
-          placeholder={field.placeholder} isSecret={field.masked}/>
+          onChange={callbackFor(keyInState)}
+          placeholder={field.placeholder} isSecret={field.masked}
+          inputValue={this.state[keyInState] || ''}
+        />
       )
     })
 
