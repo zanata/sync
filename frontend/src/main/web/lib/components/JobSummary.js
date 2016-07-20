@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react'
 import ProgressBar from './ProgressBar'
 import { toJobDescription } from '../constants/Enums'
 import { formatDate } from '../utils/DateTime'
+import { isITOS } from '../utils/startWebSocket'
 
 function description(label, value) {
   return (
@@ -20,13 +21,20 @@ export default React.createClass({
     lastJobStatus: PropTypes.shape({
       status: PropTypes.string.isRequired
     }),
-    running: PropTypes.bool.isRequired
+    running: PropTypes.bool.isRequired,
+    pollInterval: PropTypes.number.isRequired,
+    pollJobStatus: PropTypes.func.isRequired
   },
   render() {
     const {workId, jobType, runJob, lastJobStatus,
-      running} = this.props
+      running, pollJobStatus, pollInterval} = this.props
     const runJobCallback = (e) => runJob(workId, jobType)
     const jobDescription = toJobDescription(jobType)
+
+    if (running && isITOS()) {
+      // poll job status every certain seconds
+      setTimeout(() => pollJobStatus(workId, jobType), pollInterval)
+    }
 
     let statusDisplay = null
     if (lastJobStatus && !running) {

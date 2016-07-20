@@ -1,7 +1,7 @@
 import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
 import {redirectToSignIn} from '../utils/route'
-import startWebSocket from '../utils/startWebSocket'
+import {startWebSocket, isITOS} from '../utils/startWebSocket'
 
 export default React.createClass({
   propTypes: {
@@ -18,16 +18,25 @@ export default React.createClass({
     router: React.PropTypes.object
   },
 
-  componentWillMount() {
-    const {zanataUsername, loadWorkSummaries, onJobStatusUpdate,
-      websocketPort} = this.props
+  _connectWebSocket() {
+    if (isITOS()) {
+      console.info('deployed on ITOS. No websocket support!!')
+      return
+    }
+    const {websocketPort, onJobStatusUpdate} = this.props
     const port = websocketPort ? websocketPort : location.port
     // openshift uses a different port for websocket
     // see http://stackoverflow.com/a/19952072/345718
+    // TODO if we are on https, we should use wss:// instead
     const websocketEndpoint = `ws://${location.hostname}:${port}${location.pathname}websocket/jobStatus`
+    this.websocket = startWebSocket(websocketEndpoint, onJobStatusUpdate)
+  },
+
+  componentWillMount() {
+    const {zanataUsername, loadWorkSummaries} = this.props
     if (zanataUsername) {
       loadWorkSummaries()
-      this.websocket = startWebSocket(websocketEndpoint, onJobStatusUpdate)
+      this._connectWebSocket()
     } else {
       redirectToSignIn(this.context.router)
     }

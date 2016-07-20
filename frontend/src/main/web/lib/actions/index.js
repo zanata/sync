@@ -120,6 +120,25 @@ export function runJob(workId, jobType) {
 }
 
 
+// ============= get job status
+export const GET_JOB_STATUS_REQUEST = 'GET_JOB_STATUS_REQUEST'
+export const GET_JOB_STATUS_SUCCESS = 'GET_JOB_STATUS_SUCCESS'
+export const GET_JOB_STATUS_FAILURE = 'GET_JOB_STATUS_FAILURE'
+export function getLatestJobStatus(workId, jobType) {
+  return (dispatch, getState) => {
+    dispatch({
+      [CALL_API]: {
+        endpoint: `${getState().configs.apiUrl}/api/job/last/status?id=${workId}&type=${jobType}`,
+        method: 'GET',
+        credentials: 'include',
+        types: [GET_JOB_STATUS_REQUEST, GET_JOB_STATUS_SUCCESS,
+          GET_JOB_STATUS_FAILURE]
+      }
+    })
+  }
+}
+
+
 // ============= web socket update job status
 export const UPDATE_JOB_STATUS = 'UPDATE_JOB_STATUS'
 export const updateJobStatus = createAction(UPDATE_JOB_STATUS)

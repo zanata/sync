@@ -7,7 +7,9 @@ import myWorks from './myWorks'
 import {reducer as toastrReducer} from 'react-redux-toastr'
 
 export function createReducersWithConfigs(configs) {
-  const {zanataOAuthUrls, srcRepoPlugins} = configs
+  const {zanataOAuthUrls, srcRepoPlugins, pollInterval, maxPollTimeout} = configs
+  invariant(pollInterval, 'pollInterval must be greater than 0 (in milliseconds)')
+  invariant(maxPollTimeout, 'maxPollTimeout must be defined (in milliseconds and greater than pollInterval)')
   invariant(zanataOAuthUrls && Object.keys(zanataOAuthUrls).length, 'you need to supply zanataOAuthUrls')
   invariant(srcRepoPlugins && srcRepoPlugins.length > 0, 'you need to provide at least one source repo plugin (in main-content element as attribute data-src-repo-plugins')
 
@@ -16,7 +18,7 @@ export function createReducersWithConfigs(configs) {
     workConfig,
     security,
     configs: () => configs,
-    myWorks: myWorks,
+    myWorks: myWorks(configs.maxPollCount),
     toastr: toastrReducer
   })
 }

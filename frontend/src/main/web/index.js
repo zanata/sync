@@ -41,13 +41,28 @@ const dev = data.dev;
 const user = dataUser ? JSON.parse(dataUser): undefined
 // const user = undefined
 
+function secondsToMilli(num) {
+  return num * 1000
+}
+
+function minutesToMilli(num) {
+  return num * 1000 * 60
+}
+
+const pollInterval = secondsToMilli(2)
+const maxPollTimeout = minutesToMilli(5)
+const maxPollCount = maxPollTimeout / pollInterval
+
 const Configs = {
   user,
   apiUrl: `${apiUrl}${basename}`,
   zanataOAuthUrls,
   srcRepoPlugins,
   cronOptions,
-  websocketPort
+  websocketPort,
+  pollInterval,
+  maxPollTimeout,
+  maxPollCount
 }
 
 console.log('Configs', Configs)
