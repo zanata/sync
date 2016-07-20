@@ -44,10 +44,6 @@ public interface SchedulerService {
 
     List<JobSummary> getJobs() throws SchedulerException;
 
-    List<WorkSummary> getAllWorkSummary() throws SchedulerException;
-
-    List<SyncWorkConfig> getAllWork() throws SchedulerException;
-
     void scheduleWork(SyncWorkConfig syncWorkConfig)
             throws SchedulerException;
 

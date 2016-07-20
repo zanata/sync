@@ -231,17 +231,6 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public List<WorkSummary> getAllWorkSummary() throws SchedulerException {
-        List<WorkSummary> results = getAllWork().stream()
-                .map(config -> WorkSummary.toWorkSummary(config,
-                        getLatestJobStatus(config.getId(), JobType.REPO_SYNC),
-                        getLatestJobStatus(config.getId(),
-                                JobType.SERVER_SYNC)))
-                .collect(Collectors.toList());
-        return results;
-    }
-
-    @Override
     public void scheduleWork(SyncWorkConfig syncWorkConfig)
             throws SchedulerException {
         cronTrigger.scheduleMonitorForRepoSync(syncWorkConfig);
@@ -360,11 +349,6 @@ public class SchedulerServiceImpl implements SchedulerService {
                         asJson);
             }
         });
-    }
-
-    @Override
-    public List<SyncWorkConfig> getAllWork() throws SchedulerException {
-        return syncWorkConfigRepository.getAll();
     }
 
     private JobSummary convertToJobSummary(JobDetail jobDetail) {
