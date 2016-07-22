@@ -12,4 +12,7 @@
   <!-- This is where the webapp context root (eg /zanata or /) can be overridden: -->
   <!-- _context_root_ -->
 
+  <!-- This will use JBoss ApplicationRealm -->
+  <security-domain>java:/jaas/other</security-domain>
+
 </jboss-web>

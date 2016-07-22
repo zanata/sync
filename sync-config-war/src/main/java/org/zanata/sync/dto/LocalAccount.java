@@ -22,30 +22,23 @@ package org.zanata.sync.dto;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
 
 /**
- * Light weight DTO representing a Zanata Account
- * @author Patrick Huang
- *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ZanataAccount implements UserAccount {
-    private String zanataServer;
+public class LocalAccount implements UserAccount {
     private String username;
-    private String apiKey;
     private Set<String> roles;
-    private String email;
-    private String name;
     private boolean enabled;
 
-    public ZanataAccount(String username, String apiKey) {
+    public LocalAccount(String username, Set<String> roles, boolean enabled) {
         this.username = username;
-        this.apiKey = apiKey;
+        this.roles = roles;
+        this.enabled = enabled;
     }
 
-    public ZanataAccount() {
+    public LocalAccount() {
     }
 
     @Override
@@ -53,21 +46,9 @@ public class ZanataAccount implements UserAccount {
         return username;
     }
 
-    public String getApiKey() {
-        return apiKey;
-    }
-
     @Override
     public Set<String> getRoles() {
         return roles;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -75,24 +56,12 @@ public class ZanataAccount implements UserAccount {
         return enabled;
     }
 
-    public String getZanataServer() {
-        return zanataServer;
-    }
-
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("zanataServer", zanataServer)
                 .add("username", username)
-                .add("apiKey", apiKey)
                 .add("roles", roles)
-                .add("email", email)
-                .add("name", name)
                 .add("enabled", enabled)
                 .toString();
-    }
-
-    public void setZanataServer(String zanataServer) {
-        this.zanataServer = zanataServer;
     }
 }

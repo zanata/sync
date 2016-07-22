@@ -19,7 +19,7 @@ const NavHeader = React.createClass({
 
   render() {
     const {name, zanataServer} = this.props
-    if (!name || !zanataServer) {
+    if (!name) {
       return null
     }
     // TODO click outside the dropdown won't close it
@@ -31,6 +31,13 @@ const NavHeader = React.createClass({
       e.preventDefault()
       this.props.onLogout()
     }
+
+    const goToZanataItem = zanataServer && (
+      <li>
+        <a href={this.props.zanataServer} target="_blank">Go to Zanata</a>
+      </li>
+    )
+    const divider = zanataServer && (<li className="divider" />)
     return (
       <ul className="nav navbar-nav navbar-utility">
         <li className={drowdownClass}>
@@ -41,10 +48,8 @@ const NavHeader = React.createClass({
             {this.props.name}<b className="caret" />
           </a>
           <ul className="dropdown-menu">
-            <li>
-              <a href={this.props.zanataServer} target="_blank">Go to Zanata</a>
-            </li>
-            <li className="divider" />
+            {goToZanataItem}
+            {divider}
             <li>
               <a href="#" onClick={logoutCallback}>Log out</a>
             </li>
@@ -94,7 +99,7 @@ export default React.createClass(
             </button>
           </div>
           <div className={navMenuClass} aria-expanded={ariaExpanded}>
-          <NavHeader {...this.props} />
+            <NavHeader {...this.props} />
             <ul className="nav navbar-nav navbar-primary">
               <NavLink to="/" onlyActiveOnIndex>Home</NavLink>
               <NavLink to="/work/new">Create new work</NavLink>

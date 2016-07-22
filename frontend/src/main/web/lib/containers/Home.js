@@ -6,7 +6,7 @@ import { checkSession } from '../actions'
 const mapStateToProps = (state) => {
   return {
     zanataOAuthUrls: state.configs.zanataOAuthUrls,
-    zanataUser: state.configs.user,
+    user: state.configs.user,
     serverReturnUnauthorized: state.security.serverReturnUnauthorized
   }
 }

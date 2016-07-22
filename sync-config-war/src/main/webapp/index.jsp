@@ -4,8 +4,8 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width,initial-scale=1'>
-    <c:url var="cssBundle" value="/bundle.css"/>
-    <c:url var="jsBundle" value="/frontend.bundle.min.js"/>
+    <c:url var="cssBundle" value="/app/bundle.css"/>
+    <c:url var="jsBundle" value="/app/frontend.bundle.min.js"/>
     <link type="text/css" rel="stylesheet" href="${cssBundle}">
     <title>Zanata Sync</title>
 </head>

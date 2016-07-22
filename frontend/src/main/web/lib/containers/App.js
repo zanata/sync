@@ -8,7 +8,7 @@ import DeleteConfirmation from '../components/modal/Confirmation'
 // this represents the root of the app
 const App = React.createClass({
   propTypes: {
-    zanataUser: PropTypes.object,
+    user: PropTypes.object,
     loggedOut: PropTypes.bool,
     onLogout: PropTypes.func.isRequired,
     serverReturnUnauthorized: PropTypes.bool.isRequired,
@@ -26,12 +26,12 @@ const App = React.createClass({
   },
 
   render() {
-    const {serverReturnUnauthorized, zanataUser, location,
+    const {serverReturnUnauthorized, user, location,
       children, selectedConfig, showDeleteConfirmation,
       onCloseDeleteConfirmation, onConfirmDeleteConfig} = this.props
     let message = 'Please sign in to a Zanata server'
-    if (zanataUser) {
-       message = `${zanataUser.name}@${zanataUser.zanataServer}`
+    if (user && user.name && user.zanataServer) {
+       message = `${user.name}@${user.zanataServer}`
     }
     message = message && (<span className='small'>{message}</span>)
     // check current route, see if it's indexRoute (which has sign in form)
@@ -46,8 +46,8 @@ const App = React.createClass({
 
     return (
       <div>
-        <NavBanner name={zanataUser && zanataUser.name}
-          zanataServer={zanataUser && zanataUser.zanataServer}
+        <NavBanner name={user && (user.name || user.username)}
+          zanataServer={user && user.zanataServer}
           onLogout={this.props.onLogout}
         />
         <h2 className='text-center'>Zanata Sync {message}</h2>
@@ -73,7 +73,7 @@ const App = React.createClass({
 
 const mapStateToProps = (state) => {
   return {
-    zanataUser: state.configs.user,
+    user: state.configs.user,
     loggedOut: state.security.loggedOut,
     serverReturnUnauthorized: state.security.serverReturnUnauthorized,
     showDeleteConfirmation: state.workConfig.showDeleteConfirmation,

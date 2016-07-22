@@ -8,7 +8,7 @@ const NO_SELECTION_OPT = '...'
 export default React.createClass(
   {
     propTypes:{
-      zanataUser: PropTypes.object,
+      user: PropTypes.object,
       isSessionLoggedIn: PropTypes.func.isRequired,
       zanataOAuthUrls: PropTypes.object.isRequired,
       serverReturnUnauthorized: PropTypes.bool.isRequired
@@ -37,10 +37,10 @@ export default React.createClass(
     },
 
     render() {
-      const {zanataUser, serverReturnUnauthorized} = this.props
+      const {user, serverReturnUnauthorized} = this.props
 
-      if (zanataUser && !serverReturnUnauthorized) {
-        return <div>Welcome {zanataUser.name}</div>
+      if (user && !serverReturnUnauthorized) {
+        return <div>Welcome {user.name || user.username}</div>
       }
 
       const zanataOAuthUrls = {[NO_SELECTION_OPT]: NO_SELECTION_OPT, ...this.props.zanataOAuthUrls}

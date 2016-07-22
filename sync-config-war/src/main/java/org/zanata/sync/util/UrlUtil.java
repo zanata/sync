@@ -82,7 +82,7 @@ public class UrlUtil {
             OAuthClientRequest request = OAuthClientRequest
                     .authorizationLocation(zanataAuthUrl)
                     .setClientId("zanata_sync")
-                    .setRedirectURI(appRoot + "?z=" + zanataServerUrl)
+                    .setRedirectURI(concatUrlPath(appRoot, "/app?z=" + zanataServerUrl))
                     .buildQueryMessage();
             log.debug("OAuth will redirect to {}", request.getLocationUri());
             return request.getLocationUri();
@@ -94,9 +94,9 @@ public class UrlUtil {
     /**
      *
      * @param request http servlet request
-     * @return root url of this app (sync config war)
+     * @return absolute app root url of the SPA (sync config war)
      */
-    public static String appRoot(HttpServletRequest request) {
+    public static String appRootAbsoluteUrl(HttpServletRequest request) {
         String contextPath = request.getContextPath();
         String scheme = request.getScheme();
         int serverPort = request.getServerPort();

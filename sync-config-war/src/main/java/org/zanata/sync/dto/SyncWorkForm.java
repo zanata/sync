@@ -30,6 +30,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
 import org.zanata.sync.validation.SupportedRepo;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -67,12 +68,16 @@ public class SyncWorkForm implements Serializable {
 
     private boolean syncToRepoEnabled = true;
 
+    private String zanataUsername;
+    private String zanataSecret;
+
     @NotEmpty
     private String srcRepoUrl;
     private String srcRepoUsername;
     private String srcRepoSecret;
     private String srcRepoBranch;
 
+    @VisibleForTesting
     public SyncWorkForm(String name, String description,
             CronType syncToZanataCron,
             SyncOption syncOption, CronType syncToRepoCron,
@@ -152,5 +157,13 @@ public class SyncWorkForm implements Serializable {
 
     public String getSrcRepoBranch() {
         return srcRepoBranch;
+    }
+
+    public String getZanataUsername() {
+        return zanataUsername;
+    }
+
+    public String getZanataSecret() {
+        return zanataSecret;
     }
 }

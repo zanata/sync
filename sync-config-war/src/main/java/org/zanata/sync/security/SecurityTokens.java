@@ -29,6 +29,7 @@ import javax.enterprise.context.SessionScoped;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.ZanataAccount;
 import com.google.common.base.MoreObjects;
 
@@ -40,17 +41,17 @@ public class SecurityTokens implements Serializable {
     private static final Logger log =
             LoggerFactory.getLogger(SecurityTokens.class);
 
-    private ZanataAccount account;
+    private UserAccount account;
 
     public boolean hasAccess() {
         return account != null;
     }
 
-    @Nullable public ZanataAccount getAccount() {
+    @Nullable public UserAccount getAccount() {
         return account;
     }
 
-    public void setAuthenticatedAccount(ZanataAccount authenticatedAccount) {
+    public void setAuthenticatedAccount(UserAccount authenticatedAccount) {
         this.account = authenticatedAccount;
     }
 

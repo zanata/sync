@@ -40,6 +40,7 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.SyncWorkForm;
+import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.WorkDetail;
 import org.zanata.sync.dto.ZanataAccount;
 import org.zanata.sync.exception.WorkNotFoundException;
@@ -117,6 +118,7 @@ public class WorkResource {
     @GET
     @Path("/mine")
     public Response getMyWorks() {
+        // TODO may need to consider zanata server as well if we allow sign in with multiple zanata servers
         String username = securityTokens.getAccount().getUsername();
         List<WorkSummary> workSummaries = schedulerServiceImpl.getWorkFor(username);
         return Response.ok(workSummaries).build();
@@ -129,7 +131,7 @@ public class WorkResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }
-        ZanataAccount zanataAccount = securityTokens.getAccount();
+        ZanataAccount zanataAccount = getZanataAccount(form);
 
         SyncWorkConfig syncWorkConfig =
                 syncWorkConfigBuilder.buildObject(form, zanataAccount);
@@ -146,6 +148,15 @@ public class WorkResource {
                 .build();
     }
 
+    private ZanataAccount getZanataAccount(SyncWorkForm form) {
+        UserAccount account = securityTokens.getAccount();
+        if (account instanceof ZanataAccount) {
+            return (ZanataAccount) account;
+        } else {
+            return new ZanataAccount(form.getZanataUsername(), form.getZanataSecret());
+        }
+    }
+
     @PUT
     public Response updateWork(SyncWorkForm form) {
         if(form.getId() == null) {
@@ -155,7 +166,7 @@ public class WorkResource {
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }
-        ZanataAccount zanataAccount = securityTokens.getAccount();
+        ZanataAccount zanataAccount = getZanataAccount(form);
         SyncWorkConfig syncWorkConfig = syncWorkConfigBuilder.buildObject(form,
                 zanataAccount);
 

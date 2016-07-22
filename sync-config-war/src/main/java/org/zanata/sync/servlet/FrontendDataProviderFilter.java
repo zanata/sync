@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.zanata.sync.common.plugin.Plugin;
 import org.zanata.sync.common.plugin.RepoExecutor;
-import org.zanata.sync.dto.ZanataAccount;
+import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.util.CronType;
@@ -46,7 +46,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 /**
  * This filter is responsible for pre-load necessary data for the frontend
@@ -104,7 +103,7 @@ public class FrontendDataProviderFilter implements Filter {
             return;
         }
         List<String> zanataUrls = getZanataUrls();
-        String appRoot = UrlUtil.appRoot((HttpServletRequest) servletRequest);
+        String appRoot = UrlUtil.appRootAbsoluteUrl((HttpServletRequest) servletRequest);
         boolean isInDevMode = isInDevMode(servletRequest);
 
         servletRequest.setAttribute("srcRepoPlugins", plugins);
@@ -113,7 +112,7 @@ public class FrontendDataProviderFilter implements Filter {
         servletRequest.setAttribute("cronOptions",
                 objectMapper.toJSON(CronType.toMapWithDisplayAsKey(isInDevMode)));
 
-        ZanataAccount account = securityTokens.getAccount();
+        UserAccount account = securityTokens.getAccount();
         String accountAsJson = objectMapper.toJSON(account);
         servletRequest.setAttribute("user", accountAsJson);
 

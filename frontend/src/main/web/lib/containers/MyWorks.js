@@ -5,12 +5,12 @@ import { loadWorkSummaries, runJob,
   updateJobStatus, getLatestJobStatus } from '../actions'
 
 const mapStateToProps = (state) => {
-  const username = state.configs.user ? state.configs.user.username : undefined
+  const user = state.configs.user
   const {workSummaries, runningJobs} = state.myWorks
   const websocketPort = state.configs.websocketPort
   const pollInterval = state.configs.pollInterval
   return {
-    zanataUsername: username,
+    user,
     workSummaries,
     runningJobs,
     websocketPort,

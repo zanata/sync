@@ -6,7 +6,7 @@ import {startWebSocket, isITOS} from '../utils/startWebSocket'
 export default React.createClass({
   propTypes: {
     workSummaries: PropTypes.arrayOf(PropTypes.object).isRequired,
-    zanataUsername: PropTypes.string,
+    user: PropTypes.object,
     loadWorkSummaries: PropTypes.func.isRequired,
     runJob: PropTypes.func.isRequired,
     runningJobs: PropTypes.object.isRequired,
@@ -33,8 +33,8 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    const {zanataUsername, loadWorkSummaries} = this.props
-    if (zanataUsername) {
+    const {user, loadWorkSummaries} = this.props
+    if (user) {
       loadWorkSummaries()
       this._connectWebSocket()
     } else {
