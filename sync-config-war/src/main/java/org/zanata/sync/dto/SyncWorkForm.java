@@ -68,9 +68,6 @@ public class SyncWorkForm implements Serializable {
 
     private boolean syncToRepoEnabled = true;
 
-    private String zanataUsername;
-    private String zanataSecret;
-
     @NotEmpty
     private String srcRepoUrl;
     private String srcRepoUsername;
@@ -157,13 +154,5 @@ public class SyncWorkForm implements Serializable {
 
     public String getSrcRepoBranch() {
         return srcRepoBranch;
-    }
-
-    public String getZanataUsername() {
-        return zanataUsername;
-    }
-
-    public String getZanataSecret() {
-        return zanataSecret;
     }
 }

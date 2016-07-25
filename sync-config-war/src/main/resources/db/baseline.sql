@@ -1,24 +1,49 @@
+CREATE TABLE IF NOT EXISTS ZanataAccount (
+    id            BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    localUsername VARCHAR(255),
+    secret        VARCHAR(255),
+    server        VARCHAR(255),
+    username      VARCHAR(255),
+    INDEX zanata_account_idx (server, username),
+    UNIQUE zanata_account_UK (server, username)
+)
+    ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS RepoAccount (
+    id            BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    repoHostname  VARCHAR(255),
+    repoType      VARCHAR(255),
+    secret        VARCHAR(255),
+    username      VARCHAR(255),
+    zanataAccount BIGINT NOT NULL,
+    UNIQUE repo_account_UK (repoHostname, username),
+    INDEX repo_account_natual_key_idx (repoHostname, username),
+    INDEX repo_account_zanata_account_idx (zanataAccount),
+    FOREIGN KEY repo_account_zanata_account_fk (zanataAccount) REFERENCES ZanataAccount (id)
+)
+    ENGINE = InnoDB;
+
 CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
-    id                      BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name                    VARCHAR(128) NOT NULL,
-    description             VARCHAR(255),
-    createdDate             TIMESTAMP,
-    encryptionKey           VARCHAR(255),
-    srcRepoPluginName       VARCHAR(255),
-    syncToRepoCron          VARCHAR(255),
-    syncToRepoEnabled       BOOLEAN      NOT NULL,
-    syncToServerEnabled     BOOLEAN      NOT NULL,
-    syncToZanataCron        VARCHAR(255),
-    syncToZanataOption      VARCHAR(255),
-    zanataUsername          VARCHAR(255) NOT NULL,
-    zanataSecret            VARCHAR(255) NOT NULL,
-    zanataServerUrl         VARCHAR(255) NOT NULL,
-    srcRepoUrl              VARCHAR(255) NOT NULL,
-    srcRepoUsername         VARCHAR(255) NOT NULL,
-    srcRepoSecret           VARCHAR(255) NOT NULL,
-    srcRepoBranch           VARCHAR(255) NOT NULL,
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name                VARCHAR(128) NOT NULL,
+    description         VARCHAR(255),
+    createdDate         TIMESTAMP,
+    encryptionKey       VARCHAR(255),
+    srcRepoPluginName   VARCHAR(255),
+    syncToRepoCron      VARCHAR(255),
+    syncToRepoEnabled   BOOLEAN      NOT NULL,
+    syncToServerEnabled BOOLEAN      NOT NULL,
+    syncToZanataCron    VARCHAR(255),
+    syncToZanataOption  VARCHAR(255),
+    repoAccount         BIGINT       NOT NULL,
+    zanataAccount       BIGINT       NOT NULL,
+    srcRepoUrl          VARCHAR(255) NOT NULL,
+    srcRepoBranch       VARCHAR(255) NOT NULL,
     INDEX config_name_idx (name),
-    INDEX config_zanata_username_idx (zanataUsername)
+    INDEX config_repo_account_idx (repoAccount),
+    INDEX config_zanata_account_idx (zanataAccount),
+    FOREIGN KEY config_repo_account_fk (repoAccount) REFERENCES RepoAccount (id),
+    FOREIGN KEY config_zanata_account_fk (zanataAccount) REFERENCES ZanataAccount (id)
 )
     ENGINE = InnoDB;
 

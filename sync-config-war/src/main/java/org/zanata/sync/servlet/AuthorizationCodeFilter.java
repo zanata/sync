@@ -45,8 +45,9 @@ import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.token.OAuthToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.dto.ZanataAccount;
+import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.security.SecurityTokens;
+import org.zanata.sync.service.AccountService;
 import org.zanata.sync.util.UrlUtil;
 import org.zanata.sync.util.ZanataRestClient;
 import com.google.common.base.Throwables;
@@ -67,6 +68,9 @@ public class AuthorizationCodeFilter implements Filter {
 
     @Inject
     private ZanataRestClient zanataRestClient;
+
+    @Inject
+    private AccountService accountService;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -89,8 +93,9 @@ public class AuthorizationCodeFilter implements Filter {
                 OAuthAuthzResponse oAuthResponse = OAuthAuthzResponse
                         .oauthCodeAuthzResponse(httpServletRequest);
                 String code = oAuthResponse.getCode();
-                ZanataAccount account = requestOAuthTokens(zanataUrl, code);
+                ZanataUserAccount account = requestOAuthTokens(zanataUrl, code);
                 account.setZanataServer(zanataUrl);
+                accountService.saveUserAccount(account);
                 securityTokens.setAuthenticatedAccount(account);
                 httpServletResponse.sendRedirect(httpServletRequest.getContextPath());
             } else {
@@ -109,7 +114,7 @@ public class AuthorizationCodeFilter implements Filter {
         }
     }
 
-    private ZanataAccount requestOAuthTokens(String zanataUrl,
+    private ZanataUserAccount requestOAuthTokens(String zanataUrl,
             String authorizationCode)
             throws OAuthProblemException {
         if (zanataUrl == null) {
@@ -144,7 +149,7 @@ public class AuthorizationCodeFilter implements Filter {
             log.debug("refresh token: {}", refreshToken);
 
             // this should change once we have Zanata all converted to use OAuth
-            ZanataAccount account = zanataRestClient
+            ZanataUserAccount account = zanataRestClient
                     .getAuthorizedAccount(zanataUrl, accessToken);
             log.debug("========= my account: {}", account);
             // for the time being, we only allow Zanata admin to create jobs

@@ -4,6 +4,7 @@ import { Route, IndexRoute } from 'react-router'
 import Home from './containers/Home'
 import App from './containers/App'
 import NewWork from './containers/NewWork'
+import Account from './containers/Account'
 import MyWorks from './containers/MyWorks'
 import WorkDetail from './containers/WorkDetail'
 
@@ -12,6 +13,7 @@ const routes = (
     <IndexRoute component={Home} />
     <Route path='work/new' component={NewWork} />
     <Route path='work/mine' component={MyWorks} />
+    <Route path='account' component={Account} />
     <Route path='work/:id' component={WorkDetail} />
   </Route>
 )

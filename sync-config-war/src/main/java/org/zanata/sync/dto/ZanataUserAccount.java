@@ -22,6 +22,7 @@ package org.zanata.sync.dto;
 
 import java.util.Set;
 
+import org.zanata.sync.model.ZanataAccount;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
 
@@ -31,7 +32,7 @@ import com.google.common.base.MoreObjects;
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ZanataAccount implements UserAccount {
+public class ZanataUserAccount implements UserAccount {
     private String zanataServer;
     private String username;
     private String apiKey;
@@ -39,14 +40,6 @@ public class ZanataAccount implements UserAccount {
     private String email;
     private String name;
     private boolean enabled;
-
-    public ZanataAccount(String username, String apiKey) {
-        this.username = username;
-        this.apiKey = apiKey;
-    }
-
-    public ZanataAccount() {
-    }
 
     @Override
     public String getUsername() {
@@ -94,5 +87,13 @@ public class ZanataAccount implements UserAccount {
 
     public void setZanataServer(String zanataServer) {
         this.zanataServer = zanataServer;
+    }
+
+    public static ZanataUserAccount fromEntity(ZanataAccount entity) {
+        ZanataUserAccount dto = new ZanataUserAccount();
+        dto.setZanataServer(entity.getServer());
+        dto.apiKey = entity.getSecret();
+        dto.username = entity.getUsername();
+        return dto;
     }
 }

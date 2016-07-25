@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors
+ * Copyright 2016, Red Hat, Inc. and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -18,10 +18,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.model;
+package org.zanata.sync.service;
 
-import org.zanata.sync.dto.SyncWorkForm;
+import java.util.Optional;
+import java.util.Set;
 
-public interface SyncWorkConfigBuilder {
-    SyncWorkConfig buildObject(SyncWorkForm syncWorkForm);
+import javax.ejb.TransactionAttribute;
+
+import org.zanata.sync.dto.UserAccount;
+import org.zanata.sync.dto.ZanataUserAccount;
+import org.zanata.sync.model.RepoAccount;
+import org.zanata.sync.model.ZanataAccount;
+
+/**
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ */
+public interface AccountService {
+
+    @TransactionAttribute
+    void saveUserAccount(UserAccount account);
+
+    @TransactionAttribute
+    void updateZanataAccount(ZanataUserAccount zanataUserAccount);
+
+    ZanataAccount getZanataAccountForCurrentUser();
+
+    Set<RepoAccount> getRepoAccountsForCurrentUser();
 }

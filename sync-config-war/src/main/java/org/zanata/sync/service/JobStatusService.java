@@ -18,47 +18,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.security;
+package org.zanata.sync.service;
 
-import java.io.Serializable;
-
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.SessionScoped;
+import javax.ejb.TransactionAttribute;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zanata.sync.dto.LocalAccount;
-import org.zanata.sync.dto.UserAccount;
-import org.zanata.sync.dto.ZanataUserAccount;
+import org.zanata.sync.model.JobStatus;
+import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.model.JobType;
+import org.zanata.sync.model.SyncWorkConfig;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@SessionScoped
-public class SecurityTokens implements Serializable {
-    private static final Logger log =
-            LoggerFactory.getLogger(SecurityTokens.class);
+public interface JobStatusService {
 
-    private UserAccount account;
+    JobStatus getLatestJobStatus(SyncWorkConfig config,
+            JobType jobType);
 
-    public boolean hasAccess() {
-        return account != null;
-    }
+    @TransactionAttribute
+    Optional<JobStatus> updateJobStatus(String jobId, @Nullable
+            Date endTime,
+            @Nullable Date nextFireTime, JobStatusType statusType);
 
-    @Nullable
-    public UserAccount getAccount() {
-        return account;
-    }
+    @TransactionAttribute
+    void saveJobStatus(JobStatus status);
 
-    public void setAuthenticatedAccount(UserAccount authenticatedAccount) {
-        this.account = authenticatedAccount;
-    }
+    List<JobStatus> getAllJobStatus(SyncWorkConfig config);
 
-    @PreDestroy
-    public void onDestroy() {
-        String user = account == null ? "<ANONYMOUS>" : account.getUsername();
-        log.info("log out as {}", user);
-    }
-
+    Optional<JobStatus> getJobStatusByFiringId(String jobFiringId);
 }

@@ -4,6 +4,7 @@ import invariant from 'invariant'
 import workConfig from './workConfig'
 import security from './security'
 import myWorks from './myWorks'
+import accounts from './accounts'
 import {reducer as toastrReducer} from 'react-redux-toastr'
 
 export function createReducersWithConfigs(configs) {
@@ -19,7 +20,8 @@ export function createReducersWithConfigs(configs) {
     security,
     configs: () => configs,
     myWorks: myWorks(configs.maxPollCount),
-    toastr: toastrReducer
+    toastr: toastrReducer,
+    accounts
   })
 }
 

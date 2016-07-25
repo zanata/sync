@@ -22,50 +22,10 @@
   <script type="application/javascript">
     function addTestData() {
       var mountNode = document.getElementById('main-content')
-      var plugins = [{
-        "name": "git",
-        "description": "Git plugin for push to and pull from git repository",
-        "fields": {
-          "url": {
-            "key": "url",
-            "label": "URL",
-            "value": null,
-            "type": "TEXT",
-            "placeholder": "https://github.com/zanata/zanata-server.git",
-            "tooltip": null,
-            "masked": false
-          },
-          "branch": {
-            "key": "branch",
-            "label": "Branch",
-            "value": null,
-            "type": "TEXT",
-            "placeholder": "master",
-            "tooltip": "Default to master branch",
-            "masked": false
-          },
-          "username": {
-            "key": "username",
-            "label": "Username",
-            "value": null,
-            "type": "TEXT",
-            "placeholder": "",
-            "tooltip": "Username for repository",
-            "masked": false
-          },
-          "secret": {
-            "key": "secret",
-            "label": "Secret",
-            "value": null,
-            "type": "TEXT",
-            "placeholder": "",
-            "tooltip": "Secret for repository. e.g. API key or password",
-            "masked": true
-          }
-        }
-      }]
+      var plugins = ['git']
 
       var user = {
+        "id": 1,
         "zanataServer": "http://localhost:3000/zanata",
         "username": "test-user",
         "email":"zanata@zanata.org",

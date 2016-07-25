@@ -14,7 +14,7 @@ export default React.createClass({
     // TODO use shape to be more specific,
     srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.string).isRequired,
     cronOptions: PropTypes.object.isRequired,
-    zanataUser: PropTypes.object
+    user: PropTypes.object
   },
   getInitialState() {
     return {
@@ -53,7 +53,7 @@ export default React.createClass({
   },
 
   componentWillMount() {
-    if (!this.props.zanataUser) {
+    if (!this.props.user) {
       redirectToSignIn(this.context.router)
     }
   },

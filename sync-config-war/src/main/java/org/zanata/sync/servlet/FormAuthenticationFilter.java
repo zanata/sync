@@ -30,14 +30,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.LocalAccount;
 import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.security.SecurityTokens;
-import org.zanata.sync.util.UrlUtil;
+import org.zanata.sync.service.AccountService;
 import com.google.common.collect.Sets;
 
 /**
@@ -50,6 +49,9 @@ public class FormAuthenticationFilter implements Filter {
     @Inject
     private SecurityTokens securityTokens;
 
+    @Inject
+    private AccountService accountService;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
@@ -59,9 +61,10 @@ public class FormAuthenticationFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
         if (request instanceof HttpServletRequest) {
             HttpServletRequest req = (HttpServletRequest) request;
-            if (req.getRemoteUser() != null) {
+            if (!securityTokens.hasAccess() && req.getRemoteUser() != null) {
                 UserAccount account = new LocalAccount(req.getRemoteUser(),
                         Sets.newHashSet("syncUser"), true);
+                accountService.saveUserAccount(account);
                 log.info("authenticated using local user: {}", account);
                 securityTokens.setAuthenticatedAccount(account);
             }

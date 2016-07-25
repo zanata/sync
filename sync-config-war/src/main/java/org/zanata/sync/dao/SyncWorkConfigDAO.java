@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors
+ * Copyright 2016, Red Hat, Inc. and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -21,81 +21,20 @@
 package org.zanata.sync.dao;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+
+import javax.annotation.Nullable;
 
 import org.zanata.sync.model.SyncWorkConfig;
 
+public interface SyncWorkConfigDAO {
 
-/**
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
- */
-@Stateless
-public class SyncWorkConfigDAO implements Repository<SyncWorkConfig, Long> {
+    List<SyncWorkConfig> getByZanataServerAndUsername(String server, String username);
 
-    @Inject
-    private SyncWorkConfigSerializer serializer;
+    void deleteById(Long id);
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    void persist(SyncWorkConfig config);
 
-    @Override
-    public Optional<SyncWorkConfig> load(Long id) {
-        SyncWorkConfig syncWorkConfig =
-                entityManager.find(SyncWorkConfig.class, id);
-        return Optional.ofNullable(syncWorkConfig);
-    }
+    @Nullable SyncWorkConfig getById(Long id);
 
-    @Override
-    @TransactionAttribute
-    public void persist(SyncWorkConfig config) {
-        entityManager.persist(config);
-    }
-
-    @Override
-    @TransactionAttribute
-    public boolean delete(Long id) {
-        SyncWorkConfig syncWorkConfig =
-                entityManager.find(SyncWorkConfig.class, id);
-        if (syncWorkConfig != null) {
-            entityManager.remove(syncWorkConfig);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public List<SyncWorkConfig> getHistory(Long id) {
-        //TODO implement
-        throw new UnsupportedOperationException("Implement me!");
-        //return null;
-    }
-
-    @Override
-    public List<SyncWorkConfig> getAll() {
-        return entityManager
-                .createQuery("from SyncWorkConfig order by createdDate",
-                        SyncWorkConfig.class).getResultList();
-    }
-
-    @Override
-    public List<SyncWorkConfig> findByCriteria(
-            BiFunction<CriteriaBuilder, Root<SyncWorkConfig>, Predicate[]> criteriaBuilderToPredicates) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<SyncWorkConfig> query = cb
-                .createQuery(SyncWorkConfig.class);
-        Root<SyncWorkConfig> root = query.from(SyncWorkConfig.class);
-        CriteriaQuery<SyncWorkConfig> where =
-                query.select(root).where(criteriaBuilderToPredicates.apply(cb, root));
-        return entityManager.createQuery(where).getResultList();
-    }
+    List<SyncWorkConfig> getAll();
 }

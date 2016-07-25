@@ -25,15 +25,13 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.dto.ZanataAccount;
-import org.zanata.sync.security.SecurityTokens;
+import org.zanata.sync.dto.ZanataUserAccount;
 
 import com.google.common.collect.Maps;
 
@@ -49,7 +47,7 @@ public class ZanataRestClient {
     @Inject
     private Client client;
 
-    public ZanataAccount getAuthorizedAccount(String zanataUrl,
+    public ZanataUserAccount getAuthorizedAccount(String zanataUrl,
             String accessToken) {
         Map<String, Object> accessTokenMap = Maps.newHashMap();
         accessTokenMap.put(OAuth.OAUTH_ACCESS_TOKEN, accessToken);
@@ -62,6 +60,6 @@ public class ZanataRestClient {
                 .header(OAuth.HeaderType.AUTHORIZATION,
                         OAuthUtils.encodeAuthorizationBearerHeader(
                                 accessTokenMap))
-                .get(ZanataAccount.class);
+                .get(ZanataUserAccount.class);
     }
 }

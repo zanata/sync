@@ -23,6 +23,7 @@ package org.zanata.sync.api;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -42,13 +43,16 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.WorkDetail;
-import org.zanata.sync.dto.ZanataAccount;
+import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
 import org.zanata.sync.dto.WorkSummary;
+import org.zanata.sync.model.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
+import org.zanata.sync.service.AccountService;
+import org.zanata.sync.service.JobStatusService;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
@@ -67,10 +71,16 @@ public class WorkResource {
             LoggerFactory.getLogger(WorkResource.class);
 
     @Inject
-    private SchedulerService schedulerServiceImpl;
+    private SchedulerService schedulerService;
 
     @Inject
-    private WorkService workServiceImpl;
+    private WorkService workService;
+
+    @Inject
+    private JobStatusService jobStatusService;
+
+    @Inject
+    private AccountService accountService;
 
     @Inject
     private SyncWorkFormValidator formValidator;
@@ -103,9 +113,9 @@ public class WorkResource {
 
         try {
             // TODO doing two queries. optimize
-            SyncWorkConfig workConfig = schedulerServiceImpl.getWorkById(id);
+            SyncWorkConfig workConfig = workService.getById(id);
             List<JobStatus> allJobStatus =
-                    schedulerServiceImpl.getAllJobStatus(id);
+                    jobStatusService.getAllJobStatus(workConfig);
 
             return Response.ok(WorkDetail.fromEntity(workConfig, allJobStatus))
                     .build();
@@ -118,9 +128,7 @@ public class WorkResource {
     @GET
     @Path("/mine")
     public Response getMyWorks() {
-        // TODO may need to consider zanata server as well if we allow sign in with multiple zanata servers
-        String username = securityTokens.getAccount().getUsername();
-        List<WorkSummary> workSummaries = schedulerServiceImpl.getWorkFor(username);
+        List<WorkSummary> workSummaries = workService.getWorkForCurrentUser();
         return Response.ok(workSummaries).build();
     }
 
@@ -131,14 +139,12 @@ public class WorkResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }
-        ZanataAccount zanataAccount = getZanataAccount(form);
-
         SyncWorkConfig syncWorkConfig =
-                syncWorkConfigBuilder.buildObject(form, zanataAccount);
+                syncWorkConfigBuilder.buildObject(form);
         // TODO pahuang here we should persist the refresh token
         try {
-            workServiceImpl.updateOrPersist(syncWorkConfig);
-            schedulerServiceImpl.scheduleWork(syncWorkConfig);
+            workService.updateOrPersist(syncWorkConfig);
+            schedulerService.scheduleWork(syncWorkConfig);
         } catch (SchedulerException e) {
             log.error("Error trying to schedule job", e);
             errors.put("error", e.getMessage());
@@ -146,15 +152,6 @@ public class WorkResource {
         }
         return Response.created(URI.create("/work/" + syncWorkConfig.getId()))
                 .build();
-    }
-
-    private ZanataAccount getZanataAccount(SyncWorkForm form) {
-        UserAccount account = securityTokens.getAccount();
-        if (account instanceof ZanataAccount) {
-            return (ZanataAccount) account;
-        } else {
-            return new ZanataAccount(form.getZanataUsername(), form.getZanataSecret());
-        }
     }
 
     @PUT
@@ -166,18 +163,19 @@ public class WorkResource {
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }
+        /* TODO not supported yet
         ZanataAccount zanataAccount = getZanataAccount(form);
         SyncWorkConfig syncWorkConfig = syncWorkConfigBuilder.buildObject(form,
                 zanataAccount);
 
         try {
-            workServiceImpl.updateOrPersist(syncWorkConfig);
-            schedulerServiceImpl.rescheduleWork(syncWorkConfig);
+            workService.updateOrPersist(syncWorkConfig);
+            schedulerService.rescheduleWork(syncWorkConfig);
         } catch (SchedulerException e) {
             log.error("Error rescheduling work", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(errors).build();
-        }
+        }*/
         // TODO create URI
         return Response.created(URI.create("")).entity(errors).build();
     }
@@ -186,7 +184,7 @@ public class WorkResource {
     @Path("/{id}")
     public Response deleteWork(@PathParam("id") Long id) {
         log.info("========== about to delete {}", id);
-        workServiceImpl.deleteWork(id);
+        workService.deleteWork(id);
         return Response.status(Response.Status.OK).build();
     }
 

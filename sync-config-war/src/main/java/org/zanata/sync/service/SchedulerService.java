@@ -39,10 +39,6 @@ import org.zanata.sync.model.SyncWorkConfig;
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 public interface SchedulerService {
-    JobStatus getLatestJobStatus(Long id, JobType type)
-            throws SchedulerException, JobNotFoundException;
-
-    List<JobSummary> getJobs() throws SchedulerException;
 
     void scheduleWork(SyncWorkConfig syncWorkConfig)
             throws SchedulerException;
@@ -74,14 +70,6 @@ public interface SchedulerService {
      */
     boolean triggerJob(Long id, JobType type)
             throws JobNotFoundException, SchedulerException;
-
-    SyncWorkConfig getWorkById(Long id) throws WorkNotFoundException;
-
-    List<WorkSummary> getWorkFor(String username);
-
-    Optional<JobStatus> getJobStatusByFiringId(String jobFiringId);
-
-    List<JobStatus> getAllJobStatus(Long configId) throws WorkNotFoundException;
 
     void addWebSocketSession(Session session);
 

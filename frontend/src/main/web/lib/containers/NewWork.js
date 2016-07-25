@@ -10,7 +10,7 @@ const mapStateToProps = (state) => {
     saveFailed: state.workConfig.saveFailed,
     srcRepoPlugins: state.configs.srcRepoPlugins,
     cronOptions: state.configs.cronOptions,
-    zanataUser: user
+    user
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors
+ * Copyright 2016, Red Hat, Inc. and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -20,24 +20,18 @@
  */
 package org.zanata.sync.dao;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.annotation.Nullable;
 
-public interface Repository<T, K> {
+import org.zanata.sync.model.ZanataAccount;
 
-    Optional<T> load(K id);
+/**
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ */
+public interface ZanataAccountDAO {
 
-    void persist(T T);
+    void persist(ZanataAccount account);
 
-    boolean delete(K id);
+    @Nullable ZanataAccount getByLocalUsername(String localUsername);
 
-    List<T> getHistory(K id);
-
-    List<T> getAll();
-
-    List<T> findByCriteria(BiFunction<CriteriaBuilder, Root<T>, Predicate[]> criteriaBuilderToPredicates);
+    @Nullable ZanataAccount getByUsernameAndServer(String username, String server);
 }

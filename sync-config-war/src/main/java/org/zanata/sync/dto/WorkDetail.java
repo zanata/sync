@@ -99,12 +99,13 @@ public class WorkDetail {
                 workConfig.getDescription(), workConfig.getSyncToZanataCron(),
                 workConfig.getSyncToRepoCron(),
                 workConfig.getSyncToZanataOption(),
-                workConfig.getSrcRepoPluginName(),
+                workConfig.getRepoAccount().getRepoType(),
                 workConfig.isSyncToServerEnabled(),
                 workConfig.isSyncToRepoEnabled(),
                 workConfig.getCreatedDate(), statuses,
                 workConfig.getSrcRepoUrl(),
-                workConfig.getSrcRepoUsername(), workConfig.getSrcRepoSecret(),
+                workConfig.getRepoAccount().getUsername(),
+                workConfig.getRepoAccount().getSecret(),
                 workConfig.getSrcRepoBranch());
     }
 

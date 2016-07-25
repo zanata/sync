@@ -20,16 +20,23 @@
  */
 package org.zanata.sync.service.impl;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 
 import org.quartz.SchedulerException;
-import org.zanata.sync.dao.Repository;
 import org.zanata.sync.dao.SyncWorkConfigDAO;
-import org.zanata.sync.exception.JobNotFoundException;
+import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
+import org.zanata.sync.model.ZanataAccount;
+import org.zanata.sync.service.AccountService;
+import org.zanata.sync.service.JobStatusService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import com.google.common.base.Throwables;
@@ -37,8 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@ApplicationScoped
+@Stateless
 @Slf4j
 public class WorkServiceImpl implements WorkService {
 
@@ -46,8 +54,15 @@ public class WorkServiceImpl implements WorkService {
     private SchedulerService schedulerServiceImpl;
 
     @Inject
-    private Repository<SyncWorkConfig, Long> syncWorkConfigRepository;
+    private AccountService accountService;
 
+    @Inject
+    private SyncWorkConfigDAO syncWorkConfigDAO;
+
+    @Inject
+    private JobStatusService jobStatusService;
+
+    @TransactionAttribute
     @Override
     public void deleteWork(Long id) {
 
@@ -55,19 +70,62 @@ public class WorkServiceImpl implements WorkService {
             if (checkWorkExist(id)) {
                 schedulerServiceImpl.deleteJob(id, JobType.REPO_SYNC);
                 schedulerServiceImpl.deleteJob(id, JobType.SERVER_SYNC);
-                syncWorkConfigRepository.delete(id);
+                syncWorkConfigDAO.deleteById(id);
             }
         } catch (SchedulerException e) {
             throw Throwables.propagate(e);
         }
     }
 
+    @TransactionAttribute
     @Override
     public void updateOrPersist(SyncWorkConfig syncWorkConfig) {
-        syncWorkConfigRepository.persist(syncWorkConfig);
+        syncWorkConfigDAO.persist(syncWorkConfig);
     }
 
     private boolean checkWorkExist(Long id) {
-        return syncWorkConfigRepository.load(id).isPresent();
+        return syncWorkConfigDAO.getById(id) != null;
+    }
+
+    @Override
+    public List<SyncWorkConfig> getAll() {
+        return syncWorkConfigDAO.getAll();
+    }
+
+    @Override
+    public Optional<SyncWorkConfig> load(Long configId) {
+        return Optional.ofNullable(syncWorkConfigDAO.getById(configId));
+    }
+
+    @Override
+    public SyncWorkConfig getById(Long configId) throws WorkNotFoundException {
+        Optional<SyncWorkConfig> syncWorkConfig =
+                load(configId);
+        if (!syncWorkConfig.isPresent()) {
+            throw new WorkNotFoundException("id not found:" + configId);
+        }
+        return syncWorkConfig.get();
+    }
+
+    @Override
+    public List<WorkSummary> getWorkFor(String username,
+            String zanataServer) {
+        List<SyncWorkConfig> syncWorkConfigs =
+                syncWorkConfigDAO
+                        .getByZanataServerAndUsername(zanataServer, username);
+
+        return syncWorkConfigs.stream()
+                .map(config -> WorkSummary.toWorkSummary(config,
+                        jobStatusService.getLatestJobStatus(config, JobType.REPO_SYNC),
+                        jobStatusService.getLatestJobStatus(config,
+                                JobType.SERVER_SYNC)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WorkSummary> getWorkForCurrentUser() {
+        ZanataAccount zanataAccount =
+                accountService.getZanataAccountForCurrentUser();
+        return getWorkFor(zanataAccount.getUsername(), zanataAccount.getServer());
     }
 }

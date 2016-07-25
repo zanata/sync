@@ -20,7 +20,6 @@
  */
 package org.zanata.sync.api;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,14 +47,13 @@ import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
-import org.zanata.sync.dto.JobSummary;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.dto.RunningJobKey;
 import org.zanata.sync.model.SyncWorkConfig;
+import org.zanata.sync.service.JobStatusService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -69,10 +67,13 @@ public class JobResource {
             LoggerFactory.getLogger(JobResource.class);
 
     @Inject
-    private SchedulerService schedulerServiceImpl;
+    private SchedulerService schedulerService;
 
     @Inject
-    private WorkService workServiceImpl;
+    private WorkService workService;
+
+    @Inject
+    private JobStatusService jobStatusService;
 
     @Inject
     private Event<JobRunCompletedEvent> jobRunCompletedEvent;
@@ -106,14 +107,12 @@ public class JobResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         try {
-            JobStatus jobStatus = schedulerServiceImpl
-                    .getLatestJobStatus(id, type);
+            SyncWorkConfig config = workService.getById(id);
+            JobStatus jobStatus = jobStatusService
+                    .getLatestJobStatus(config, type);
             return Response.ok(JobRunStatus.fromEntity(jobStatus, id, type))
                     .build();
-        } catch (SchedulerException e) {
-            log.error("get job status error", e);
-            return Response.serverError().build();
-        } catch (JobNotFoundException e) {
+        } catch (WorkNotFoundException e) {
             log.warn("get job status not found", e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -127,7 +126,8 @@ public class JobResource {
         }
         List<JobStatus> allJobStatus;
         try {
-            allJobStatus = schedulerServiceImpl.getAllJobStatus(id);
+            SyncWorkConfig config = workService.getById(id);
+            allJobStatus = jobStatusService.getAllJobStatus(config);
         } catch (WorkNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -158,7 +158,7 @@ public class JobResource {
         }
 
         Optional<JobStatus> jobStatusOpt =
-                schedulerServiceImpl.getJobStatusByFiringId(jobFiringId);
+                jobStatusService.getJobStatusByFiringId(jobFiringId);
         if (!jobStatusOpt.isPresent()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -195,7 +195,7 @@ public class JobResource {
             if (Strings.isNullOrEmpty(id)) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            schedulerServiceImpl.cancelRunningJob(new Long(id), type);
+            schedulerService.cancelRunningJob(new Long(id), type);
             return Response.ok().build();
         } catch (SchedulerException e) {
             log.error("cancel error", e);
@@ -224,7 +224,7 @@ public class JobResource {
                 return Response.status(Response.Status.BAD_REQUEST).entity(
                         Payload.error("missing id and/or type")).build();
             }
-            schedulerServiceImpl.triggerJob(id, type);
+            schedulerService.triggerJob(id, type);
             return Response.ok(new RunningJobKey(id, type)).build();
         } catch (SchedulerException e) {
             log.error("trigger job error", e);
@@ -236,74 +236,4 @@ public class JobResource {
         }
     }
 
-    /**
-     * Get list of job with matching filter.
-     *
-     * @param id - work identifier, empty for all job
-     * @param type - required if id is present. {@link JobType}
-     * @param status - {@link JobStatusType},  empty for all status
-     *
-     * @return - List of {@link JobSummary}
-     *  or List of 1 if id and type is present.
-     *
-     */
-    @GET
-    public Response getJob(
-        @QueryParam(value = "id") @DefaultValue("") String id,
-        @QueryParam(value = "type") @DefaultValue("") JobType type,
-        @QueryParam(value = "status") @DefaultValue("") JobStatusType status) {
-
-        boolean filterByKey = !Strings.isNullOrEmpty(id) && type != null;
-
-        if ((!Strings.isNullOrEmpty(id) || type != null) && !filterByKey) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        // TODO refactor and comment on on this block
-        try {
-            List<JobSummary> jobs = schedulerServiceImpl.getJobs();
-            if(status == null && Strings.isNullOrEmpty(id) && type == null) {
-                return Response.ok(jobs).build();
-            } else {
-                List<JobSummary> filteredList = new ArrayList<>();
-                boolean filterByStatus = status != null;
-
-                /*for (JobSummary summary : jobs) {
-                    if (filterByKey && filterByStatus) {
-                        JobKey key = type.toJobKey(new Long(id));
-                        if (summary.getJobKey().equals(key.toString())
-                                && isMatchStatus(summary.getLastJobStatus(),
-                                        status)) {
-                            filteredList.add(summary);
-                            continue;
-                        }
-                    } else if (filterByKey) {
-                        JobKey key = type.toJobKey(new Long(id));
-                        if (summary.getJobKey().equals(key.toString())) {
-                            filteredList.add(summary);
-                            continue;
-                        }
-                    } else if (filterByStatus && isMatchStatus(
-                            summary.getLastJobStatus(), status)) {
-                        filteredList.add(summary);
-                        continue;
-                    }
-                }*/
-                return Response.ok(filteredList).build();
-            }
-        } catch (SchedulerException e) {
-            log.error("fail getting running jobs", e);
-            return Response.serverError().build();
-        }
-    }
-
-    private boolean isMatchStatus(JobStatus jobStatus, JobStatusType status) {
-        if(status.equals(JobStatusType.RUNNING)) {
-//            JobProgress currentProgress = jobStatus.getCurrentProgress();
-//            if(currentProgress != null && currentProgress.getStatus().equals(status)) {
-//                return true;
-//            }
-        }
-        return jobStatus.getStatus().equals(status);
-    }
 }

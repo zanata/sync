@@ -21,9 +21,10 @@
 package org.zanata.sync.dto;
 
 import java.util.Set;
+import javax.validation.constraints.NotNull;
 
 public interface UserAccount {
-    String getUsername();
+    @NotNull String getUsername();
 
     Set<String> getRoles();
 

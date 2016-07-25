@@ -24,8 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -41,7 +40,7 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Stateless
+@RequestScoped
 public class JobStatusDAO {
     private static final Logger log =
             LoggerFactory.getLogger(JobStatusDAO.class);
@@ -79,7 +78,6 @@ public class JobStatusDAO {
         return resultList.get(0);
     }
 
-    @TransactionAttribute
     public Optional<JobStatus> updateJobStatus(String jobId, @Nullable Date endTime,
             @Nullable Date nextFireTime, JobStatusType statusType) {
         JobStatus entity =
@@ -95,7 +93,6 @@ public class JobStatusDAO {
         }
     }
 
-    @TransactionAttribute
     public void saveJobStatus(JobStatus status) {
         entityManager.persist(status);
     }

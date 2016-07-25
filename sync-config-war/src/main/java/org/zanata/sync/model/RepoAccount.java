@@ -18,47 +18,54 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.security;
+package org.zanata.sync.model;
 
-import java.io.Serializable;
-
-import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.SessionScoped;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zanata.sync.dto.LocalAccount;
-import org.zanata.sync.dto.UserAccount;
-import org.zanata.sync.dto.ZanataUserAccount;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@SessionScoped
-public class SecurityTokens implements Serializable {
-    private static final Logger log =
-            LoggerFactory.getLogger(SecurityTokens.class);
+@Entity
+@Access(AccessType.FIELD)
+public class RepoAccount {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private UserAccount account;
+    private String repoType;
+    private String repoHostname;
+    private String username;
+    private String secret;
 
-    public boolean hasAccess() {
-        return account != null;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "zanataAccount")
+    private ZanataAccount zanataAccount;
+
+    public String getRepoHostname() {
+        return repoHostname;
     }
 
-    @Nullable
-    public UserAccount getAccount() {
-        return account;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAuthenticatedAccount(UserAccount authenticatedAccount) {
-        this.account = authenticatedAccount;
+    public String getSecret() {
+        return secret;
     }
 
-    @PreDestroy
-    public void onDestroy() {
-        String user = account == null ? "<ANONYMOUS>" : account.getUsername();
-        log.info("log out as {}", user);
+    public ZanataAccount getZanataAccount() {
+        return zanataAccount;
     }
 
+    public String getRepoType() {
+        return repoType;
+    }
 }
