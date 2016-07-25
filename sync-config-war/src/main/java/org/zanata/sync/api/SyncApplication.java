@@ -39,7 +39,7 @@ public class SyncApplication extends Application {
                     .add(JobResource.class)
                     .add(SecurityResource.class)
                     .add(BypassSecurityBinder.class)
-                    .add()
+                    .add(RestResponseInterceptor.class)
                     .build();
 
     @Override

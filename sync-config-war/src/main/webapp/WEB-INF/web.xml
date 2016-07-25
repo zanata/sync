@@ -87,6 +87,14 @@
 
   <security-constraint>
     <web-resource-collection>
+      <!-- REST api has its own security checks -->
+      <web-resource-name>REST API</web-resource-name>
+      <url-pattern>/api/*</url-pattern>
+    </web-resource-collection>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
       <web-resource-name>Single Page App</web-resource-name>
       <url-pattern>*.jsp</url-pattern>
       <url-pattern>/</url-pattern>
