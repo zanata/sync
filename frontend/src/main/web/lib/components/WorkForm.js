@@ -10,8 +10,6 @@ export default React.createClass({
   propTypes: {
     onSaveNewWork: PropTypes.func.isRequired,
     saving: PropTypes.bool.isRequired,
-    saveFailed: PropTypes.bool.isRequired,
-    // TODO use shape to be more specific,
     srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.string).isRequired,
     cronOptions: PropTypes.object.isRequired,
     user: PropTypes.object
@@ -65,14 +63,11 @@ export default React.createClass({
 
     const saveCallback = e => this.props.onSaveNewWork(this.state)
 
-    const {saving, saveFailed} = this.props
+    const {saving} = this.props
 
     const saveBtnText = saving ? 'Saving...' : 'Save'
-    const saveBtnDisabled = saving
 
-    const {keys, values} = objectToKeysAndValuesArray(this.props.cronOptions)
-    const cronDisplays = keys
-    const cronValues = values
+    const {keys: cronDisplays, values: cronValues} = objectToKeysAndValuesArray(this.props.cronOptions)
 
     return (
       <div>
@@ -134,7 +129,7 @@ export default React.createClass({
             <div className="col-md-7 ">
               <button type="button" className="btn btn-primary"
                 onClick={saveCallback}
-                disabled={saveBtnDisabled}>
+                disabled={saving}>
                 {saveBtnText}
               </button>
               <button type="button" className="btn btn-default"

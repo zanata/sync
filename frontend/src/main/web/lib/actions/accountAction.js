@@ -36,7 +36,12 @@ export function saveZanataAccount(zanataAccount) {
         headers: {'Content-Type': 'application/json'},
         credentials: 'include',
         body: JSON.stringify(entity),
-        types: [SAVE_ZANATA_ACCOUNT_REQUEST, SAVE_ZANATA_ACCOUNT_SUCCESS, SAVE_ZANATA_ACCOUNT_FAILURE]
+        types: [SAVE_ZANATA_ACCOUNT_REQUEST, {
+          type: SAVE_ZANATA_ACCOUNT_SUCCESS,
+          meta: {
+            notification: 'Saved successfully'
+          }
+        }, SAVE_ZANATA_ACCOUNT_FAILURE]
       }
     })
   }

@@ -1,10 +1,15 @@
 import { handleActions } from 'redux-actions'
 import {
-  GET_ZANATA_ACCOUNT_SUCCESS
+  GET_ZANATA_ACCOUNT_SUCCESS,
+  SAVE_ZANATA_ACCOUNT_SUCCESS
 } from '../actions/accountAction'
 
 const defaultState = {
-  zanataAccount: null,
+  zanataAccount: {
+    username: '',
+    apiKey: '',
+    zanataServer: ''
+  },
   repoAccounts: []
 }
 

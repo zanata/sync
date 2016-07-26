@@ -9,7 +9,8 @@ export default React.createClass({
     }),
     onSaveZanataAccount: PropTypes.func.isRequired,
     getZanataAccount: PropTypes.func.isRequired,
-    zanataAccount: PropTypes.object
+    zanataAccount: PropTypes.object,
+    saving: PropTypes.bool.isRequired
   },
 
   getInitialState() {
@@ -49,17 +50,14 @@ export default React.createClass({
       return this._handleChange.bind(this, field)
     }
 
-    const {saving, saveFailed, user} = this.props
+    const {saving, user} = this.props
 
     const saveCallback = e => this.props.onSaveZanataAccount(this.state)
 
 
-    const zanataAccount = this.props.zanataAccount || {}
+    const zanataAccount = this.props.zanataAccount
 
     const saveBtnText = saving ? 'Saving...' : 'Save'
-    const saveBtnDisabled = saving
-
-
     return (
       <form className="form-horizontal">
         <fieldset>
@@ -67,14 +65,14 @@ export default React.createClass({
           <TextInput name='zanataServer' label='Server URL'
             onChange={callbackFor('zanataServer')}
             placeholder='http://translate.zanata.org'
-            inputValue={zanataAccount.server}/>
+            inputValue={zanataAccount.zanataServer}/>
           <TextInput name='zanataUsername' label='Username'
             onChange={callbackFor('zanataUsername')}
             placeholder='username'
-            inputValue={zanataAccount.username}/>
+            inputValue={zanataAccount.username || user.username}/>
           <TextInput name='zanataSecret' label='Secret'
             onChange={callbackFor('zanataSecret')}
-            inputValue={zanataAccount.secret}
+            inputValue={zanataAccount.apiKey}
             isSecret
           />
 
@@ -86,7 +84,7 @@ export default React.createClass({
           <div className="col-md-7 ">
             <button type="button" className="btn btn-primary"
               onClick={saveCallback}
-              disabled={saveBtnDisabled}>
+              disabled={saving}>
               {saveBtnText}
             </button>
             <button type="button" className="btn btn-default"

@@ -72,7 +72,12 @@ export function submitNewWork(payload) {
         headers: {'Content-Type': 'application/json'},
         credentials: 'include',
         body: JSON.stringify(entity),
-        types: [NEW_WORK_REQUEST, NEW_WORK_SUCCESS, NEW_WORK_FAILURE]
+        types: [NEW_WORK_REQUEST, {
+          type: NEW_WORK_SUCCESS,
+          meta: {
+            notification: 'Saved successfully'
+          }
+        }, NEW_WORK_FAILURE]
       }
     })
   }
@@ -199,3 +204,7 @@ export function deleteWork() {
     }
   }
 }
+
+// ============= generic API request action
+export const API_REQUESTING = 'API_REQUESTING'
+export const requesting = createAction(API_REQUESTING)
