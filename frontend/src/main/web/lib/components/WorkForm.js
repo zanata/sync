@@ -10,7 +10,7 @@ export default React.createClass({
   propTypes: {
     onSaveNewWork: PropTypes.func.isRequired,
     saving: PropTypes.bool.isRequired,
-    srcRepoPlugins: PropTypes.arrayOf(React.PropTypes.string).isRequired,
+    srcRepoPlugins: PropTypes.arrayOf(PropTypes.string).isRequired,
     cronOptions: PropTypes.object.isRequired,
     user: PropTypes.object
   },

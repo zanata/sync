@@ -21,7 +21,6 @@
 package org.zanata.sync.service.impl;
 
 import java.util.Optional;
-import java.util.Set;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dao.ZanataAccountDAO;
 import org.zanata.sync.dto.LocalAccount;
+import org.zanata.sync.dto.RepoAccountDto;
 import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.model.RepoAccount;
@@ -37,7 +37,6 @@ import org.zanata.sync.model.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.AccountService;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -86,7 +85,7 @@ public class AccountServiceEJB implements AccountService {
 
     @Override
     @TransactionAttribute
-    public void updateZanataAccount(ZanataUserAccount zanataUserAccount) {
+    public ZanataAccount updateZanataAccount(ZanataUserAccount zanataUserAccount) {
         UserAccount account = securityTokens.getAccount();
         ZanataAccount entity;
         if (account instanceof LocalAccount) {
@@ -94,8 +93,10 @@ public class AccountServiceEJB implements AccountService {
             entity = zanataAccountDAO.getByLocalUsername(localAccount.getUsername());
             Preconditions.checkState(entity != null, "Can not find local account username in the system.");
             entity.updateZanataAccount(zanataUserAccount);
+            return entity;
         } else {
             // we don't support update Zanata Account from OAuth login
+            throw new IllegalStateException("Can not update Zanata Account when logged in using OAuth");
         }
     }
 
@@ -116,10 +117,26 @@ public class AccountServiceEJB implements AccountService {
         return result;
     }
 
+    @TransactionAttribute
     @Override
-    public Set<RepoAccount> getRepoAccountsForCurrentUser() {
+    public RepoAccount saveRepoAccountForCurrentUser(RepoAccountDto dto) {
         ZanataAccount zanataAccount =
                 getZanataAccountForCurrentUser();
-        return zanataAccount.getRepoAccounts();
+        Optional<RepoAccount> existing =
+                zanataAccount.getRepoAccounts().stream()
+                        .filter(repo -> repo.getId().equals(dto.getId()))
+                        .findAny();
+        if (existing.isPresent()) {
+            RepoAccount repoAccount = existing.get();
+            repoAccount.update(dto.getRepoType(), dto.getRepoHostname(),
+                    dto.getUsername(), dto.getSecret());
+            return repoAccount;
+        } else {
+            RepoAccount newAccount =
+                    new RepoAccount(dto.getRepoType(), dto.getRepoHostname(),
+                            dto.getUsername(), dto.getSecret(), zanataAccount);
+            zanataAccount.getRepoAccounts().add(newAccount);
+            return newAccount;
+        }
     }
 }

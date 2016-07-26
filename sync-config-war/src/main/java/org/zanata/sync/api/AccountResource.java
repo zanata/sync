@@ -23,13 +23,16 @@ package org.zanata.sync.api;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.zanata.sync.dto.RepoAccountDto;
 import org.zanata.sync.dto.ZanataUserAccount;
+import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.ZanataAccount;
 import org.zanata.sync.service.AccountService;
 
@@ -56,7 +59,18 @@ public class AccountResource {
     @PUT
     @Path("/zanata")
     public Response saveZanataAccount(ZanataUserAccount zanataUserAccount) {
-        accountService.updateZanataAccount(zanataUserAccount);
-        return Response.ok().build();
+        ZanataAccount entity =
+                accountService.updateZanataAccount(zanataUserAccount);
+        return Response.ok(ZanataUserAccount.fromEntity(entity)).build();
+    }
+
+    @POST
+    @Path("/repo")
+    public Response saveRepoAccount(RepoAccountDto repoAccount) {
+        RepoAccount entity =
+                accountService.saveRepoAccountForCurrentUser(repoAccount);
+        return Response
+                .ok(ZanataUserAccount.fromEntity(entity.getZanataAccount()))
+                .build();
     }
 }

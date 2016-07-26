@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react'
 import NavBanner from '../components/NavBanner'
-import { logout, deleteWork, toggleDeleteConfirmation } from '../actions'
+import { logout, deleteWork, toggleDeleteConfirmation } from '../actions/index'
+import {getZanataAccount} from '../actions/accountAction'
 import { connect } from 'react-redux'
 import SessionTimedOut from '../components/SessionTimedOut'
 import DeleteConfirmation from '../components/modal/Confirmation'
@@ -15,7 +16,8 @@ const App = React.createClass({
     showDeleteConfirmation: PropTypes.bool.isRequired,
     selectedConfig: PropTypes.object,
     onCloseDeleteConfirmation: PropTypes.func.isRequired,
-    onConfirmDeleteConfig: PropTypes.func.isRequired
+    onConfirmDeleteConfig: PropTypes.func.isRequired,
+    getZanataAccount: PropTypes.func.isRequired
   },
 
   componentWillReceiveProps(nextProps) {
@@ -23,6 +25,10 @@ const App = React.createClass({
       const {origin, pathname} = window.location
       window.location = `${origin}${pathname}`
     }
+  },
+
+  componentWillMount() {
+    this.props.getZanataAccount()
   },
 
   render() {
@@ -87,7 +93,8 @@ const mapDispatcherToProps = (dispatch) => {
     onCloseDeleteConfirmation: (id) => dispatch(toggleDeleteConfirmation({
       show: false
     })),
-    onConfirmDeleteConfig: (id) => dispatch(deleteWork())
+    onConfirmDeleteConfig: (id) => dispatch(deleteWork()),
+    getZanataAccount: () => dispatch(getZanataAccount())
   }
 }
 

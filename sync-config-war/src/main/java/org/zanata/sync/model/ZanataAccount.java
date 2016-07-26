@@ -23,8 +23,10 @@ package org.zanata.sync.model;
 import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,6 +37,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.zanata.sync.dto.ZanataUserAccount;
+import com.google.common.collect.Sets;
 
 
 /**
@@ -65,18 +68,18 @@ public class ZanataAccount {
             "FindByLocalUsername";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     private String localUsername;
     private String server;
     private String username;
     private String secret;
 
-    @OneToMany(mappedBy = "zanataAccount")
-    private Set<RepoAccount> repoAccounts;
+    @OneToMany(mappedBy = "zanataAccount", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<RepoAccount> repoAccounts = Sets.newHashSet();
 
     @OneToMany(mappedBy = "zanataAccount")
-    private Set<SyncWorkConfig> workConfigs;
+    private Set<SyncWorkConfig> workConfigs = Sets.newHashSet();
 
     public ZanataAccount() {
     }

@@ -21,6 +21,7 @@
 package org.zanata.sync.dto;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.zanata.sync.model.ZanataAccount;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,18 +29,20 @@ import com.google.common.base.MoreObjects;
 
 /**
  * Light weight DTO representing a Zanata Account
- * @author Patrick Huang
- *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ *
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZanataUserAccount implements UserAccount {
     private String zanataServer;
     private String username;
     private String apiKey;
+    private Set<RepoAccountDto> repoAccounts;
     private Set<String> roles;
     private String email;
     private String name;
     private boolean enabled;
+
 
     @Override
     public String getUsername() {
@@ -72,6 +75,10 @@ public class ZanataUserAccount implements UserAccount {
         return zanataServer;
     }
 
+    public Set<RepoAccountDto> getRepoAccounts() {
+        return repoAccounts;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -94,6 +101,9 @@ public class ZanataUserAccount implements UserAccount {
         dto.setZanataServer(entity.getServer());
         dto.apiKey = entity.getSecret();
         dto.username = entity.getUsername();
+        dto.repoAccounts = entity.getRepoAccounts().stream()
+                .map(RepoAccountDto::fromEntity).collect(
+                        Collectors.toSet());
         return dto;
     }
 }

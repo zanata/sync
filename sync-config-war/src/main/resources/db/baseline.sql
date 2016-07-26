@@ -11,13 +11,13 @@ CREATE TABLE IF NOT EXISTS ZanataAccount (
 
 CREATE TABLE IF NOT EXISTS RepoAccount (
     id            BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    repoHostname  VARCHAR(255),
-    repoType      VARCHAR(255),
+    repoHostname  VARCHAR(255) NOT NULL,
+    repoType      VARCHAR(255) NOT NULL,
     secret        VARCHAR(255),
     username      VARCHAR(255),
     zanataAccount BIGINT NOT NULL,
     UNIQUE repo_account_UK (repoHostname, username),
-    INDEX repo_account_natual_key_idx (repoHostname, username),
+    INDEX repo_account_natural_key_idx (repoHostname, username),
     INDEX repo_account_zanata_account_idx (zanataAccount),
     FOREIGN KEY repo_account_zanata_account_fk (zanataAccount) REFERENCES ZanataAccount (id)
 )

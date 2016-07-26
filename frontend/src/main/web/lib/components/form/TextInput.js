@@ -1,15 +1,15 @@
-import React from 'react'
+import React, {PropTypes} from 'react'
 import Label from './Label'
 
 export default React.createClass({
   propTypes: {
-    name: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    inputValue: React.PropTypes.string,
-    label: React.PropTypes.string,
-    placeholder: React.PropTypes.string,
-    lines: React.PropTypes.number,
-    isSecret: React.PropTypes.bool
+    name: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+    inputValue: PropTypes.string,
+    label: PropTypes.string,
+    placeholder: PropTypes.string,
+    lines: PropTypes.number,
+    isSecret: PropTypes.bool
   },
 
   render() {

@@ -18,29 +18,55 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.service;
+package org.zanata.sync.dto;
 
-import javax.ejb.TransactionAttribute;
-
-import org.zanata.sync.dto.RepoAccountDto;
-import org.zanata.sync.dto.UserAccount;
-import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.model.RepoAccount;
-import org.zanata.sync.model.ZanataAccount;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-public interface AccountService {
+public class RepoAccountDto {
+    private Long id;
+    private String username;
+    private String repoHostname;
+    private String repoType;
+    private String secret;
 
-    @TransactionAttribute
-    void saveUserAccount(UserAccount account);
+    public RepoAccountDto() {
+    }
 
-    @TransactionAttribute
-    ZanataAccount updateZanataAccount(ZanataUserAccount zanataUserAccount);
+    private RepoAccountDto(Long id, String username, String repoHostname,
+            String repoType, String secret) {
+        this.id = id;
+        this.username = username;
+        this.repoHostname = repoHostname;
+        this.repoType = repoType;
+        this.secret = secret;
+    }
 
-    ZanataAccount getZanataAccountForCurrentUser();
+    public Long getId() {
+        return id;
+    }
 
-    @TransactionAttribute
-    RepoAccount saveRepoAccountForCurrentUser(RepoAccountDto repoAccount);
+    public String getUsername() {
+        return username;
+    }
+
+    public String getRepoHostname() {
+        return repoHostname;
+    }
+
+    public String getRepoType() {
+        return repoType;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public static RepoAccountDto fromEntity(RepoAccount repoAccount) {
+        return new RepoAccountDto(repoAccount.getId(),
+                repoAccount.getUsername(), repoAccount.getRepoHostname(),
+                repoAccount.getRepoType(), repoAccount.getSecret());
+    }
 }

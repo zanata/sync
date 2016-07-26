@@ -29,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -40,7 +41,9 @@ public class RepoAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private String repoType;
+    @NotNull
     private String repoHostname;
     private String username;
     private String secret;
@@ -67,5 +70,31 @@ public class RepoAccount {
 
     public String getRepoType() {
         return repoType;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    @SuppressWarnings("unused")
+    public RepoAccount() {
+    }
+
+    public RepoAccount(String repoType, String repoHostname,
+            String username, String secret,
+            ZanataAccount zanataAccount) {
+        this.repoType = repoType;
+        this.repoHostname = repoHostname;
+        this.username = username;
+        this.secret = secret;
+        this.zanataAccount = zanataAccount;
+    }
+
+    public void update(String repoType, String repoHostname, String username,
+            String secret) {
+        this.repoType = repoType;
+        this.repoHostname = repoHostname;
+        this.username = username;
+        this.secret = secret;
     }
 }

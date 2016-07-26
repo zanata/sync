@@ -1,31 +1,10 @@
 import React, {PropTypes} from 'react'
 import ProgressBar from './ProgressBar'
 import EnableOrDisableIcon from './EnableOrDisableIcon'
+import RepoAccountLineItem from './RepoAccountLineItem'
 import cx from 'classnames'
 import { isError, isSuccess, isRunning, toJobDescription } from '../constants/Enums'
 import { duration, datePropValidator, formatDate } from '../utils/DateTime'
-
-const ToggleReveal = React.createClass({
-  getInitialState() {
-    return {
-      show: false
-    }
-  },
-  _clickCallback(e) {
-    e.stopPropagation()
-    this.setState({
-      show: !this.state.show
-    })
-  },
-  render() {
-    const text = this.state.show ? this.props.text : '****'
-    return (
-      <abbr title={this.props.text} onClick={this._clickCallback}>
-        {text}
-      </abbr>
-    )
-  }
-})
 
 export default React.createClass({
   propTypes: {
@@ -118,9 +97,9 @@ export default React.createClass({
                 <footer>created at {formatDate(createdDate)}</footer>
               </blockquote>
               <ul className="list-group">
-                <li className="list-group-item">
-                  <span className='label label-info'>{srcRepoPluginName}</span>source repo <span className="text-muted">branch: {srcRepoBranch}</span> : {srcRepoUsername}:<ToggleReveal text={srcRepoSecret} />@{srcRepoUrl}
-                </li>
+                <RepoAccountLineItem url={srcRepoUrl} username={srcRepoUsername}
+                  secret={srcRepoSecret} branch={srcRepoBranch}
+                  repoType={srcRepoPluginName} />
                 <li className='list-group-item'>
                   <ul className="list-inline">
                     <li>Sync <strong className='text-info'>{syncToZanataOption}</strong> to Zanata {syncToZanataCron} <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
