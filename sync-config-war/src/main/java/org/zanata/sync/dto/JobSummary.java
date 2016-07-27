@@ -23,21 +23,47 @@ package org.zanata.sync.dto;
 import java.io.Serializable;
 
 import org.zanata.sync.model.JobType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
 public class JobSummary implements Serializable {
     private String jobKey;
     private Long workId;
-    private String name;
-    private String description;
+    private boolean enabled;
     private JobType type;
     private JobRunStatus lastJobStatus;
+
+    public JobSummary(String jobKey, Long workId,
+            boolean enabled, JobType type,
+            JobRunStatus lastJobStatus) {
+        this.jobKey = jobKey;
+        this.workId = workId;
+        this.enabled = enabled;
+        this.type = type;
+        this.lastJobStatus = lastJobStatus;
+    }
+
+    public JobSummary() {
+    }
+
+    public String getJobKey() {
+        return jobKey;
+    }
+
+    public Long getWorkId() {
+        return workId;
+    }
+
+    public JobType getType() {
+        return type;
+    }
+
+    public JobRunStatus getLastJobStatus() {
+        return lastJobStatus;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

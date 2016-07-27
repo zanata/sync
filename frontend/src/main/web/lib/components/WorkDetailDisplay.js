@@ -14,7 +14,6 @@ export default React.createClass({
       name: PropTypes.string.isRequired,
       createdDate: PropTypes.string.isRequired,
       srcRepoPluginName: PropTypes.string.isRequired,
-      srcRepoPluginConfig: PropTypes.object.isRequired,
       syncToServerEnabled: PropTypes.bool.isRequired,
       syncToRepoEnabled: PropTypes.bool.isRequired,
       jobRunHistory: PropTypes.arrayOf(PropTypes.shape({

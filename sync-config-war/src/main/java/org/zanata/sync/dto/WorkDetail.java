@@ -45,7 +45,8 @@ public class WorkDetail {
 
     private SyncOption syncToZanataOption;
 
-    private String srcRepoPluginName;
+    private ZanataUserAccount zanataAccount;
+    private RepoAccountDto repoAccount;
 
     private boolean syncToServerEnabled = true;
     private boolean syncToRepoEnabled = true;
@@ -55,8 +56,6 @@ public class WorkDetail {
     private List<JobRunStatus> jobRunHistory;
 
     private String srcRepoUrl;
-    private String srcRepoUsername;
-    private String srcRepoSecret;
     private String srcRepoBranch;
 
     @SuppressWarnings("unused")
@@ -66,25 +65,25 @@ public class WorkDetail {
     private WorkDetail(Long id, String name, String description,
             CronType syncToZanataCron, CronType syncToRepoCron,
             SyncOption syncToZanataOption,
-            String srcRepoPluginName,
             boolean syncToServerEnabled,
             boolean syncToRepoEnabled, Date createdDate,
-            List<JobRunStatus> jobRunHistory, String srcRepoUrl,
-            String srcRepoUsername, String srcRepoSecret, String srcRepoBranch) {
+            List<JobRunStatus> jobRunHistory,
+            ZanataUserAccount zanataAccount, RepoAccountDto repoAccount,
+            String srcRepoUrl,
+            String srcRepoBranch) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.syncToZanataCron = syncToZanataCron;
         this.syncToRepoCron = syncToRepoCron;
         this.syncToZanataOption = syncToZanataOption;
-        this.srcRepoPluginName = srcRepoPluginName;
         this.syncToServerEnabled = syncToServerEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.createdDate = createdDate;
         this.jobRunHistory = jobRunHistory;
+        this.zanataAccount = zanataAccount;
+        this.repoAccount = repoAccount;
         this.srcRepoUrl = srcRepoUrl;
-        this.srcRepoUsername = srcRepoUsername;
-        this.srcRepoSecret = srcRepoSecret;
         this.srcRepoBranch = srcRepoBranch;
     }
 
@@ -95,17 +94,20 @@ public class WorkDetail {
                         .fromEntity(jobStatus, workConfig.getId(),
                                 jobStatus.getJobType()))
                 .collect(Collectors.toList());
+        ZanataUserAccount zanataUserAccount =
+                ZanataUserAccount.fromEntity(workConfig.getZanataAccount());
+        RepoAccountDto repoAccount =
+                RepoAccountDto.fromEntity(workConfig.getRepoAccount());
         return new WorkDetail(workConfig.getId(), workConfig.getName(),
                 workConfig.getDescription(), workConfig.getSyncToZanataCron(),
                 workConfig.getSyncToRepoCron(),
                 workConfig.getSyncToZanataOption(),
-                workConfig.getRepoAccount().getRepoType(),
                 workConfig.isSyncToServerEnabled(),
                 workConfig.isSyncToRepoEnabled(),
                 workConfig.getCreatedDate(), statuses,
+                zanataUserAccount,
+                repoAccount,
                 workConfig.getSrcRepoUrl(),
-                workConfig.getRepoAccount().getUsername(),
-                workConfig.getRepoAccount().getSecret(),
                 workConfig.getSrcRepoBranch());
     }
 
@@ -149,23 +151,19 @@ public class WorkDetail {
         return jobRunHistory;
     }
 
-    public String getSrcRepoPluginName() {
-        return srcRepoPluginName;
-    }
-
     public String getSrcRepoUrl() {
         return srcRepoUrl;
     }
 
-    public String getSrcRepoUsername() {
-        return srcRepoUsername;
-    }
-
-    public String getSrcRepoSecret() {
-        return srcRepoSecret;
-    }
-
     public String getSrcRepoBranch() {
         return srcRepoBranch;
+    }
+
+    public ZanataUserAccount getZanataAccount() {
+        return zanataAccount;
+    }
+
+    public RepoAccountDto getRepoAccount() {
+        return repoAccount;
     }
 }

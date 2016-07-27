@@ -7,6 +7,7 @@ const {PropTypes} = React
 const jobSummaryShape = {
   jobKey: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
+  enabled: PropTypes.bool.isRequired,
   lastJobStatus: PropTypes.object
 }
 
@@ -27,7 +28,7 @@ export default React.createClass({
 
     // TODO make this an enum
     const syncToRepoRunning = !!runningJobs[id + 'REPO_SYNC']
-    const syncToRepoSummary = (
+    const syncToRepoSummary = syncToRepoJob.enabled && (
       <JobSummary workId={id} jobKey={syncToRepoJob.jobKey}
         jobType={syncToRepoJob.type} runJob={runJob}
         lastJobStatus={syncToRepoJob.lastJobStatus}
@@ -37,7 +38,7 @@ export default React.createClass({
     )
 
     const syncToZanataRunning = !!runningJobs[id + 'SERVER_SYNC']
-    const syncToZanataSummary = (
+    const syncToZanataSummary = syncToTransServerJob.enabled && (
       <JobSummary workId={id} jobKey={syncToTransServerJob.jobKey}
         jobType={syncToTransServerJob.type} runJob={runJob}
         lastJobStatus={syncToTransServerJob.lastJobStatus}
@@ -45,6 +46,7 @@ export default React.createClass({
         {...this.props}
       />
     )
+
 
     // TODO we don't display it as it may potentially break the layout. We want to turn this into a tooltip or popover
     const desc = (<h4 className='small'>{description}</h4>)

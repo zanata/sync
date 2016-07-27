@@ -70,14 +70,9 @@ export default React.createClass({
         </div>
       )
     }
-    let loadingBar = null
-    if (running) {
-      loadingBar = (
-        <div className='row'>
-          <ProgressBar loading={running}/>
-        </div>
+    const loadingBar = running && (
+        <div className='row'><ProgressBar loading/></div>
       )
-    }
 
     return (
       <div className='panel panel-default'>
