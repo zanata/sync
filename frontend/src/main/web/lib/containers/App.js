@@ -56,7 +56,7 @@ const App = React.createClass({
           zanataServer={user && user.zanataServer}
           onLogout={this.props.onLogout}
         />
-        <h2 className='text-center'>Zanata Sync {message}</h2>
+        <h3 className='text-center'>Zanata Sync {message}</h3>
         <div className="container-fluid container-cards-pf">
           <div className="row">
             <div className="col-sm-6 col-md-8 col-sm-push-3 col-md-push-2">

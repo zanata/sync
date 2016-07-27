@@ -49,24 +49,15 @@ export default React.createClass({
     // TODO we don't display it as it may potentially break the layout. We want to turn this into a tooltip or popover
     const desc = (<h4 className='small'>{description}</h4>)
 
-    const cardHeight = 460
-    const cardStyle = {height: cardHeight + 'px'}
-    const cardBodyStyle = {height: cardHeight * 0.8 + 'px'}
-
     const detailLink = `/work/${id}`
     return (
-      <div className="col-xs-12 col-sm-6 col-md-4">
-        <div className="card-pf" style={cardStyle}>
-          <div className="card-pf-heading">
-            <h4 className="card-pf-title">{name}</h4>
-            <Link to={detailLink}>more detail...</Link>
-          </div>
-          <div className="card-pf-body" style={cardBodyStyle}>
-            {syncToRepoSummary}
-            {syncToZanataSummary}
-          </div>
+      <div className="list-group-item">
+        <h4 className="list-group-item-heading">{name} <Link
+          className='text-muted pull-right' to={detailLink}>more detail...</Link></h4>
+        <div className="list-group-item-text">
+          {syncToRepoSummary}
+          {syncToZanataSummary}
         </div>
-
       </div>
     )
   }

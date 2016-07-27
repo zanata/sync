@@ -62,7 +62,7 @@ export default React.createClass({
       )
     })
     return (
-      <div className='row row-cards-pf'>
+      <div className='list-group'>
         {summaries}
       </div>
     )

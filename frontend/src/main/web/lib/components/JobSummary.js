@@ -4,12 +4,34 @@ import { toJobDescription } from '../constants/Enums'
 import { formatDate } from '../utils/DateTime'
 import { isITOS } from '../utils/startWebSocket'
 
-function description(label, value) {
+const RunDuration = (props) => {
+  const {startTime, endTime} = props
+  if (startTime) {
+    return (
+      <div className='col-sm-6'>
+        From {formatDate(startTime)} to {formatDate(endTime)}
+      </div>
+    )
+  }
+  return null
+}
+
+const NextFireTime = (props) => {
+  const {startTime, endTime, nextStartTime} = props
+  if (nextStartTime && (nextStartTime != startTime && nextStartTime != endTime)) {
+    return (
+      <div className='col-sm-3'>
+        <span className='glyphicon glyphicon-time' aria-hidden="true" alt="next run time"/>
+        {formatDate(nextStartTime)}
+      </div>
+    )
+  }
+  return null
+}
+
+const Status = (props) => {
   return (
-    <div className='row'>
-      <div className='col-sm-4 text-info'>{label}</div>
-      <div className='col-sm-8'>{value}</div>
-    </div>
+    <div className='col-sm-3 text-info'>{props.status}</div>
   )
 }
 
@@ -38,25 +60,21 @@ export default React.createClass({
 
     let statusDisplay = null
     if (lastJobStatus && !running) {
+      const {startTime, endTime, nextStartTime, status} = lastJobStatus
       statusDisplay = (
-        <div className='container-fluid'>
-          {description('status', lastJobStatus.status)}
-          {description('started', formatDate(lastJobStatus.startTime))}
-          {description('ended', formatDate(lastJobStatus.endTime))}
-          {description('next', formatDate(lastJobStatus.nextStartTime))}
+        <div className='row'>
+          <Status status={status}/>
+          <RunDuration startTime={startTime} endTime={endTime}/>
+          <NextFireTime startTime={startTime} endTime={endTime}
+            nextStartTime={nextStartTime}/>
         </div>
       )
     }
     let loadingBar = null
     if (running) {
       loadingBar = (
-        <div>
+        <div className='row'>
           <ProgressBar loading={running}/>
-          {/* placeholder so that it won't shift the panel up and down */}
-          <div className='container-fluid'>
-            <div className='row'>&nbsp;</div>
-            <div className='row'>&nbsp;</div>
-          </div>
         </div>
       )
     }
@@ -67,11 +85,17 @@ export default React.createClass({
           <span className='text-info'>{jobDescription}</span>
           <button type="button" className="btn btn-primary btn-sm pull-right"
             disabled={running}
-            onClick={runJobCallback}>Run now</button>
+            onClick={runJobCallback}>
+            <span className='hidden-xs'>Run now</span>
+            <span className='glyphicon glyphicon-play-circle visible-xs-inline'
+              aria-hidden="true" />
+          </button>
         </div>
         <div className='panel-body'>
-          {loadingBar}
-          {statusDisplay}
+          <div className='container-fluid'>
+            {loadingBar}
+            {statusDisplay}
+          </div>
         </div>
       </div>
     )
