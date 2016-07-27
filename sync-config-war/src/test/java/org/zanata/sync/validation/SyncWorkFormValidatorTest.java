@@ -43,23 +43,24 @@ public class SyncWorkFormValidatorTest {
     @Test
     public void canValidateCommonFields() {
         SyncWorkForm form =
-                new SyncWorkForm("a", null, null, null, null, "git",
+                new SyncWorkForm("a", null, null, null, null,
                         null, DISABLE_ZANATA_SYNC,
-                        DISABLE_REPO_SYNC, null, null, null, null);
+                        DISABLE_REPO_SYNC, null, null, null);
         Map<String, String> errors = validator.validateForm(form);
         assertThat(errors).containsOnly(
                 entry("name", "size must be between 5 and 100"),
                 entry("enabledJobs",
                         "At least one type of job should be enabled"),
-                entry("srcRepoUrl", "may not be empty"));
+                entry("srcRepoUrl", "may not be empty"),
+                entry("srcRepoAccountId", "may not be null"));
     }
 
     @Test
     public void canValidateZantaSyncFields() {
         SyncWorkForm form =
-                new SyncWorkForm("abcde", null, null, null, null, "git",
+                new SyncWorkForm("abcde", null, null, null, null,
                         null, ENABLE_ZANATA_SYNC,
-                        DISABLE_REPO_SYNC, null, null, null, null);
+                        DISABLE_REPO_SYNC, null, null, 1L);
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
@@ -71,22 +72,22 @@ public class SyncWorkFormValidatorTest {
     @Test
     public void canValidateRepoSyncFields() {
         SyncWorkForm form =
-                new SyncWorkForm("abcde", null, null, null, null, "git",
+                new SyncWorkForm("abcde", null, null, null, null,
                         null, DISABLE_ZANATA_SYNC,
-                        ENABLE_REPO_SYNC, null, null, null, null);
+                        ENABLE_REPO_SYNC, null, null, null);
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
-                .containsOnlyKeys("srcRepoUrl", "syncToRepoCron");
+                .containsOnlyKeys("srcRepoUrl", "syncToRepoCron", "srcRepoAccountId");
     }
 
-    @Test
+    /*@Test
     public void canValidateUnknownSourceRepoPluginName() {
         SyncWorkForm form =
                 new SyncWorkForm("abcde", null, null, SyncOption.SOURCE,
-                        CronType.MANUAL, "unknown", null,
+                        CronType.MANUAL, null,
                         DISABLE_ZANATA_SYNC, ENABLE_REPO_SYNC,
-                        null, null, null, null);
+                        null, null, repoAccId);
         Map<String, String> errors = validator.validateForm(form);
 
         assertThat(errors)
@@ -94,5 +95,5 @@ public class SyncWorkFormValidatorTest {
                         entry("srcRepoPluginName",
                                 "unsupported source repository type"),
                         entry("srcRepoUrl", "may not be empty"));
-    }
+    }*/
 }

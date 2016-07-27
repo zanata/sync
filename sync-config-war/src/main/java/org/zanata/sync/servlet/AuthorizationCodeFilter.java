@@ -95,8 +95,8 @@ public class AuthorizationCodeFilter implements Filter {
                 String code = oAuthResponse.getCode();
                 ZanataUserAccount account = requestOAuthTokens(zanataUrl, code);
                 account.setZanataServer(zanataUrl);
-                accountService.saveUserAccount(account);
                 securityTokens.setAuthenticatedAccount(account);
+                accountService.saveAuthenticatedAccount();
                 httpServletResponse.sendRedirect(httpServletRequest.getContextPath());
             } else {
                 chain.doFilter(request, response);

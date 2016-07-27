@@ -56,6 +56,7 @@ public class AccountResource {
         return Response.ok(dto).build();
     }
 
+    // TODO pahuang run bean validation for the two dto
     @PUT
     @Path("/zanata")
     public Response saveZanataAccount(ZanataUserAccount zanataUserAccount) {

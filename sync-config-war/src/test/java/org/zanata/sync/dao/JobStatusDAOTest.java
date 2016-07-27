@@ -12,7 +12,9 @@ import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
+import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.SyncWorkConfig;
+import org.zanata.sync.model.ZanataAccount;
 
 public class JobStatusDAOTest {
     @Rule
@@ -27,13 +29,17 @@ public class JobStatusDAOTest {
 
     @Test
     public void canSaveNewStatusAndUpdate() {
+        ZanataAccount zanataAccount = new ZanataAccount("localUser");
+        RepoAccount repoAccount =
+                new RepoAccount("git", "https://github.com", null, null,
+                        zanataAccount);
+        zanataAccount.getRepoAccounts().add(repoAccount);
+        entityManagerRule.getEm().persist(zanataAccount);
         SyncWorkConfig syncWorkConfig =
                 new SyncWorkConfig(null, "name", null, null, null,
-                        SyncOption.SOURCE, "git", null, true, true,
-                        "username",
-                        "apiKey", "http://localhost:8080/zanata",
+                        SyncOption.SOURCE, true, true,
                         "https://github.com/zanata/zanata-server.git",
-                        null, null, null);
+                        null, zanataAccount, repoAccount);
         entityManagerRule.getEm().persist(syncWorkConfig);
         JobStatus jobStatus =
                 new JobStatus("id", syncWorkConfig, JobType.REPO_SYNC,

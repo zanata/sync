@@ -21,15 +21,12 @@
 package org.zanata.sync.dto;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
-import org.zanata.sync.validation.SupportedRepo;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -55,14 +52,8 @@ public class SyncWorkForm implements Serializable {
     @NotNull(groups = RepoSyncGroup.class)
     private CronType syncToRepoCron;
 
-    // TODO change this to srcRepoType instead
-    @SupportedRepo
-    @NotEmpty
-    @Size(max = 50)
-    private String srcRepoPluginName;
-
-    @Size(max = 16)
-    private String encryptionKey;
+    @NotNull
+    private Long srcRepoAccountId;
 
     private boolean syncToZanataEnabled = true;
 
@@ -70,33 +61,29 @@ public class SyncWorkForm implements Serializable {
 
     @NotEmpty
     private String srcRepoUrl;
-    private String srcRepoUsername;
-    private String srcRepoSecret;
     private String srcRepoBranch;
 
     @VisibleForTesting
     public SyncWorkForm(String name, String description,
             CronType syncToZanataCron,
             SyncOption syncOption, CronType syncToRepoCron,
-            String srcRepoPluginName, String encryptionKey,
+            String encryptionKey,
             boolean syncToZanataEnabled,
             boolean syncToRepoEnabled, String srcRepoUrl,
-            String srcRepoUsername, String srcRepoSecret, String srcRepoBranch) {
+            String srcRepoBranch, Long srcRepoAccountId) {
         this.name = name;
         this.description = description;
         this.syncToZanataCron = syncToZanataCron;
         this.syncOption = syncOption;
         this.syncToRepoCron = syncToRepoCron;
-        this.srcRepoPluginName = srcRepoPluginName;
-        this.encryptionKey = encryptionKey;
         this.syncToZanataEnabled = syncToZanataEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.srcRepoUrl = srcRepoUrl;
-        this.srcRepoUsername = srcRepoUsername;
-        this.srcRepoSecret = srcRepoSecret;
         this.srcRepoBranch = srcRepoBranch;
+        this.srcRepoAccountId = srcRepoAccountId;
     }
 
+    @SuppressWarnings("unused")
     public SyncWorkForm() {
     }
 
@@ -124,14 +111,6 @@ public class SyncWorkForm implements Serializable {
         return syncToRepoCron;
     }
 
-    public String getSrcRepoPluginName() {
-        return srcRepoPluginName;
-    }
-
-    public String getEncryptionKey() {
-        return encryptionKey;
-    }
-
     public boolean isSyncToZanataEnabled() {
         return syncToZanataEnabled;
     }
@@ -144,12 +123,8 @@ public class SyncWorkForm implements Serializable {
         return srcRepoUrl;
     }
 
-    public String getSrcRepoUsername() {
-        return srcRepoUsername;
-    }
-
-    public String getSrcRepoSecret() {
-        return srcRepoSecret;
+    public Long getSrcRepoAccountId() {
+        return srcRepoAccountId;
     }
 
     public String getSrcRepoBranch() {

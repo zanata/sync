@@ -40,12 +40,14 @@ import javax.ws.rs.core.Response;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.dto.Payload;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.WorkDetail;
 import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
+import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
 import org.zanata.sync.dto.WorkSummary;
@@ -57,6 +59,8 @@ import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
 import org.zanata.sync.validation.SyncWorkFormValidator;
+
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -136,11 +140,22 @@ public class WorkResource {
     public Response createWork(SyncWorkForm form) {
         Map<String, String> errors = formValidator.validateForm(form);
         if (!errors.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
-                    .build();
+            return Response.status(BAD_REQUEST).entity(errors).build();
         }
+        ZanataAccount zanataAccount =
+                accountService.getZanataAccountForCurrentUser();
+        Optional<RepoAccount> repoAccount = zanataAccount.getRepoAccounts().stream()
+                .filter(acc -> acc.getId()
+                        .equals(form.getSrcRepoAccountId())).findAny();
+
+        if (!repoAccount.isPresent()) {
+            return Response.status(BAD_REQUEST).entity(Payload
+                    .error("Source Repo ID not found: " +
+                            form.getSrcRepoAccountId())).build();
+        }
+
         SyncWorkConfig syncWorkConfig =
-                syncWorkConfigBuilder.buildObject(form);
+                syncWorkConfigBuilder.buildObject(form, zanataAccount, repoAccount.get());
         // TODO pahuang here we should persist the refresh token
         try {
             workService.updateOrPersist(syncWorkConfig);
@@ -161,7 +176,7 @@ public class WorkResource {
         }
         Map<String, String> errors = formValidator.validateForm(form);
         if (!errors.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
+            return Response.status(BAD_REQUEST).entity(errors).build();
         }
         /* TODO not supported yet
         ZanataAccount zanataAccount = getZanataAccount(form);

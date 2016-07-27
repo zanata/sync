@@ -23,7 +23,6 @@ package org.zanata.sync.service;
 import javax.ejb.TransactionAttribute;
 
 import org.zanata.sync.dto.RepoAccountDto;
-import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.ZanataAccount;
@@ -33,9 +32,22 @@ import org.zanata.sync.model.ZanataAccount;
  */
 public interface AccountService {
 
+    /**
+     * Save current authenticated account as ZanataAccount entity (no op if
+     * already saved).
+     */
     @TransactionAttribute
-    void saveUserAccount(UserAccount account);
+    void saveAuthenticatedAccount();
 
+    /**
+     * Update zanata account associated to a local account (only the Zanata
+     * account relevant fields). If current authenticated account is an OAuth
+     * account, this will throw IllegalStateException.
+     *
+     * @param zanataUserAccount
+     *         dto
+     * @return updated ZanataAccount entity
+     */
     @TransactionAttribute
     ZanataAccount updateZanataAccount(ZanataUserAccount zanataUserAccount);
 

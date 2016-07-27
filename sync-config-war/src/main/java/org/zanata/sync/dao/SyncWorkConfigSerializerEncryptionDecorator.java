@@ -35,7 +35,7 @@ public class SyncWorkConfigSerializerEncryptionDecorator
             SyncWorkConfig directConvert) {
         List<String> fieldsNeedEncryption =
                 appConfiguration.getFieldsNeedEncryption();
-        String encryptionKey = directConvert.getEncryptionKey();
+        String encryptionKey = "FixThis";
 
         if (fieldsNeedEncryption.isEmpty() ||
                 Strings.isNullOrEmpty(encryptionKey)) {
@@ -60,7 +60,7 @@ public class SyncWorkConfigSerializerEncryptionDecorator
     public String toYaml(SyncWorkConfig syncWorkConfig) {
         List<String> fieldsNeedEncryption =
                 appConfiguration.getFieldsNeedEncryption();
-        String encryptionKey = syncWorkConfig.getEncryptionKey();
+        String encryptionKey = "FixThis";
 
         if (fieldsNeedEncryption.isEmpty() ||
                 Strings.isNullOrEmpty(encryptionKey)) {

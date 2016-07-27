@@ -28,8 +28,6 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     name                VARCHAR(128) NOT NULL,
     description         VARCHAR(255),
     createdDate         TIMESTAMP,
-    encryptionKey       VARCHAR(255),
-    srcRepoPluginName   VARCHAR(255),
     syncToRepoCron      VARCHAR(255),
     syncToRepoEnabled   BOOLEAN      NOT NULL,
     syncToServerEnabled BOOLEAN      NOT NULL,

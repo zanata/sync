@@ -1,14 +1,14 @@
-import React from 'react'
+import React, {PropTypes} from 'react'
 import Label from './Label'
 
 export default React.createClass({
   propTypes: {
-    name: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    options: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-    optionsDesc: React.PropTypes.arrayOf(React.PropTypes.string),
-    label: React.PropTypes.string,
-    selected: React.PropTypes.string
+    name: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+    options: PropTypes.arrayOf(PropTypes.any).isRequired,
+    optionsDesc: PropTypes.arrayOf(PropTypes.string),
+    label: PropTypes.string,
+    selected: PropTypes.any
 
   },
 
@@ -18,7 +18,7 @@ export default React.createClass({
     const label = this.props.label || name
     const options = this.props.options
     const optionsDesc = this.props.optionsDesc || options
-    const selected = this.props.selected || options[0]
+    const selected = this.props.selected
     const optionElms = options.map((opt, i) => {
       return ( <option key={i} value={opt}>{optionsDesc[i]}</option> )
     })

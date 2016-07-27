@@ -64,9 +64,9 @@ public class FormAuthenticationFilter implements Filter {
             if (!securityTokens.hasAccess() && req.getRemoteUser() != null) {
                 UserAccount account = new LocalAccount(req.getRemoteUser(),
                         Sets.newHashSet("syncUser"), true);
-                accountService.saveUserAccount(account);
                 log.info("authenticated using local user: {}", account);
                 securityTokens.setAuthenticatedAccount(account);
+                accountService.saveAuthenticatedAccount();
             }
         }
         chain.doFilter(request, response);

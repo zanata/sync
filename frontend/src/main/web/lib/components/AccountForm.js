@@ -1,6 +1,8 @@
 import React, {PropTypes} from 'react'
 import TextInput from './form/TextInput'
 import Select from './form/Select'
+import FieldSet from './form/FieldSet'
+import FormButtons from './form/FormButtons'
 import {redirectToSignIn} from '../utils/route'
 import RepoAccountLineItem from './RepoAccountLineItem'
 
@@ -126,9 +128,7 @@ export default React.createClass({
     // selected repo account
     const saveRepoAccountCallback = e => this.props.onSaveRepoAccount(this.state)
     let saveBtnText
-    if (savingRepoAccount) {
-      saveBtnText = 'Saving...'
-    } else if (this.state.repoId < 0) {
+    if (this.state.repoId < 0) {
       saveBtnText = 'Save New Account'
     } else {
       saveBtnText = 'Update Account'
@@ -136,8 +136,7 @@ export default React.createClass({
 
     return (
       <div className="form-horizontal">
-        <fieldset>
-          <legend>Associated Zanata Account</legend>
+        <FieldSet legend="Associated Zanata Account">
           <TextInput name='zanataServer' label='Server URL'
             onChange={this._callbackFor('zanataServer')}
             placeholder='http://translate.zanata.org'
@@ -150,23 +149,12 @@ export default React.createClass({
             onChange={this._callbackFor('zanataSecret')}
             inputValue={this.state.zanataSecret} isSecret
           />
+          <FormButtons onSave={saveZanataAccountCallback} cancelBtnText='Reset'
+            saving={savingZanataAccount} onCancel={this._handleResetZanata}
+          />
+        </FieldSet>
 
-          <div className="form-group">
-            <div className='col-md-3'></div>
-            <div className="col-md-7 ">
-              <button type="button" className="btn btn-primary"
-                onClick={saveZanataAccountCallback}
-                disabled={savingZanataAccount}>
-                {savingZanataAccount ? 'Saving...' : 'Save'}
-              </button>
-              <button type="button" className="btn btn-default"
-                onClick={this._handleResetZanata}>Reset</button>
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Associated Source Repository Accounts</legend>
+        <FieldSet legend="Associated Source Repository Accounts">
           <div className="list-group col-md-7 col-md-offset-3">
             {repoAccountItems}
           </div>
@@ -196,18 +184,10 @@ export default React.createClass({
             inputValue={this.state.repoSecret} isSecret
           />
 
-          <div className="form-group">
-            <div className='col-md-3'></div>
-            <div className="col-md-7 ">
-              <button type="button" className="btn btn-primary"
-                onClick={saveRepoAccountCallback}
-                disabled={savingRepoAccount}>
-                {saveBtnText}
-              </button>
-            </div>
-          </div>
-
-        </fieldset>
+          <FormButtons onSave={saveRepoAccountCallback} saving={savingRepoAccount}
+            saveBtnText={saveBtnText}
+          />
+        </FieldSet>
       </div>
     )
   }

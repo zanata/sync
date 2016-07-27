@@ -20,14 +20,12 @@
  */
 package org.zanata.sync.model;
 
-import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.AccountService;
-import com.google.common.base.Preconditions;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -43,26 +41,19 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
     private AccountService accountService;
 
     @Override
-    public SyncWorkConfig buildObject(SyncWorkForm syncWorkForm) {
-        ZanataAccount zanataAccount =
-                accountService.getZanataAccountForCurrentUser();
+    public SyncWorkConfig buildObject(SyncWorkForm syncWorkForm,
+            ZanataAccount zanataAccount, RepoAccount repoAccount) {
+
         return new SyncWorkConfig(syncWorkForm.getId(),
                 syncWorkForm.getName(),
                 syncWorkForm.getDescription(),
                 syncWorkForm.getSyncToZanataCron(),
                 syncWorkForm.getSyncToRepoCron(),
                 syncWorkForm.getSyncOption(),
-                syncWorkForm.getSrcRepoPluginName(),
-                syncWorkForm.getEncryptionKey(),
                 syncWorkForm.isSyncToZanataEnabled(),
                 syncWorkForm.isSyncToRepoEnabled(),
-                zanataAccount.getUsername(),
-                zanataAccount.getSecret(),
-                zanataAccount.getServer(),
                 syncWorkForm.getSrcRepoUrl(),
-                syncWorkForm.getSrcRepoUsername(),
-                syncWorkForm.getSrcRepoSecret(),
-                syncWorkForm.getSrcRepoBranch());
+                syncWorkForm.getSrcRepoBranch(), zanataAccount, repoAccount);
     }
 
 }

@@ -67,8 +67,6 @@ public class SyncWorkConfig {
     public static final String FIND_BY_ZANATA_ACCOUNT_QUERY =
             "FindByZanataAccountQuery";
     public static final String GET_ALL_QUERY = "GetAllQuery";
-    private static final Logger log =
-            LoggerFactory.getLogger(SyncWorkConfig.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,8 +80,6 @@ public class SyncWorkConfig {
     @Enumerated(EnumType.STRING)
     private SyncOption syncToZanataOption;
 
-
-    private String encryptionKey;
 
     private boolean syncToServerEnabled = true;
 
@@ -113,24 +109,22 @@ public class SyncWorkConfig {
     public SyncWorkConfig(Long id, String name, String description,
             CronType syncToZanataCron, CronType syncToRepoCron,
             SyncOption syncToZanataOption,
-            String srcRepoPluginName,
-            String encryptionKey,
             boolean syncToServerEnabled, boolean syncToRepoEnabled,
-            String zanataUsername,
-            String zanataSecret, String zanataServerUrl, String srcRepoUrl,
-            String srcRepoUsername, String srcRepoSecret,
-            String srcRepoBranch) {
+            String srcRepoUrl,
+            String srcRepoBranch, ZanataAccount zanataAccount,
+            RepoAccount repoAccount) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.syncToZanataOption = syncToZanataOption;
-        this.encryptionKey = encryptionKey;
         this.syncToServerEnabled = syncToServerEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.syncToZanataCron = syncToZanataCron;
         this.syncToRepoCron = syncToRepoCron;
         this.srcRepoUrl = srcRepoUrl;
         this.srcRepoBranch = srcRepoBranch;
+        this.zanataAccount = zanataAccount;
+        this.repoAccount = repoAccount;
     }
 
     @Override
@@ -163,10 +157,6 @@ public class SyncWorkConfig {
 
     public SyncOption getSyncToZanataOption() {
         return syncToZanataOption;
-    }
-
-    public String getEncryptionKey() {
-        return encryptionKey;
     }
 
     public boolean isSyncToServerEnabled() {

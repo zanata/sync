@@ -25,7 +25,6 @@
                     <div class="col-sm-10 col-md-10">
                         <input type="text" class="form-control" id="j_username"
                                 name="j_username" placeholder="username"
-                                value="pahuang"
                                 tabindex="1">
                     </div>
                 </div>
@@ -35,14 +34,13 @@
                     <div class="col-sm-10 col-md-10">
                         <input type="password" class="form-control"
                                 id="j_password" name="j_password" placeholder=""
-                                value="p@zanata1"
                                 tabindex="2">
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-xs-4 col-sm-4 col-md-4 submit">
                         <button type="submit" class="btn btn-primary btn-lg"
-                                tabindex="4">Log In
+                                tabindex="3">Log In
                         </button>
                     </div>
                 </div>

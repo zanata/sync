@@ -53,7 +53,8 @@ public class AccountServiceEJB implements AccountService {
 
     @Override
     @TransactionAttribute
-    public void saveUserAccount(UserAccount account) {
+    public void saveAuthenticatedAccount() {
+        UserAccount account = securityTokens.getAccount();
         ZanataAccount entity;
         if (account instanceof ZanataUserAccount) {
             ZanataUserAccount zanataAccount = (ZanataUserAccount) account;

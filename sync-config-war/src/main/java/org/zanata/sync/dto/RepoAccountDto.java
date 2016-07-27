@@ -20,7 +20,10 @@
  */
 package org.zanata.sync.dto;
 
+import javax.validation.constraints.Size;
+
 import org.zanata.sync.model.RepoAccount;
+import org.zanata.sync.validation.SupportedRepo;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -28,7 +31,11 @@ import org.zanata.sync.model.RepoAccount;
 public class RepoAccountDto {
     private Long id;
     private String username;
+
+    @Size(min = 3, max = 255)
     private String repoHostname;
+
+    @SupportedRepo
     private String repoType;
     private String secret;
 
