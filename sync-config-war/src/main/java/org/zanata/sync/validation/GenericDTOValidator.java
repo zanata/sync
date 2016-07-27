@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors
+ * Copyright 2016, Red Hat, Inc. and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -28,47 +28,27 @@ import javax.validation.Validator;
 import javax.validation.groups.Default;
 
 import org.zanata.sync.App;
-import org.zanata.sync.dto.RepoSyncGroup;
-import org.zanata.sync.dto.SyncWorkForm;
-import org.zanata.sync.dto.ZanataSyncGroup;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @RequestScoped
-public class SyncWorkFormValidator implements BeanValidator<SyncWorkForm> {
+public class GenericDTOValidator implements BeanValidator<Object> {
     private Validator validator;
 
     @Inject
-    public SyncWorkFormValidator(@App Validator validator) {
+    public GenericDTOValidator(@App Validator validator) {
         this.validator = validator;
     }
 
     @SuppressWarnings("unused")
-    public SyncWorkFormValidator() {
+    public GenericDTOValidator() {
     }
 
     @Override
-    public Map<String, String> validate(SyncWorkForm form) {
+    public Map<String, String> validate(Object bean) {
         Map<String, String> errors = new HashMap<>();
-        validateThenAddErrors(form, errors, Default.class);
-
-        boolean syncToRepoEnabled = form.isSyncToRepoEnabled();
-        if (syncToRepoEnabled) {
-            validateThenAddErrors(form, errors, RepoSyncGroup.class);
-        }
-
-        boolean syncToZanataEnabled = form.isSyncToZanataEnabled();
-        if (syncToZanataEnabled) {
-            validateThenAddErrors(form, errors, ZanataSyncGroup.class);
-        }
-
-        boolean atLeastOneEnabled = syncToRepoEnabled || syncToZanataEnabled;
-        if (!atLeastOneEnabled) {
-            errors.put("enabledJobs",
-                    "At least one type of job should be enabled");
-        }
-
+        validateThenAddErrors(bean, errors, Default.class);
         return errors;
     }
 

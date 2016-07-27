@@ -23,8 +23,10 @@ package org.zanata.sync.dto;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.URL;
 import org.zanata.sync.model.ZanataAccount;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
@@ -37,10 +39,14 @@ import com.google.common.base.MoreObjects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZanataUserAccount implements UserAccount {
     @Size(min = 5, max = 255)
+    @NotNull
+    @URL
     private String zanataServer;
     @Size(min = 3, max = 255)
+    @NotNull
     private String username;
     @Size(min = 32, max = 32)
+    @NotNull
     private String apiKey;
     private Set<RepoAccountDto> repoAccounts;
     private Set<String> roles;

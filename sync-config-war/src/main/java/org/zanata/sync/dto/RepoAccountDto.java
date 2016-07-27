@@ -20,8 +20,10 @@
  */
 package org.zanata.sync.dto;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.URL;
 import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.validation.SupportedRepo;
 
@@ -33,16 +35,19 @@ public class RepoAccountDto {
     private String username;
 
     @Size(min = 3, max = 255)
+    @NotNull
+    @URL
     private String repoHostname;
 
     @SupportedRepo
+    @NotNull
     private String repoType;
     private String secret;
 
     public RepoAccountDto() {
     }
 
-    private RepoAccountDto(Long id, String username, String repoHostname,
+    public RepoAccountDto(Long id, String username, String repoHostname,
             String repoType, String secret) {
         this.id = id;
         this.username = username;

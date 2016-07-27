@@ -28,6 +28,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.ws.rs.client.Client;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
@@ -93,5 +95,12 @@ public class ResourceProducer {
     @Produces
     protected Client getRestClient() {
         return ResteasyClientBuilder.newBuilder().build();
+    }
+
+    @Produces
+    @App
+    @ApplicationScoped
+    public Validator getValidator() {
+        return Validation.buildDefaultValidatorFactory().getValidator();
     }
 }

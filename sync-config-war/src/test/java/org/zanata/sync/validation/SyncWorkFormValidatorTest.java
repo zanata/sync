@@ -3,15 +3,17 @@ package org.zanata.sync.validation;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.plugin.git.GitPlugin;
 import org.zanata.sync.service.PluginsService;
-import org.zanata.sync.util.CronType;
+import org.zanata.sync.system.ResourceProducer;
 import com.google.common.collect.Sets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,19 +27,11 @@ public class SyncWorkFormValidatorTest {
     private static final boolean ENABLE_ZANATA_SYNC = true;
     private static final boolean ENABLE_REPO_SYNC = true;
     private SyncWorkFormValidator validator;
-    @Mock
-    private PluginsService pluginService;
+    private Validator validatorImpl = new ResourceProducer().getValidator();
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        validator = new SyncWorkFormValidator();
-        validator.pluginsService = pluginService;
-        when(pluginService.getSourceRepoPlugin("git"))
-                .thenReturn(Optional.of(new GitPlugin()));
-        when(pluginService.getSourceRepoPlugin("unknown"))
-                .thenReturn(Optional.empty());
-        SupportedRepoValidator.supportedRepoTypes = Sets.newHashSet("git");
+        validator = new SyncWorkFormValidator(validatorImpl);
     }
 
     @Test
@@ -46,7 +40,7 @@ public class SyncWorkFormValidatorTest {
                 new SyncWorkForm("a", null, null, null, null,
                         null, DISABLE_ZANATA_SYNC,
                         DISABLE_REPO_SYNC, null, null, null);
-        Map<String, String> errors = validator.validateForm(form);
+        Map<String, String> errors = validator.validate(form);
         assertThat(errors).containsOnly(
                 entry("name", "size must be between 5 and 100"),
                 entry("enabledJobs",
@@ -61,7 +55,7 @@ public class SyncWorkFormValidatorTest {
                 new SyncWorkForm("abcde", null, null, null, null,
                         null, ENABLE_ZANATA_SYNC,
                         DISABLE_REPO_SYNC, null, null, 1L);
-        Map<String, String> errors = validator.validateForm(form);
+        Map<String, String> errors = validator.validate(form);
 
         assertThat(errors)
                 .containsOnlyKeys("syncToZanataCron",
@@ -75,10 +69,11 @@ public class SyncWorkFormValidatorTest {
                 new SyncWorkForm("abcde", null, null, null, null,
                         null, DISABLE_ZANATA_SYNC,
                         ENABLE_REPO_SYNC, null, null, null);
-        Map<String, String> errors = validator.validateForm(form);
+        Map<String, String> errors = validator.validate(form);
 
         assertThat(errors)
-                .containsOnlyKeys("srcRepoUrl", "syncToRepoCron", "srcRepoAccountId");
+                .containsOnlyKeys("srcRepoUrl", "syncToRepoCron",
+                        "srcRepoAccountId");
     }
 
     /*@Test

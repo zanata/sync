@@ -42,9 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.dto.SyncWorkForm;
-import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.WorkDetail;
-import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.RepoAccount;
@@ -138,7 +136,7 @@ public class WorkResource {
 
     @POST
     public Response createWork(SyncWorkForm form) {
-        Map<String, String> errors = formValidator.validateForm(form);
+        Map<String, String> errors = formValidator.validate(form);
         if (!errors.isEmpty()) {
             return Response.status(BAD_REQUEST).entity(errors).build();
         }
@@ -174,7 +172,7 @@ public class WorkResource {
         if(form.getId() == null) {
             return createWork(form);
         }
-        Map<String, String> errors = formValidator.validateForm(form);
+        Map<String, String> errors = formValidator.validate(form);
         if (!errors.isEmpty()) {
             return Response.status(BAD_REQUEST).entity(errors).build();
         }

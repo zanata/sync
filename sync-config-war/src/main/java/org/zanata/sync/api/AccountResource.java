@@ -20,6 +20,7 @@
  */
 package org.zanata.sync.api;
 
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -35,6 +36,7 @@ import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.ZanataAccount;
 import org.zanata.sync.service.AccountService;
+import org.zanata.sync.validation.GenericDTOValidator;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -46,6 +48,9 @@ public class AccountResource {
     @Inject
     private AccountService accountService;
 
+    @Inject
+    private GenericDTOValidator dtoValidator;
+
     @GET
     @Path("/zanata")
     public Response getZanataAccount() {
@@ -56,10 +61,14 @@ public class AccountResource {
         return Response.ok(dto).build();
     }
 
-    // TODO pahuang run bean validation for the two dto
     @PUT
     @Path("/zanata")
     public Response saveZanataAccount(ZanataUserAccount zanataUserAccount) {
+        Map<String, String> errors = dtoValidator.validate(zanataUserAccount);
+        if (errors.size() > 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
+                    .build();
+        }
         ZanataAccount entity =
                 accountService.updateZanataAccount(zanataUserAccount);
         return Response.ok(ZanataUserAccount.fromEntity(entity)).build();
@@ -68,6 +77,11 @@ public class AccountResource {
     @POST
     @Path("/repo")
     public Response saveRepoAccount(RepoAccountDto repoAccount) {
+        Map<String, String> errors = dtoValidator.validate(repoAccount);
+        if (errors.size() > 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
+                    .build();
+        }
         RepoAccount entity =
                 accountService.saveRepoAccountForCurrentUser(repoAccount);
         return Response
