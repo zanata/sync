@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.enterprise.context.Dependent;
+import javax.enterprise.context.RequestScoped;
+
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
@@ -46,8 +49,14 @@ import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import com.google.common.base.Strings;
 
 /**
+ * Note JGIT doesn't support shallow clone yet. But jenkins has an abstraction
+ * to use native git first then fall back to JGIT.
+ * see http://stackoverflow.com/questions/11475263/shallow-clone-with-jgit?rq=1#comment38082799_12097883
+ * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=475615
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
+@Dependent // note: it has to be dependent scope so that the async JobRunner will use the same object in JobResource
 public class GitSyncService implements RepoSyncService {
     private static final Logger log =
             LoggerFactory.getLogger(GitSyncService.class);
@@ -58,8 +67,7 @@ public class GitSyncService implements RepoSyncService {
     private File workingDir;
 
     @Override
-    public void cloneRepo()
-            throws RepoSyncException {
+    public void cloneRepo() throws RepoSyncException {
 
         log.info("doing git clone: {}", url);
         doGitClone(url, workingDir);
@@ -91,8 +99,9 @@ public class GitSyncService implements RepoSyncService {
             Git git = Git.open(destPath);
             List<Ref> refs = git.branchList().setListMode(
                     ListBranchCommand.ListMode.ALL).call();
-            Optional<Ref> remoteMaster = refs.stream().filter(ref -> ref.getName()
-                    .equals("refs/remotes/origin/master")).findFirst();
+            Optional<Ref> remoteMaster =
+                    refs.stream().filter(ref -> ref.getName()
+                            .equals("refs/remotes/origin/master")).findFirst();
             /* refs will have name like these:
             refs/heads/master
             refs/remotes/origin/master
@@ -126,7 +135,7 @@ public class GitSyncService implements RepoSyncService {
                         .setForce(true).setName(branch)
                         .setStartPoint("origin/" + branch)
                         .setUpstreamMode(
-                        CreateBranchCommand.SetupUpstreamMode.TRACK)
+                                CreateBranchCommand.SetupUpstreamMode.TRACK)
                         .call();
             } else {
                 git.checkout()
@@ -138,7 +147,8 @@ public class GitSyncService implements RepoSyncService {
                         .call();
             }
             if (log.isDebugEnabled()) {
-                log.debug("current branch is: {}", git.getRepository().getBranch());
+                log.debug("current branch is: {}",
+                        git.getRepository().getBranch());
             }
         } catch (IOException | GitAPIException e) {
             throw new RepoSyncException(e);
@@ -155,15 +165,18 @@ public class GitSyncService implements RepoSyncService {
             Set<String> uncommittedChanges = status.getUncommittedChanges();
             uncommittedChanges.addAll(status.getUntracked());
             if (!uncommittedChanges.isEmpty()) {
-                log.info("uncommitted files in git repo: {}", uncommittedChanges);
+                log.info("uncommitted files in git repo: {}",
+                        uncommittedChanges);
                 AddCommand addCommand = git.add();
                 addCommand.addFilepattern(".");
                 addCommand.call();
 
                 log.info("commit changed files");
                 CommitCommand commitCommand = git.commit();
-                commitCommand.setCommitter("Zanata Auto Repo Sync", "zanata-users@redhat.com");
-                commitCommand.setMessage("Zanata Auto Repo Sync (pushing translations)");
+                commitCommand.setCommitter("Zanata Auto Repo Sync",
+                        "zanata-users@redhat.com");
+                commitCommand.setMessage(
+                        "Zanata Auto Repo Sync (pushing translations)");
                 commitCommand.call();
 
                 log.info("push to remote repo");
@@ -181,7 +194,8 @@ public class GitSyncService implements RepoSyncService {
             throw new RepoSyncException(
                     "failed opening " + workingDir + " as git repo", e);
         } catch (GitAPIException e) {
-            throw new RepoSyncException("Failed committing translations into the repo", e);
+            throw new RepoSyncException(
+                    "Failed committing translations into the repo", e);
         }
     }
 

@@ -48,7 +48,7 @@ public class Plugins {
         }
     }
 
-    public RepoSyncService getSrcRepoPlugin(String srcRepoType) {
+    public Class<? extends RepoSyncService> getClassForSrcRepo(String srcRepoType) {
         String srcRepoPluginClassName = properties.getProperty(srcRepoType);
         if (srcRepoPluginClassName == null) {
             throw new RepoSyncException(
@@ -57,8 +57,8 @@ public class Plugins {
 
         try {
             Class<?> srcRepoPluginClass = Class.forName(srcRepoPluginClassName);
-            return (RepoSyncService) srcRepoPluginClass.newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            return (Class<? extends RepoSyncService>) srcRepoPluginClass;
+        } catch (ClassNotFoundException | ClassCastException e) {
             throw new RepoSyncException(
                     "unable to load class for " + srcRepoType, e);
         }

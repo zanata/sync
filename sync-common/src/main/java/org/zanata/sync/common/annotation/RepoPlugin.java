@@ -26,6 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * TODO make this a CDI qualifier and then get rid of scannotation
  * To be use with {@link org.zanata.sync.common.plugin.RepoExecutor}
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

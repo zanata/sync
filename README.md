@@ -4,12 +4,6 @@ http://openshift.github.io/documentation/oo_cartridge_guide.html#jbosseap
 
 
 TODO:
-- include zanata user name in the commit message
-- use gitlab commit hook to trigger the job
-- have a button in zanata to push translation to git repo
-- potentially multiple projects (zanata.xml) in one repo
-- make system properties reloadable (e.g. no need to restart the app)
-- idea: use npm install --save react-redux-toastr for better message display
 - techdebt: npm WARN deprecated minimatch@2.0.10: Please update to minimatch
   3.0.2 or higher to avoid a RegExp DoS issue (used by babel-core)
 

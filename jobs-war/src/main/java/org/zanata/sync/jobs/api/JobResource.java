@@ -23,6 +23,7 @@ package org.zanata.sync.jobs.api;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -59,6 +60,9 @@ public class JobResource {
 
     @Inject
     private JobRunner jobRunner;
+
+    @Inject
+    private Instance<RepoSyncService> repoSyncServices;
 
 
     // TODO until we make trigger job an aync task, we won't be able to get status or cancel running job (To make it an async task, we will need database backend to store running job)
@@ -152,7 +156,7 @@ public class JobResource {
         return Response.created(URI.create(id)).build();
     }
 
-    private static Either<RepoSyncService, Response> createRepoSyncService(
+    private Either<RepoSyncService, Response> createRepoSyncService(
             Map<String, String> jobDetail) {
         String repoUrl = JobDetailEntry.srcRepoUrl.extract(jobDetail);
         String repoUsername = Strings.nullToEmpty(JobDetailEntry.srcRepoUsername.extract(jobDetail));
@@ -168,12 +172,16 @@ public class JobResource {
                                     "missing repo url and type")).build());
         }
 
-        RepoSyncService srcRepoPlugin = PLUGINS.getSrcRepoPlugin(repoType);
-        srcRepoPlugin.setCredentials(
+        Class<? extends RepoSyncService> srcRepoPluginClass =
+                PLUGINS.getClassForSrcRepo(repoType);
+
+        RepoSyncService service =
+                repoSyncServices.select(srcRepoPluginClass).get();
+        service.setCredentials(
                 new UsernamePasswordCredential(repoUsername, repoSecret));
-        srcRepoPlugin.setUrl(repoUrl);
-        srcRepoPlugin.setBranch(repoBranch);
-        return Either.fromLeft(srcRepoPlugin, Response.class);
+        service.setUrl(repoUrl);
+        service.setBranch(repoBranch);
+        return Either.fromLeft(service, Response.class);
     }
 
     private static Either<ZanataSyncService, Response> createZanataSyncService(

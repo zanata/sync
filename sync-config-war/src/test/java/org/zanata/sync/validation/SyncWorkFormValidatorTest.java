@@ -1,24 +1,15 @@
 package org.zanata.sync.validation;
 
 import java.util.Map;
-import java.util.Optional;
-
-import javax.validation.Validation;
 import javax.validation.Validator;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.zanata.sync.dto.SyncWorkForm;
-import org.zanata.sync.plugin.git.GitPlugin;
-import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.system.ResourceProducer;
-import com.google.common.collect.Sets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.mockito.Mockito.when;
 
 public class SyncWorkFormValidatorTest {
 

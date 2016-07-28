@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -122,11 +121,6 @@ public class PluginsServiceImpl implements PluginsService {
     @Override
     public List<RepoExecutor> getAvailableSourceRepoPlugins() {
         return ImmutableList.copyOf(sourceRepoPluginMap.values());
-    }
-
-    @Override
-    public Optional<RepoExecutor> getSourceRepoPlugin(String pluginName) {
-        return Optional.ofNullable(sourceRepoPluginMap.get(pluginName));
     }
 
     @Produces
