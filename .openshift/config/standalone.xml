@@ -47,6 +47,18 @@
   </system-properties>
 
   <management>
+    <security-realms>
+      <security-realm name="ApplicationRealm">
+        <authentication>
+          <!--<local default-user="$local" allowed-users="*" skip-group-loading="true"/>-->
+          <properties path="application-users.properties" relative-to="${env.OPENSHIFT_DATA_DIR}"/>
+        </authentication>
+        <authorization>
+          <properties path="application-roles.properties" relative-to="${env.OPENSHIFT_DATA_DIR}"/>
+        </authorization>
+      </security-realm>
+    </security-realms>
+
     <management-interfaces>
       <native-interface>
         <socket-binding native="management-native" />
@@ -457,7 +469,7 @@
     </subsystem>
     <subsystem xmlns="urn:jboss:domain:pojo:1.0" />
     <subsystem xmlns="urn:jboss:domain:remoting:1.1">
-      <connector name="remoting-connector" socket-binding="remoting" />
+      <connector name="remoting-connector" socket-binding="remoting" security-realm="ApplicationRealm" />
     </subsystem>
     <subsystem xmlns="urn:jboss:domain:resource-adapters:1.1" />
     <subsystem xmlns="urn:jboss:domain:sar:1.0" />
