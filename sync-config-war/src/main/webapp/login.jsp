@@ -14,7 +14,7 @@
 
 <div class="container">
     <div class="row">
-        <span class="bg-danger">${message}</span>
+        <h2 class="text-danger">${message}</h2>
     </div>
     <div class="row">
         <div class="col-sm-7 col-md-6 col-lg-5 login">

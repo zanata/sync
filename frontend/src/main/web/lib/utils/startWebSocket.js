@@ -1,20 +1,21 @@
 import {w3cwebsocket as W3CWebSocket} from 'websocket'
 import invariant from 'invariant'
 
-
-// TODO internal ITOS does not support websocket!! yet! Question asked: https://mojo.redhat.com/thread/941903
-export const isITOS = () => {
-  return location.hostname.match(/.+\.itos\.redhat\.com.*/)
-}
-
 export function startWebSocket (endpoint, onMessageCallback) {
   invariant(typeof onMessageCallback === 'function', 'you need to pass in a function(obj) in second argument as callback on websocket message')
   console.log(`==== ${endpoint}`)
 
-  const ws = new W3CWebSocket(endpoint)
+  let ws
+  try{
+    ws = new W3CWebSocket(endpoint)
+  } catch (err) {
+    console.error('error creating WebSocket', err)
+    return null
+  }
 
   ws.onerror = error => {
     console.error('Connect Error:', error);
+    ws = null
   }
 
   ws.onopen = () => {

@@ -1,7 +1,30 @@
 import React, {PropTypes} from 'react'
 import WorkSummary from './WorkSummary'
 import {redirectToSignIn} from '../utils/route'
-import {startWebSocket, isITOS} from '../utils/startWebSocket'
+import {startWebSocket} from '../utils/startWebSocket'
+
+// TODO this is to cater different scenarios: in dev machine and in ITOS... make this a bit better
+// openshift uses a different port for websocket
+// see http://stackoverflow.com/a/19952072/345718
+// ITOS firewall blocked 8000 but 8443 is open
+const webSocketPort = (protocol, webSocketPort) => {
+  if (webSocketPort) {
+    return `:${webSocketPort}`
+  } else {
+    const currentPort = location.port
+    if (protocol === 'ws') {
+      return currentPort ? `:${currentPort}` : ''
+    }
+    // we use the default port
+    return ''
+  }
+}
+const webSocketProtocol = (webSocketPort) => {
+  if (webSocketPort == 8443 || webSocketPort == 443) {
+    return 'wss'
+  }
+  return 'ws'
+}
 
 export default React.createClass({
   propTypes: {
@@ -19,16 +42,11 @@ export default React.createClass({
   },
 
   _connectWebSocket() {
-    if (isITOS()) {
-      console.info('deployed on ITOS. No websocket support!!')
-      return
-    }
     const {websocketPort, onJobStatusUpdate} = this.props
-    const port = websocketPort ? websocketPort : location.port
-    // openshift uses a different port for websocket
-    // see http://stackoverflow.com/a/19952072/345718
-    // TODO if we are on https, we should use wss:// instead
-    const websocketEndpoint = `ws://${location.hostname}:${port}${location.pathname}websocket/jobStatus`
+    const protocol = webSocketProtocol(websocketPort)
+    const port = webSocketPort(protocol, websocketPort)
+
+    const websocketEndpoint = `${protocol}://${location.hostname}${port}${location.pathname}websocket/jobStatus`
     this.websocket = startWebSocket(websocketEndpoint, onJobStatusUpdate)
   },
 
@@ -57,6 +75,7 @@ export default React.createClass({
           syncToRepoJob={work.syncToRepoJob}
           syncToTransServerJob={work.syncToTransServerJob}
           runJob={runJob} runningJobs={runningJobs}
+          supportWebSocket={!!this.websocket}
           {...this.props}
         />
       )
