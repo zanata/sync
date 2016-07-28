@@ -7,7 +7,9 @@ const component = (props) => {
     classes, onLineItemClick} = props
 
   const repoTypeDisplay = (<span className='label label-info'>{repoType}</span>)
-  const branchDisplay = branch && (<span className="text-muted">branch: {branch}</span>)
+  const branchDisplay = branch && (
+      <span className="text-muted glyphicon glyphicon-tag" title='Branch' aria-hidden="true">{branch}</span>
+    )
   const credentialDisplay = username && secret && (
       <span>{username}:<ToggleReveal text={secret}/>@</span>
     )
@@ -17,13 +19,13 @@ const component = (props) => {
   if (onLineItemClick) {
     return (
       <button className={classNames} onClick={onLineItemClick}>
-        {repoTypeDisplay} {branchDisplay}: {credentialDisplay}{url}
+        {repoTypeDisplay} {credentialDisplay}{url}   {branchDisplay}
       </button>
     )
   } else {
     return (
       <li className={classNames}>
-        {repoTypeDisplay} {branchDisplay}: {credentialDisplay}{url}
+        {repoTypeDisplay} {credentialDisplay}{url}   {branchDisplay}
       </li>
     )
   }

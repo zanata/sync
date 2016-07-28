@@ -13,7 +13,12 @@ export default React.createClass({
       id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
       createdDate: PropTypes.string.isRequired,
-      srcRepoPluginName: PropTypes.string.isRequired,
+      repoAccount: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        repoType: PropTypes.string.isRequired,
+        username: PropTypes.string,
+        secret: PropTypes.string
+      }).isRequired,
       syncToServerEnabled: PropTypes.bool.isRequired,
       syncToRepoEnabled: PropTypes.bool.isRequired,
       jobRunHistory: PropTypes.arrayOf(PropTypes.shape({
@@ -51,8 +56,7 @@ export default React.createClass({
 
 
     const {name, description, createdDate, syncToServerEnabled, syncToRepoEnabled,
-      srcRepoPluginName,
-      srcRepoUrl, srcRepoUsername, srcRepoSecret, srcRepoBranch, syncToRepoCron,
+      repoAccount, srcRepoUrl, srcRepoBranch, syncToRepoCron,
       syncToZanataOption, syncToZanataCron,
       jobRunHistory
     } = workDetail
@@ -96,9 +100,9 @@ export default React.createClass({
                 <footer>created at {formatDate(createdDate)}</footer>
               </blockquote>
               <ul className="list-group">
-                <RepoAccountLineItem url={srcRepoUrl} username={srcRepoUsername}
-                  secret={srcRepoSecret} branch={srcRepoBranch}
-                  repoType={srcRepoPluginName} />
+                <RepoAccountLineItem url={srcRepoUrl} username={repoAccount.username}
+                  secret={repoAccount.secret} branch={srcRepoBranch}
+                  repoType={repoAccount.repoType} />
                 <li className='list-group-item'>
                   <ul className="list-inline">
                     <li>Sync <strong className='text-info'>{syncToZanataOption}</strong> to Zanata {syncToZanataCron} <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
