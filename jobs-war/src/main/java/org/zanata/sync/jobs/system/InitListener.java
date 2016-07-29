@@ -50,6 +50,7 @@ public class InitListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        // we should check all the system state here to make sure they are all set
         log.info("==== system config ====");
         log.info("==== config war: {}", configWarUrl);
         log.info("==== JAXRS client connection pool size: {}", poolSize);
@@ -59,8 +60,7 @@ public class InitListener implements ServletContextListener {
     }
 
     private static void configAppHealthCheck(String configWarUrl) {
-        // we should check all the system state here to make sure they are all set
-        if (configWarUrl.matches("http://localhost.*")) {
+        if (configWarUrl.startsWith("http://localhost")) {
             log.info("=== skip config war health check for localhost ===");
             return;
         }
