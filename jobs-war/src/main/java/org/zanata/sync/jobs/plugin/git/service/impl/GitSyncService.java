@@ -156,8 +156,7 @@ public class GitSyncService implements RepoSyncService {
     }
 
     @Override
-    public void syncTranslationToRepo()
-            throws RepoSyncException {
+    public void syncTranslationToRepo() throws RepoSyncException {
         try {
             Git git = Git.open(workingDir);
             StatusCommand statusCommand = git.status();
