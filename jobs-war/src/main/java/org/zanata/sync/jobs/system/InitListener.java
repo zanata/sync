@@ -20,6 +20,11 @@
  */
 package org.zanata.sync.jobs.system;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -32,6 +37,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -57,6 +64,7 @@ public class InitListener implements ServletContextListener {
         log.info("==== system config ====");
 
         configAppHealthCheck(configWarUrl);
+        writeOutCustomKeyStore();
     }
 
     private static void configAppHealthCheck(String configWarUrl) {
@@ -78,6 +86,35 @@ public class InitListener implements ServletContextListener {
             client.close();
         }
     }
+
+    /**
+     * If we have packaged a custom key store, we will write it out. This is due
+     * to openshift not supporting replicate file system for scalable app.
+     */
+    private static void writeOutCustomKeyStore() {
+        URL cacerts = Thread.currentThread().getContextClassLoader()
+                .getResource("cacerts");
+        if (cacerts == null) {
+            log.info("no packaged custom key store");
+            return;
+        }
+
+
+        try (InputStream cacertsIS = cacerts.openStream()) {
+            String trustStorePath =
+                    System.getProperty("javax.net.ssl.trustStore");
+            if (Strings.isNullOrEmpty(trustStorePath)) {
+                log.warn(
+                        "[javax.net.ssl.trustStore] is not set but found packaged key store! Ignored.");
+                return;
+            }
+            Files.copy(cacertsIS, Paths.get(trustStorePath),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {

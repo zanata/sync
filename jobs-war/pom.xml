@@ -171,4 +171,43 @@
     </dependency>
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>packageCustomKeyStore</id>
+      <activation>
+        <file>
+          <exists>${customKeyStoreDir}/cacerts</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.0.1</version>
+            <executions>
+              <execution>
+                <id>copy-resources</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${customKeyStoreDir}</directory>
+                      <filtering>false</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+
+
 </project>

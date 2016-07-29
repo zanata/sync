@@ -9,4 +9,12 @@ Add
 ```
 To openshift standalone.xml
 
+### enable custom key store
+
+- copy your system default cacerts (/etc/pki/java/cacerts) file to a folder. e.g. ~/customKeyStore/cacerts
+- import the root CA to this key store
+  ```keytool -importcert -keystore cacerts -alias CA-RH-cert -storepass changeit -file RH-IT-Root-CA.crt```
+- build the jobs war with ```-DcustomKeyStoreDir=~/customKeyStore```
+  NOTE: it will copy everything under that folder to the war/WEB-INF/classes. Make sure you don't copy anything unnecessary.
+
 
