@@ -51,10 +51,10 @@
       <security-realm name="ApplicationRealm">
         <authentication>
           <!--<local default-user="$local" allowed-users="*" skip-group-loading="true"/>-->
-          <properties path="application-users.properties" relative-to="${env.OPENSHIFT_DATA_DIR}"/>
+          <properties path="${env.OPENSHIFT_DATA_DIR}application-users.properties"/>
         </authentication>
         <authorization>
-          <properties path="application-roles.properties" relative-to="${env.OPENSHIFT_DATA_DIR}"/>
+          <properties path="${env.OPENSHIFT_DATA_DIR}application-roles.properties"/>
         </authorization>
       </security-realm>
     </security-realms>
