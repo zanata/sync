@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.context.RequestScoped;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
@@ -68,10 +67,9 @@ public class GitSyncService implements RepoSyncService {
 
     @Override
     public void cloneRepo() throws RepoSyncException {
-
         log.info("doing git clone: {}", url);
         doGitClone(url, workingDir);
-        checkOutBranch(workingDir, this.branch);
+        checkOutBranch(workingDir, branch);
     }
 
     private void doGitClone(String repoUrl, File destPath) {
@@ -125,7 +123,7 @@ public class GitSyncService implements RepoSyncService {
                 return;
             }
 
-            /**
+            /*
              * If branch found in local, use it.
              * If branch does not exists in remote, create new local branch based on master branch.
              */

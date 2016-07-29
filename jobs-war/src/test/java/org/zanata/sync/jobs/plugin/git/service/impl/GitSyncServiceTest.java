@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -109,5 +111,21 @@ public class GitSyncServiceTest {
                 .map(RevCommit::getShortMessage).collect(
                         Collectors.toList());
         assertThat(logMessage.get(0)).contains("pushing translation");
+    }
+
+    @Test
+    public void canCloneInternalRepo() {
+        String sslTrustStore = System.getProperty("javax.net.ssl.trustStore");
+        Assume.assumeThat(
+                "alternative trust store is provided as system property",
+                sslTrustStore,
+                CoreMatchers.notNullValue());
+
+
+        syncService
+                .setUrl("https://gitlab.cee.redhat.com/pahuang/zanata-itos.git");
+        syncService.setBranch("master");
+
+        syncService.cloneRepo();
     }
 }

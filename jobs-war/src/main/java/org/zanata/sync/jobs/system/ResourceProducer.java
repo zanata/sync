@@ -29,6 +29,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Single place to produce anything system wide. Althouth it's
@@ -41,6 +43,8 @@ import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
  */
 @ApplicationScoped
 public class ResourceProducer {
+    private static final Logger log =
+            LoggerFactory.getLogger(ResourceProducer.class);
     private static final String CONFIG_WAR_URL_KEY = "sync.config.war.url";
     private static final String JAXRS_CLIENT_CONN_POOL_SIZE =
             "jaxrs.connection.pool.size";
