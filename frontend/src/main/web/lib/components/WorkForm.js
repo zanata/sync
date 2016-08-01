@@ -61,11 +61,6 @@ export default React.createClass({
     }
   },
 
-  // ask for `router` from context
-  contextTypes: {
-    router: React.PropTypes.object
-  },
-
   _handleChange(field, newValue) {
     // this.setState({: event.target.value})
     // TODO use immutable js for better performance
@@ -81,7 +76,7 @@ export default React.createClass({
 
   componentWillMount() {
     if (!this.props.user) {
-      redirectToSignIn(this.context.router)
+      redirectToSignIn()
     }
   },
 

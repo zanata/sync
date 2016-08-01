@@ -36,11 +36,6 @@ export default React.createClass({
     onJobStatusUpdate: PropTypes.func.isRequired
   },
 
-  // ask for `router` from context
-  contextTypes: {
-    router: React.PropTypes.object
-  },
-
   _connectWebSocket() {
     const {websocketPort, onJobStatusUpdate} = this.props
     const protocol = webSocketProtocol(websocketPort)
@@ -56,7 +51,7 @@ export default React.createClass({
       loadWorkSummaries()
       this._connectWebSocket()
     } else {
-      redirectToSignIn(this.context.router)
+      redirectToSignIn()
     }
   },
 

@@ -57,11 +57,6 @@ export default React.createClass({
     }
   },
 
-  // ask for `router` from context
-  contextTypes: {
-    router: React.PropTypes.object
-  },
-
   _handleChange(field, newValue) {
     let newState = Object.assign({}, this.state)
     newState[field] = newValue
@@ -105,7 +100,7 @@ export default React.createClass({
   componentWillMount() {
     const user = this.props.user
     if (!user) {
-      redirectToSignIn(this.context.router)
+      redirectToSignIn()
     }
   },
 

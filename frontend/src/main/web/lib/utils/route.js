@@ -1,10 +1,4 @@
-
-export function redirectToSignIn(router) {
+export function redirectToSignIn() {
   console.info('redirect to home page for sign in')
-  router.push({
-    pathname: '/',
-    // query: { modal: true },
-    // TODO check this state in home page and display a message
-    state: { needSignIn: true }
-  })
+  window.location = `${location.host}${location.pathname}`
 }

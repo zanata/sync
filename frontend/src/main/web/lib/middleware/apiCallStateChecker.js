@@ -16,7 +16,6 @@ export default store => next => action => {
   const {type, payload} = action
   // this assume we use redux-api-middleware so the error action may come in
   // several form. See https://www.npmjs.com/package/redux-api-middleware
-  // TODO check session failure may happen when session times out. Will need to check whether state has already contain a user
   if (actionTypeIsAPIRequest(type) && !actionHasError(action)) {
     next(requesting({
       type: type,
