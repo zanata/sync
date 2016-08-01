@@ -6,12 +6,13 @@
 
 
 # app name on openshift
-APP=zsyncjobs
+APP=syncjobs
 
 #
 echo "===== WARNING ====="
 echo "for binary deployment to work, you need to create your app in such way (replace your cartridge(s), gear and app name to suit)"
-echo "  rhc create-app -a $APP -t jbosseap-6 -t  mysql-5.5 -g ext_general_medium"
+echo "Allowed size: int_hosted_small, int_hosted_medium, ext_hosted_small,ext_hosted_medium, and ext_hosted_large"
+echo "  rhc create-app -a $APP -t jbosseap-6 -g int_hosted_medium --no-git --scaling"
 echo "  rhc configure-app -a $APP --no-auto-deploy"
 echo "  rhc configure-app -a $APP --deployment-type binary"
 echo "===== make sure you have done above ===="
