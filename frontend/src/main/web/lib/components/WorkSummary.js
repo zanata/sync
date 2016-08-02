@@ -1,7 +1,6 @@
 import React from 'react'
 import JobSummary from './JobSummary'
 import {Link} from 'react-router'
-import cx from 'classnames'
 
 const {PropTypes} = React
 
@@ -21,18 +20,6 @@ export default React.createClass({
     syncToTransServerJob: PropTypes.shape(jobSummaryShape).isRequired,
     runJob: PropTypes.func.isRequired,
     runningJobs: PropTypes.object.isRequired
-  },
-
-  getInitialState() {
-    return {
-      active: false
-    }
-  },
-
-  _setActiveState(active) {
-    this.setState({
-      active
-    })
   },
 
   render() {
@@ -64,19 +51,13 @@ export default React.createClass({
     const desc = (<h4 className='small'>{description}</h4>)
 
     const detailLink = `/work/${id}`
-    const classNames = cx('list-group-item', {
-      active: this.state.active
-    })
     return (
-      <div className={classNames}
-        onMouseOver={() => this._setActiveState(true)}
-        onMouseLeave={() => this._setActiveState(false)}
-      >
-        <h3 className="list-group-item-heading">{name}
-          <Link
-            className='btn btn-default btn-xs text-muted pull-right'
-            to={detailLink}>more detail...</Link>
-        </h3>
+      <div className='list-group-item'>
+        <h2 className="list-group-item-heading">
+          <small className="glyphicon glyphicon-link"/>
+          <Link to={detailLink}> {name} </Link>
+        </h2>
+
         <div className="list-group-item-text">
           {syncToRepoSummary}
           {syncToZanataSummary}
