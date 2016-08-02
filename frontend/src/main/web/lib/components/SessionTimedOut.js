@@ -6,7 +6,7 @@ export default () => {
       (
         <div>
           <h3 className="bg-danger">You session has timed out</h3>
-          Go to <a href={`${location.host}${location.pathname}`}>Home</a> to sign in again.
+          Go to <a href={`${location.protocol}//${location.host}${location.pathname}`}>Home</a> to sign in again.
         </div>
       )
     )
