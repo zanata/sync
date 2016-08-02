@@ -31,8 +31,8 @@ import org.zanata.sync.model.SyncWorkConfig;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class SyncJobDataMap {
-    static final String SYNC_WORK_CONFIG_KEY = "value";
-    static final String JOB_TYPE_KEY = "jobType";
+    private static final String CONFIG_ID_KEY = "configId";
+    private static final String JOB_TYPE_KEY = "jobType";
 
     private final JobDataMap dataMap;
 
@@ -41,11 +41,11 @@ public class SyncJobDataMap {
     }
 
 
-    public static SyncJobDataMap fromContext(JobExecutionContext context) {
+    static SyncJobDataMap fromContext(JobExecutionContext context) {
         return new SyncJobDataMap(context.getJobDetail().getJobDataMap());
     }
 
-    public static SyncJobDataMap fromJobDetail(JobDetail jobDetail) {
+    static SyncJobDataMap fromJobDetail(JobDetail jobDetail) {
         return new SyncJobDataMap(jobDetail.getJobDataMap());
     }
 
@@ -53,21 +53,21 @@ public class SyncJobDataMap {
         return (T) dataMap.get(key);
     }
 
-    public SyncWorkConfig getWorkConfig() {
-        return get(SYNC_WORK_CONFIG_KEY);
-    }
-
     public JobType getJobType() {
         return get(JOB_TYPE_KEY);
     }
 
-    public SyncJobDataMap storeWorkConfig(SyncWorkConfig workConfig) {
-        dataMap.put(SYNC_WORK_CONFIG_KEY, workConfig);
+    public Long getConfigId() {
+        return get(CONFIG_ID_KEY);
+    }
+
+    SyncJobDataMap storeJobType(JobType jobType) {
+        dataMap.put(JOB_TYPE_KEY, jobType);
         return this;
     }
 
-    public SyncJobDataMap storeJobType(JobType jobType) {
-        dataMap.put(JOB_TYPE_KEY, jobType);
+    SyncJobDataMap storeConfigId(Long configId) {
+        dataMap.put(CONFIG_ID_KEY, configId);
         return this;
     }
 

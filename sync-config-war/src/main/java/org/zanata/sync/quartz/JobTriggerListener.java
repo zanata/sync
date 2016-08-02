@@ -28,7 +28,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Trigger;
 import org.quartz.TriggerListener;
-import org.zanata.sync.model.SyncWorkConfig;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -68,7 +67,7 @@ public class JobTriggerListener implements TriggerListener {
         if (runCount != null && runCount.get() > 1) {
             log.warn(
                     "job {} execution vetoed: {}. A previous scheduled job is still running",
-                    getJobConfigJob(context).getName(), jobKey);
+                    getJobConfigJob(context), jobKey);
             return true;
         }
         return false;
@@ -85,7 +84,7 @@ public class JobTriggerListener implements TriggerListener {
         runningJobsCache.invalidate(trigger.getJobKey());
     }
 
-    private static SyncWorkConfig getJobConfigJob(JobExecutionContext context) {
-        return SyncJobDataMap.fromContext(context).getWorkConfig();
+    private static Long getJobConfigJob(JobExecutionContext context) {
+        return SyncJobDataMap.fromContext(context).getConfigId();
     }
 }

@@ -33,7 +33,6 @@ import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.events.JobStartedEvent;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
-import org.zanata.sync.model.SyncWorkConfig;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -52,12 +51,12 @@ public class SyncJobListener implements JobListener {
     @Override
     public void jobToBeExecuted(JobExecutionContext context) {
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
-        SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
+        Long configId = syncJobDataMap.getConfigId();
         JobType jobType = syncJobDataMap.getJobType();
-        log.debug("=== job to be executed: {} {}", workConfig, jobType);
+        log.debug("=== job to be executed: {} {}", configId, jobType);
 
         JobStartedEvent event = new JobStartedEvent(context.getFireInstanceId(),
-                workConfig.getId(), jobType, context.getFireTime(),
+                configId, jobType, context.getFireTime(),
                 JobStatusType.STARTED, context.getJobDetail().getKey());
         fireCDIEvent(event);
     }
@@ -71,20 +70,20 @@ public class SyncJobListener implements JobListener {
             JobExecutionException jobException) {
 
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
-        SyncWorkConfig workConfig = syncJobDataMap.getWorkConfig();
+        Long configId = syncJobDataMap.getConfigId();
         JobType jobType = syncJobDataMap.getJobType();
-        log.debug("=== job was executed for: {} {}", workConfig, jobType);
+        log.debug("=== job was executed for: {} {}", configId, jobType);
 
         if (jobException != null) {
             JobRunCompletedEvent completedEvent =
                     JobRunCompletedEvent.endedInError(context.getFireInstanceId(),
-                            workConfig.getId(),
+                            configId,
                             context.getJobRunTime(),
                             context.getFireTime(), jobType);
             fireCDIEvent(completedEvent);
         } else {
             JobProgressEvent event = JobProgressEvent.running(
-                    context.getFireInstanceId(), workConfig.getId(),
+                    context.getFireInstanceId(), configId,
                     context.getNextFireTime());
             fireCDIEvent(event);
         }

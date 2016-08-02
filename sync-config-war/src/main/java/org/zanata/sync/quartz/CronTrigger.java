@@ -126,7 +126,7 @@ public class CronTrigger {
                 isEnabled);
 
         SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromJobDetail(jobDetail);
-        syncJobDataMap.storeWorkConfig(syncWorkConfig).storeJobType(type);
+        syncJobDataMap.storeConfigId(syncWorkConfig.getId()).storeJobType(type);
 
         if (scheduler.getListenerManager().getJobListeners().isEmpty()) {
             scheduler.getListenerManager()
