@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.enterprise.context.Dependent;
 
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.zanata.sync.model.SyncWorkConfig;
 import com.google.common.base.Throwables;
 
@@ -36,15 +34,14 @@ import com.google.common.base.Throwables;
  */
 @Dependent
 public class SyncWorkConfigSerializerImpl implements SyncWorkConfigSerializer {
-    private final static Yaml YAML = new Yaml();
 
     @Override
     public SyncWorkConfig fromYaml(File file) {
         try (InputStream inputStream = new FileInputStream(file)) {
-            YAML.setBeanAccess(BeanAccess.FIELD);
-            SyncWorkConfig config = (SyncWorkConfig) YAML.load(
-                    inputStream);
-            return config;
+//            YAML.setBeanAccess(BeanAccess.FIELD);
+//            SyncWorkConfig config = (SyncWorkConfig) YAML.load(
+//                    inputStream);
+            return null;
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
@@ -52,13 +49,15 @@ public class SyncWorkConfigSerializerImpl implements SyncWorkConfigSerializer {
 
     @Override
     public String toYaml(SyncWorkConfig syncWorkConfig) {
-        YAML.setBeanAccess(BeanAccess.FIELD);
-        return YAML.dump(syncWorkConfig);
+//        YAML.setBeanAccess(BeanAccess.FIELD);
+//        return YAML.dump(syncWorkConfig);
+        return null;
     }
 
     @Override
     public SyncWorkConfig fromYaml(String yaml) {
-        YAML.setBeanAccess(BeanAccess.FIELD);
-        return (SyncWorkConfig) YAML.load(yaml);
+//        YAML.setBeanAccess(BeanAccess.FIELD);
+//        return (SyncWorkConfig) YAML.load(yaml);
+        return null;
     }
 }

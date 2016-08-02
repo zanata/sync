@@ -13,6 +13,7 @@
       <module name="javaee.api" />
       <module name="org.hibernate.search.orm" />
       <module name="org.jboss.as.jaxrs" />
+      <module name="org.jboss.as.jsf" />
     </exclusions>
     <dependencies>
 
@@ -25,7 +26,7 @@
       <module name="javax.ejb.api" />
       <module name="javax.inject.api" />
       <module name="javax.el.api" />
-      <module name="javax.faces.api" />
+      <!--<module name="javax.faces.api" />-->
       <!--&lt;!&ndash; not needed for wildfly: &ndash;&gt;-->
       <module name="javax.interceptor.api" />
       <module name="javax.servlet.api" />

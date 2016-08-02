@@ -151,13 +151,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- TODO pahuang revisit this -->
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.15</version>
-    </dependency>
-
     <!-- beans validation -->
     <dependency>
       <groupId>javax.validation</groupId>
@@ -187,6 +180,11 @@
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
       <version>3.4.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mattbertolini</groupId>
+      <artifactId>liquibase-slf4j</artifactId>
+      <version>2.0.0</version>
     </dependency>
 
     <dependency>
