@@ -6,11 +6,13 @@ import { loadWorkSummaries, runJob,
 
 const mapStateToProps = (state) => {
   const user = state.configs.user
+  const contextPath = state.configs.contextPath
   const {workSummaries, runningJobs} = state.myWorks
   const websocketPort = state.configs.websocketPort
   const pollInterval = state.configs.pollInterval
   return {
     user,
+    contextPath,
     workSummaries,
     runningJobs,
     websocketPort,

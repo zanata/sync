@@ -6,6 +6,17 @@ http://openshift.github.io/documentation/oo_cartridge_guide.html#jbosseap
 TODO:
 - techdebt: npm WARN deprecated minimatch@2.0.10: Please update to minimatch
   3.0.2 or higher to avoid a RegExp DoS issue (used by babel-core)
+- server startup log:
+  05:01:32,167 WARN  [org.jboss.weld.Validator] (MSC service thread 1-3) WELD-001478: Interceptor class org.apache.deltaspike.security.impl.extension.SecurityInterceptor is enabled for the application and for the bean archive sync.war/WEB-INF/classes. It will only be invoked in the @Priority part of the chain.
+  05:01:32,167 WARN  [org.jboss.weld.Validator] (MSC service thread 1-5) WELD-001478: Interceptor class org.apache.deltaspike.security.impl.extension.SecurityInterceptor is enabled for the application and for the bean archive jobs.war/WEB-INF/classes. It will only be invoked in the @Priority part of the chain.
+  05:01:32,170 WARN  [org.jboss.weld.Validator] (MSC service thread 1-5) WELD-001478: Interceptor class org.apache.deltaspike.security.impl.extension.SecurityInterceptor is enabled for the application and for the bean archive jobs.war/WEB-INF/lib/deltaspike-security-module-impl-1.5.1.jar. It will only be invoked in the @Priority part of the chain.
+  05:01:32,172 WARN  [org.jboss.weld.Validator] (MSC service thread 1-3) WELD-001478: Interceptor class org.apache.deltaspike.security.impl.extension.SecurityInterceptor is enabled for the application and for the bean archive sync.war/WEB-INF/lib/deltaspike-security-module-impl-1.5.1.jar. It will only be invoked in the @Priority part of the chain.
+  05:01:33,727 WARN  [org.jboss.weld.Validator] (MSC service thread 1-5) WELD-001471: Interceptor method start defined on class org.zanata.sync.quartz.CronTrigger is not defined according to the specification. It should not throw org.quartz.SchedulerException, which is a checked exception.
+  	at org.zanata.sync.quartz.CronTrigger.start(CronTrigger.java:57)
+    StackTrace
+  05:01:33,732 WARN  [org.jboss.weld.Validator] (MSC service thread 1-3) WELD-001471: Interceptor method start defined on class org.zanata.sync.quartz.CronTrigger is not defined according to the specification. It should not throw org.quartz.SchedulerException, which is a checked exception.
+  	at org.zanata.sync.quartz.CronTrigger.start(CronTrigger.java:57)
+
 
 ## Architectural diagram
 ```

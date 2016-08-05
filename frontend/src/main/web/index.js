@@ -30,6 +30,7 @@ const mountNode = document.getElementById('main-content')
 const dataUser = mountNode.getAttribute('data-user')
 const apiUrl = mountNode.getAttribute('data-api-url') || ''
 const basename = mountNode.getAttribute('data-app-basename') || ''
+const contextPath = mountNode.getAttribute('data-app-basename') || ''
 const zanataOAuthUrls = JSON.parse(mountNode.getAttribute('data-zanata-oauth-urls'))
 const srcRepoPlugins = JSON.parse(mountNode.getAttribute('data-src-repo-plugins'))
 const cronOptions = JSON.parse(mountNode.getAttribute('data-cron-options'))
@@ -56,6 +57,7 @@ const maxPollCount = maxPollTimeout / pollInterval
 const Configs = {
   user,
   apiUrl: `${apiUrl}${basename}`,
+  contextPath,
   zanataOAuthUrls,
   srcRepoPlugins,
   cronOptions,

@@ -13,6 +13,6 @@
   <!-- _context_root_ -->
 
   <!-- This will use JBoss ApplicationRealm -->
-  <security-domain>java:/jaas/other</security-domain>
+  <security-domain>other</security-domain>
 
 </jboss-web>

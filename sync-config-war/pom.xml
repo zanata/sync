@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.zanata.sync</groupId>
-    <artifactId>zsync</artifactId>
+    <artifactId>sync</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>sync-config-war</artifactId>
@@ -187,7 +187,7 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>3.4.2</version>
+      <version>3.5.1</version>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>

@@ -29,6 +29,7 @@ const webSocketProtocol = (webSocketPort) => {
 export default React.createClass({
   propTypes: {
     workSummaries: PropTypes.arrayOf(PropTypes.object).isRequired,
+    contextPath: PropTypes.string.isRequired,
     user: PropTypes.object,
     loadWorkSummaries: PropTypes.func.isRequired,
     runJob: PropTypes.func.isRequired,
@@ -37,11 +38,13 @@ export default React.createClass({
   },
 
   _connectWebSocket() {
-    const {websocketPort, onJobStatusUpdate} = this.props
+    const {websocketPort, onJobStatusUpdate, contextPath} = this.props
     const protocol = webSocketProtocol(websocketPort)
     const port = webSocketPort(protocol, websocketPort)
 
-    const websocketEndpoint = `${protocol}://${location.hostname}${port}${location.pathname}websocket/jobStatus`
+    const context = contextPath === '/' ? '' : contextPath
+
+    const websocketEndpoint = `${protocol}://${location.hostname}${port}${context}/websocket/jobStatus`
     this.websocket = startWebSocket(websocketEndpoint, onJobStatusUpdate)
   },
 

@@ -1,5 +1,5 @@
 {
-  "name": "zsync-frontend",
+  "name": "sync-frontend",
   "version": "1.0.0",
   "description": "Zanata sync frontend",
   "main": "index.js",
