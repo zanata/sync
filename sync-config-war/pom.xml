@@ -14,6 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <datasource.name>java:jboss/datasources/syncDS</datasource.name>
+    <postgresql.version>9.2-1004-jdbc3</postgresql.version>
   </properties>
 
 
@@ -132,6 +133,13 @@
       <artifactId>hibernate-validator</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- jsp -->
     <dependency>
       <groupId>jstl</groupId>
@@ -180,6 +188,11 @@
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
       <version>3.4.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.16</version>
     </dependency>
     <dependency>
       <groupId>com.mattbertolini</groupId>

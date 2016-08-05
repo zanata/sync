@@ -16,4 +16,15 @@
     <sqlFile path="db/baseline.sql" stripComments="true" />
   </changeSet>
 
+  <changeSet author="pahuang@redhat.com" id="postgres_baseline" dbms="postgresql">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="Sync_Work_Config_table"/>
+      </not>
+    </preConditions>
+    <comment>mysql baseline schema</comment>
+    <sqlFile path="db/pg_baseline.sql" stripComments="true" />
+  </changeSet>
+
+
 </databaseChangeLog>
