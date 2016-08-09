@@ -50,6 +50,8 @@ TODO:
 
 ### Local Installation
 
+#### install to your local jboss
+
 Update your standalone.xml:
 
 - add system properties:
@@ -63,6 +65,20 @@ Update your standalone.xml:
 + <connector name="http" protocol="org.apache.coyote.http11.Http11NioProtocol"
 +   scheme="http" socket-binding="http"/>
 ```
+
+#### using docker
+
+- run ```docker-img-build.sh``` to build the docker image
+- run ```rundb.sh -c``` to run and create the database container.
+  (-c will create the database so you only need to run it for the first time)
+- run ```rundev.sh``` to run the actual wildfly server and it will create a
+  folder at *$HOME/docker-volumes/sync-deployments* as the wildfly deployments
+  volume. The war files will also be copied over to there.
+  NOTE: the first deployment will fail because of an issue with liquibase and
+  postgres [1]. Just change the sync.war.faildeploy file to sync.war.dodeploy to
+  let it redeploy again. It will be fine afterwards.
+
+[1] https://liquibase.jira.com/browse/CORE-2846
 
 ### Tips
 
