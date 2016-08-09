@@ -29,6 +29,8 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
@@ -45,6 +47,8 @@ import org.zanata.sync.plugin.git.GitPlugin;
 @Dependent // note: it has to be dependent scope so that the async JobRunner will use the same object in JobResource
 @RepoPlugin(GitPlugin.NAME)
 public class EnvAwareGitSyncService implements RepoSyncService {
+    private static final Logger log =
+            LoggerFactory.getLogger(EnvAwareGitSyncService.class);
     private static boolean hasNativeGit = isGitExecutableOnPath();
 
     private static boolean isGitExecutableOnPath() {
@@ -54,45 +58,57 @@ public class EnvAwareGitSyncService implements RepoSyncService {
                 .anyMatch(path -> Files.exists(path.resolve("git")));
     }
 
-    private RepoSyncService syncService;
+    private GitSyncService jgit;
+    private NativeGitSyncService nativeGit;
 
     @Inject
     public EnvAwareGitSyncService(GitSyncService jgit, NativeGitSyncService nativeGit) {
-//        if (hasNativeGit) {
-//            syncService = nativeGit;
-//        } else {
-            syncService = jgit;
-//        }
+        this.jgit = jgit;
+        this.nativeGit = nativeGit;
     }
 
 
     @Override
     public void cloneRepo() throws RepoSyncException {
-        syncService.cloneRepo();
+        if (hasNativeGit) {
+            try {
+                nativeGit.cloneRepo();
+            } catch (Exception e) {
+                log.info("native git clone failed [{}]. Re-try with JGit", e.getMessage());
+                log.debug("native git clone failed", e);
+                jgit.cloneRepo();
+            }
+        } else {
+            jgit.cloneRepo();
+        }
     }
 
     @Override
     public void syncTranslationToRepo() throws RepoSyncException {
-        syncService.syncTranslationToRepo();
+        jgit.syncTranslationToRepo();
     }
 
     @Override
     public void setCredentials(Credentials credentials) {
-        syncService.setCredentials(credentials);
+        jgit.setCredentials(credentials);
+        nativeGit.setCredentials(credentials);
     }
 
     @Override
     public void setUrl(String url) {
-        syncService.setUrl(url);
+        jgit.setUrl(url);
+        nativeGit.setUrl(url);
     }
 
     @Override
     public void setBranch(String branch) {
-        syncService.setBranch(branch);
+        jgit.setBranch(branch);
+        nativeGit.setBranch(branch);
     }
 
     @Override
     public void setWorkingDir(File workingDir) {
-        syncService.setWorkingDir(workingDir);
+        jgit.setWorkingDir(workingDir);
+        nativeGit.setWorkingDir(workingDir);
     }
 }

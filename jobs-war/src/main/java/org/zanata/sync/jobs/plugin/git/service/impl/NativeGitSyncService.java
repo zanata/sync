@@ -20,58 +20,120 @@
  */
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import javax.enterprise.context.Dependent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 /**
  * This will try to use the native git executable on PATH.
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Dependent
 public class NativeGitSyncService implements RepoSyncService {
+    private static final Logger log =
+            LoggerFactory.getLogger(NativeGitSyncService.class);
+
+    private String branch;
+    private String url;
+    private File workingDir;
+    private Credentials credentials;
 
     @Override
     public void cloneRepo() throws RepoSyncException {
+        String[] protocolAndRest = protocolAndRest(url);
+        String urlWithAuth =
+                String.format("%s://%s:%s@%s", protocolAndRest[0],
+                        credentials.getUsername(),
+                        urlEncode(credentials.getSecret()), protocolAndRest[1]);
 
-        //TODO implement
-        throw new UnsupportedOperationException("Implement me!");
-        //
+        ProcessBuilder processBuilder =
+                new ProcessBuilder("git", "clone", "--depth", "1", "--branch",
+                        getBranch(), urlWithAuth)
+                        .directory(workingDir)
+                        .redirectErrorStream(true);
+        try {
+            log.info("start git clone using native git");
+            Process process = processBuilder.start();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(),
+                            Charsets.UTF_8))) {
+                String line = reader.readLine();
+                while (line != null) {
+                    log.info(line);
+                    line = reader.readLine();
+                }
+            } catch (IOException e) {
+                log.error("error running native git", e);
+                throw new RepoSyncException(e);
+            }
+        } catch (Exception e) {
+            throw new RepoSyncException(e);
+        }
+    }
+
+    private static String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RepoSyncException(e);
+        }
+    }
+
+    private String getBranch() {
+        if (Strings.isNullOrEmpty(branch)) {
+            log.debug("will use master as default branch");
+            return "master";
+        } else {
+            return branch;
+        }
+    }
+
+    private static String[] protocolAndRest(String url) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(url),
+                "url is null or empty");
+        String[] split = url.split("://");
+        Preconditions
+                .checkArgument(split.length == 2, "url should have protocol");
+        log.debug("url [{}] -> {} + {}", url, split[0], split[1]);
+        return split;
     }
 
     @Override
     public void syncTranslationToRepo() throws RepoSyncException {
-
+        throw new UnsupportedOperationException("Use JGit instead");
     }
 
     @Override
     public void setCredentials(Credentials credentials) {
-        //TODO implement
-        throw new UnsupportedOperationException("Implement me!");
-        //
+        this.credentials = credentials;
     }
 
     @Override
     public void setUrl(String url) {
-        //TODO implement
-        throw new UnsupportedOperationException("Implement me!");
-        //
+        this.url = url;
     }
 
     @Override
     public void setBranch(String branch) {
-        //TODO implement
-        throw new UnsupportedOperationException("Implement me!");
-        //
+        this.branch = branch;
     }
 
     @Override
     public void setWorkingDir(File workingDir) {
-        //TODO implement
-        throw new UnsupportedOperationException("Implement me!");
-        //
+        this.workingDir = workingDir;
     }
 }

@@ -32,6 +32,9 @@ public class GitSyncServiceTest {
     private static final Logger log =
             LoggerFactory.getLogger(GitSyncServiceTest.class);
     @Rule
+    public RemoteGitRepoRule remoteGitRepoRule = new RemoteGitRepoRule();
+
+    @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GitSyncService syncService;
@@ -46,27 +49,11 @@ public class GitSyncServiceTest {
         syncService =
                 new GitSyncService();
         syncService.setCredentials(credential);
-        dest = temporaryFolder.newFolder();
-        remoteRepo = temporaryFolder.newFolder();
-        initGitRepo(remoteRepo);
 
+        dest = temporaryFolder.newFolder();
+        remoteRepo = remoteGitRepoRule.getRemoteRepo();
         syncService.setUrl("file://" + remoteRepo.getAbsolutePath());
         syncService.setWorkingDir(dest);
-    }
-
-    private static void initGitRepo(File repoRoot) {
-        try (BufferedWriter writer =
-                Files.newWriter(new File(repoRoot, "readme.txt"),
-                        Charsets.UTF_8)) {
-            writer.write("hello, world");
-            Git.init().setDirectory(repoRoot).call();
-            Git.open(repoRoot).add().addFilepattern(".").call();
-            Git.open(repoRoot).commit()
-                    .setCommitter("JUnit", "junit@example.com")
-                    .setMessage("Init commit").call();
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
     }
 
     @Test
