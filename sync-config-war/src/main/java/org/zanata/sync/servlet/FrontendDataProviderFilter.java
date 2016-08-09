@@ -34,8 +34,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
+import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.common.plugin.Plugin;
-import org.zanata.sync.common.plugin.RepoExecutor;
 import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.PluginsService;
@@ -51,10 +51,10 @@ import com.google.common.collect.ImmutableMap;
  * This filter is responsible for pre-load necessary data for the frontend
  * javascript app.
  * Filter mapping url is defined in web.xml to specify order of execution.
- *
+ * <p>
  * see index.jsp
- * @author Patrick Huang
- *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ *
+ * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @WebFilter(filterName = "frontendDataProviderFilter")
 public class FrontendDataProviderFilter implements Filter {
@@ -69,18 +69,18 @@ public class FrontendDataProviderFilter implements Filter {
     @Inject
     private SecurityTokens securityTokens;
 
-    private String plugins;
+    private String repoTypes;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
-        pluginsService.init();
-        List<RepoExecutor> srcRepoPlugins =
+        List<Plugin> srcRepoPlugins =
                 pluginsService.getAvailableSourceRepoPlugins();
-        List<String> pluginsList =
-                srcRepoPlugins.stream().map(Plugin::getName)
+        List<String> repoTypes =
+                srcRepoPlugins.stream().map(
+                        repoExecutor -> repoExecutor.getClass()
+                                .getAnnotation(RepoPlugin.class).value())
                         .collect(Collectors.toList());
-        plugins = objectMapper.toJSON(pluginsList);
+        this.repoTypes = objectMapper.toJSON(repoTypes);
     }
 
     private List<String> getZanataUrls() {
@@ -97,26 +97,29 @@ public class FrontendDataProviderFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
-                    throws IOException, ServletException {
+            throws IOException, ServletException {
         if (!(servletRequest instanceof HttpServletRequest)) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
         List<String> zanataUrls = getZanataUrls();
-        String appRoot = UrlUtil.appRootAbsoluteUrl((HttpServletRequest) servletRequest);
+        String appRoot =
+                UrlUtil.appRootAbsoluteUrl((HttpServletRequest) servletRequest);
         boolean isInDevMode = isInDevMode(servletRequest);
 
-        servletRequest.setAttribute("srcRepoPlugins", plugins);
+        servletRequest.setAttribute("srcRepoPlugins", repoTypes);
         servletRequest.setAttribute("zanataOAuthUrls",
                 objectMapper.toJSON(getZanataOAuthUrls(appRoot, zanataUrls)));
         servletRequest.setAttribute("cronOptions",
-                objectMapper.toJSON(CronType.toMapWithDisplayAsKey(isInDevMode)));
+                objectMapper
+                        .toJSON(CronType.toMapWithDisplayAsKey(isInDevMode)));
 
         UserAccount account = securityTokens.getAccount();
         String accountAsJson = objectMapper.toJSON(account);
         servletRequest.setAttribute("user", accountAsJson);
 
-        servletRequest.setAttribute("websocketPort", System.getenv("websocket_port"));
+        servletRequest
+                .setAttribute("websocketPort", System.getenv("websocket_port"));
 
         filterChain.doFilter(servletRequest, servletResponse);
     }

@@ -20,27 +20,21 @@
  */
 package org.zanata.sync.service.impl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 
-import org.apache.deltaspike.core.api.common.DeltaSpike;
-import org.scannotation.AnnotationDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.App;
 import org.zanata.sync.common.annotation.RepoPlugin;
-import org.zanata.sync.common.plugin.RepoExecutor;
-import org.zanata.sync.exception.UnableLoadPluginException;
+import org.zanata.sync.common.plugin.Plugin;
 import org.zanata.sync.service.PluginsService;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -54,72 +48,35 @@ import com.google.common.collect.ImmutableSet;
 public class PluginsServiceImpl implements PluginsService {
     private static final Logger log =
             LoggerFactory.getLogger(PluginsServiceImpl.class);
-    @Inject @DeltaSpike
-    private ServletContext servletContext;
 
-    private static Map<String, RepoExecutor> sourceRepoPluginMap;
+    private static Map<String, Plugin> sourceRepoPluginMap;
+
+    @Inject
+    @RepoPlugin
+    private Instance<Plugin> repoExecutors;
 
     /**
      * Initiate all plugins available
      */
     @Override
+    @PostConstruct
     public void init() {
-        Set<String> libJars = servletContext.getResourcePaths("/WEB-INF/lib");
-        Set<URL> pluginJars = libJars.stream()
-                .filter(jar -> jar.toLowerCase().contains("plugin") ||
-                        jar.toLowerCase().contains("common"))
-                .map(jar -> {
-                    try {
-                        return servletContext.getResource(jar);
-                    } catch (MalformedURLException e) {
-                        log.error("error getting resource", e);
-                        return null;
-                    }
-                })
-                .filter(url -> url != null)
-                .collect(Collectors.toSet());
-
-        AnnotationDB db = new AnnotationDB();
-        try {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            URL[] urls = pluginJars.toArray(new URL[]{});
-            db.scanArchives(urls);
-
-            sourceRepoPluginMap = buildPluginMap(db, cl, RepoPlugin.class);
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
-    }
-
-    private static <P> Map<String, RepoExecutor> buildPluginMap(
-            AnnotationDB db, ClassLoader cl, Class<RepoPlugin> pluginAnnotation)
-            throws ClassNotFoundException, UnableLoadPluginException {
-        ImmutableMap.Builder<String, RepoExecutor>
+        ImmutableMap.Builder<String, Plugin>
                 pluginBuilder = ImmutableMap.builder();
-        Set<String> repoPluginClasses =
-                db.getAnnotationIndex().get(pluginAnnotation.getName());
-        log.info("available plugins for {} - {}", pluginAnnotation,
-                repoPluginClasses);
 
-        if (repoPluginClasses == null) {
-            return pluginBuilder.build();
-        }
-        for (String cls : repoPluginClasses) {
-            Class<? extends P> entity =
-                    (Class<? extends P>) cl.loadClass(cls);
-            try {
-                RepoExecutor instance = (RepoExecutor) entity.newInstance();
-                pluginBuilder.put(instance.getName(), instance);
-            } catch (InstantiationException | IllegalAccessException e) {
-                log.error("failed to get new source repo plugin", e);
-                throw new UnableLoadPluginException(pluginAnnotation.getName());
-            }
-        }
-        return pluginBuilder.build();
+        repoExecutors.forEach(repoExecutor -> {
+            RepoPlugin annotation =
+                    repoExecutor.getClass().getAnnotation(RepoPlugin.class);
+
+            pluginBuilder.put(
+                    annotation.value(), repoExecutor);
+        });
+
+        sourceRepoPluginMap = pluginBuilder.build();
     }
 
     @Override
-    public List<RepoExecutor> getAvailableSourceRepoPlugins() {
+    public List<Plugin> getAvailableSourceRepoPlugins() {
         return ImmutableList.copyOf(sourceRepoPluginMap.values());
     }
 

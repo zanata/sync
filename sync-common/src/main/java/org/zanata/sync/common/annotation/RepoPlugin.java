@@ -20,18 +20,27 @@
  */
 package org.zanata.sync.common.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
 
 /**
- * TODO make this a CDI qualifier and then get rid of scannotation
- * To be use with {@link org.zanata.sync.common.plugin.RepoExecutor}
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@Qualifier
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.FIELD,
+        ElementType.METHOD, ElementType.PARAMETER })
 public @interface RepoPlugin {
+    /**
+     * the type of repo it supports.
+     */
+    @Nonbinding
+    String value() default "";
 }

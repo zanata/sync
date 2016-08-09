@@ -23,7 +23,9 @@ package org.zanata.sync.jobs.api;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -37,15 +39,16 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.jobs.common.Either;
 import org.zanata.sync.jobs.common.model.ErrorMessage;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
 import org.zanata.sync.jobs.ejb.JobRunner;
-import org.zanata.sync.jobs.plugin.Plugins;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
 import org.zanata.sync.jobs.plugin.zanata.service.impl.ZanataSyncServiceImpl;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -56,15 +59,32 @@ import com.google.common.base.Strings;
 public class JobResource {
     private static final Logger log =
             LoggerFactory.getLogger(JobResource.class);
-    private static final Plugins PLUGINS = new Plugins();
 
     @Inject
     private JobRunner jobRunner;
 
     @Inject
+    @RepoPlugin
     private Instance<RepoSyncService> repoSyncServices;
+    private static ImmutableMap<String, RepoSyncService> repoSyncServiceMap;
 
-
+    @PostConstruct
+    public void init() {
+        if (repoSyncServiceMap == null) {
+            synchronized (log) {
+                if (repoSyncServiceMap == null) {
+                    ImmutableMap.Builder<String, RepoSyncService> builder =
+                            ImmutableMap.builder();
+                    this.repoSyncServices.forEach(repoSyncService -> {
+                        RepoPlugin annotation = repoSyncService.getClass()
+                                .getAnnotation(RepoPlugin.class);
+                        builder.put(annotation.value(), repoSyncService);
+                    });
+                    repoSyncServiceMap = builder.build();
+                }
+            }
+        }
+    }
     // TODO until we make trigger job an aync task, we won't be able to get status or cancel running job (To make it an async task, we will need database backend to store running job)
     /**
      * Get job status
@@ -172,11 +192,7 @@ public class JobResource {
                                     "missing repo url and type")).build());
         }
 
-        Class<? extends RepoSyncService> srcRepoPluginClass =
-                PLUGINS.getClassForSrcRepo(repoType);
-
-        RepoSyncService service =
-                repoSyncServices.select(srcRepoPluginClass).get();
+        RepoSyncService service = repoSyncServiceMap.get(repoType);
         service.setCredentials(
                 new UsernamePasswordCredential(repoUsername, repoSecret));
         service.setUrl(repoUrl);

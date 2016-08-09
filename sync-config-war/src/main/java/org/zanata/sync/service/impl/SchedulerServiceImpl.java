@@ -101,8 +101,6 @@ public class SchedulerServiceImpl implements SchedulerService {
         log.info("=====================================================");
         log.info("=====================================================");
 
-        pluginsService.init();
-
         log.info("Initialising jobs...");
 
         try {

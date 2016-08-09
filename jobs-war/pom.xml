@@ -47,6 +47,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.zanata.sync</groupId>
+      <artifactId>git-plugin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>

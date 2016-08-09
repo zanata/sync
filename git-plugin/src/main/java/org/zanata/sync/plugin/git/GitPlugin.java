@@ -21,31 +21,12 @@
 package org.zanata.sync.plugin.git;
 
 import org.zanata.sync.common.annotation.RepoPlugin;
-import org.zanata.sync.common.model.Field;
-import org.zanata.sync.common.model.FieldType;
-import org.zanata.sync.common.plugin.RepoExecutor;
-import org.zanata.sync.common.validator.UrlFieldValidator;
+import org.zanata.sync.common.plugin.Plugin;
 
 /**
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
-@RepoPlugin
-public class GitPlugin extends RepoExecutor {
-    private static final String NAME = "git";
-    private static final String DESCRIPTION = Messages.getString("plugin.description");
-
-    @Override
-    public void initFields() {
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public String getDescription() {
-        return DESCRIPTION;
-    }
-
+@RepoPlugin(GitPlugin.NAME)
+public class GitPlugin implements Plugin{
+    public static final String NAME = "git";
 }
