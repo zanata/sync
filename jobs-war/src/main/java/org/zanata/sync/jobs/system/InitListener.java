@@ -55,21 +55,27 @@ public class InitListener implements ServletContextListener {
     @JAXRSClientConnectionPoolSize
     private int poolSize;
 
+    @Inject
+    @HasNativeGit
+    private boolean hasNativeGit;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         // we should check all the system state here to make sure they are all set
         log.info("==== system config ====");
         log.info("==== config war: {}", configWarUrl);
         log.info("==== JAXRS client connection pool size: {}", poolSize);
-        log.info("==== system config ====");
+        log.info("==== has native git: {}", hasNativeGit);
 
         configAppHealthCheck(configWarUrl);
         writeOutCustomKeyStore();
+
+        log.info("==== system config ====");
     }
 
     private static void configAppHealthCheck(String configWarUrl) {
         if (configWarUrl.startsWith("http://localhost")) {
-            log.info("=== skip config war health check for localhost ===");
+            log.info("==== skip config war health check for localhost ===");
             return;
         }
         Client client = ResteasyClientBuilder.newClient();
@@ -95,7 +101,7 @@ public class InitListener implements ServletContextListener {
         URL cacerts = Thread.currentThread().getContextClassLoader()
                 .getResource("cacerts");
         if (cacerts == null) {
-            log.info("no packaged custom key store");
+            log.info("==== no packaged custom key store");
             return;
         }
 

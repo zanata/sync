@@ -20,6 +20,10 @@
  */
 package org.zanata.sync.jobs.system;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.regex.Pattern;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.ws.rs.client.Client;
@@ -48,6 +52,15 @@ public class ResourceProducer {
     private static final String CONFIG_WAR_URL_KEY = "sync.config.war.url";
     private static final String JAXRS_CLIENT_CONN_POOL_SIZE =
             "jaxrs.connection.pool.size";
+
+    private boolean hasNativeGit = isGitExecutableOnPath();
+
+    private static boolean isGitExecutableOnPath() {
+        Pattern pattern = Pattern.compile(Pattern.quote(File.pathSeparator));
+        return pattern.splitAsStream(System.getenv("PATH"))
+                .map(Paths::get)
+                .anyMatch(path -> Files.exists(path.resolve("git")));
+    }
 
     @Produces
     @ConfigWarUrl
@@ -80,5 +93,11 @@ public class ResourceProducer {
         ApacheHttpClient4Engine engine =
                 new ApacheHttpClient4Engine(closeableHttpClient);
         return new ResteasyClientBuilder().httpEngine(engine).build();
+    }
+
+    @Produces
+    @HasNativeGit
+    protected boolean hasNativeGit() {
+        return hasNativeGit;
     }
 }

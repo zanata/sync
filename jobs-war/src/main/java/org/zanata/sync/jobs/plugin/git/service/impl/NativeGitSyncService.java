@@ -60,9 +60,10 @@ public class NativeGitSyncService implements RepoSyncService {
                         credentials.getUsername(),
                         urlEncode(credentials.getSecret()), protocolAndRest[1]);
 
+        // git clone into current directory
         ProcessBuilder processBuilder =
                 new ProcessBuilder("git", "clone", "--depth", "1", "--branch",
-                        getBranch(), urlWithAuth)
+                        getBranch(), urlWithAuth, ".")
                         .directory(workingDir)
                         .redirectErrorStream(true);
         try {

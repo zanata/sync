@@ -21,10 +21,6 @@
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.regex.Pattern;
-
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
@@ -35,6 +31,7 @@ import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
+import org.zanata.sync.jobs.system.HasNativeGit;
 import org.zanata.sync.plugin.git.GitPlugin;
 
 /**
@@ -49,22 +46,17 @@ import org.zanata.sync.plugin.git.GitPlugin;
 public class EnvAwareGitSyncService implements RepoSyncService {
     private static final Logger log =
             LoggerFactory.getLogger(EnvAwareGitSyncService.class);
-    private static boolean hasNativeGit = isGitExecutableOnPath();
-
-    private static boolean isGitExecutableOnPath() {
-        Pattern pattern = Pattern.compile(Pattern.quote(File.pathSeparator));
-        return pattern.splitAsStream(System.getenv("PATH"))
-                .map(Paths::get)
-                .anyMatch(path -> Files.exists(path.resolve("git")));
-    }
-
+    private boolean hasNativeGit;
     private GitSyncService jgit;
     private NativeGitSyncService nativeGit;
 
     @Inject
-    public EnvAwareGitSyncService(GitSyncService jgit, NativeGitSyncService nativeGit) {
+    public EnvAwareGitSyncService(GitSyncService jgit,
+            NativeGitSyncService nativeGit,
+            @HasNativeGit boolean hasNativeGit) {
         this.jgit = jgit;
         this.nativeGit = nativeGit;
+        this.hasNativeGit = hasNativeGit;
     }
 
 
