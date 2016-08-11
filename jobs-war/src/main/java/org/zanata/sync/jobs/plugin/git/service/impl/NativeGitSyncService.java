@@ -77,11 +77,16 @@ public class NativeGitSyncService implements RepoSyncService {
                     log.info(line);
                     line = reader.readLine();
                 }
+                int exitValue = process.exitValue();
+                if (exitValue != 0) {
+                    throw new RepoSyncException("exit code is " + exitValue);
+                }
             } catch (IOException e) {
                 log.error("error running native git", e);
                 throw new RepoSyncException(e);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            log.error("error running native git", e);
             throw new RepoSyncException(e);
         }
     }
