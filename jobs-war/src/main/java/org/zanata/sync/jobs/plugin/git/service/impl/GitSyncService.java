@@ -67,7 +67,7 @@ public class GitSyncService implements RepoSyncService {
 
     @Override
     public void cloneRepo() throws RepoSyncException {
-        log.info("doing git clone: {}", url);
+        log.info("doing git clone: {} -> {}", url, workingDir.getAbsolutePath());
         doGitClone(url, workingDir);
         checkOutBranch(workingDir, branch);
     }

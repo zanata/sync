@@ -57,7 +57,7 @@ public class NativeGitSyncService implements RepoSyncService {
         String[] protocolAndRest = protocolAndRest(url);
         String urlWithAuth =
                 String.format("%s://%s:%s@%s", protocolAndRest[0],
-                        credentials.getUsername(),
+                        urlEncode(credentials.getUsername()),
                         urlEncode(credentials.getSecret()), protocolAndRest[1]);
 
         // git clone into current directory
@@ -77,13 +77,18 @@ public class NativeGitSyncService implements RepoSyncService {
                     log.info(line);
                     line = reader.readLine();
                 }
-                int exitValue = process.exitValue();
+                int exitValue = process.waitFor();
                 if (exitValue != 0) {
                     throw new RepoSyncException("exit code is " + exitValue);
                 }
             } catch (IOException e) {
                 log.error("error running native git", e);
                 throw new RepoSyncException(e);
+            } catch (InterruptedException e) {
+                log.error("interrupted while waiting for the exit code");
+                throw new RepoSyncException(e);
+            } finally {
+                process.destroyForcibly();
             }
         } catch (IOException e) {
             log.error("error running native git", e);

@@ -72,27 +72,29 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
 
     @Override
     public void pushToZanata(Path repoBase) throws ZanataSyncException {
+        File projectConfig = findProjectConfigOrThrow(repoBase);
+        PushPullOptionsUtil
+                .applyProjectConfig(getPushOptions(), projectConfig);
+        pushService.pushToZanata(getPushOptions());
+    }
+
+    private File findProjectConfigOrThrow(Path repoBase) {
         Optional<File> projectConfig =
                 PushPullOptionsUtil.findProjectConfig(repoBase.toFile());
 
-        projectConfig.ifPresent((file) -> {
-            PushPullOptionsUtil
-                    .applyProjectConfig(getPushOptions(), projectConfig.get());
-            pushService.pushToZanata(getPushOptions());
-        });
-        // TODO handle where project config can not be found in repo
+        if (!projectConfig.isPresent()) {
+            throw new ZanataSyncException(
+                    "can not find project config (zanata.xml) in the repo");
+        }
+        return projectConfig.get();
     }
 
     @Override
     public void pullFromZanata(Path repoBase) throws ZanataSyncException {
-        Optional<File> projectConfig =
-                PushPullOptionsUtil.findProjectConfig(repoBase.toFile());
-
-        projectConfig.ifPresent((file) -> {
-            PushPullOptionsUtil
-                    .applyProjectConfig(getPullOptions(), projectConfig.get());
-            pullService.pullFromZanata(getPullOptions());
-        });
-        // TODO handle where project config can not be found in repo
+        File projectConfig =
+                findProjectConfigOrThrow(repoBase);
+        PushPullOptionsUtil
+                .applyProjectConfig(getPullOptions(), projectConfig);
+        pullService.pullFromZanata(getPullOptions());
     }
 }

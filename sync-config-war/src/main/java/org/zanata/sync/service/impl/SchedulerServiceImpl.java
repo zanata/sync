@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -79,8 +80,16 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Inject
     private CronTrigger cronTrigger;
 
+    // TODO make the expiry time configurable
     private Cache<JobKey, String> runningJobs =
-            CacheBuilder.newBuilder().build();
+            CacheBuilder.newBuilder()
+                    .expireAfterWrite(5, TimeUnit.MINUTES)
+                    .removalListener(notification -> {
+                        log.info(
+                                "{} removed from the runningJobs cache due to {}",
+                                notification.getKey(), notification.getCause());
+                    })
+                    .build();
 
     private Map<String, Session> webSocketSessions =
             Collections.synchronizedMap(

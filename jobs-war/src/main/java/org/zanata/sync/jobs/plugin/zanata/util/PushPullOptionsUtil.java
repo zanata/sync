@@ -89,7 +89,7 @@ public final class PushPullOptionsUtil {
             Optional<Path> projectConfig = pathStream.findFirst();
             return projectConfig.flatMap(path -> Optional.ofNullable(path.toFile()));
         } catch (IOException e) {
-            throw new ZanataSyncException("Failed fiding project config", e);
+            throw new ZanataSyncException("Failed finding project config", e);
         }
     }
 }

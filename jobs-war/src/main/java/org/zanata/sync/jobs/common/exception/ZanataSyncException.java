@@ -36,4 +36,8 @@ public class ZanataSyncException extends RuntimeException {
     public ZanataSyncException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public ZanataSyncException(String message) {
+        super(message);
+    }
 }
