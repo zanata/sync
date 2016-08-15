@@ -10,18 +10,23 @@ DB_NAME=sync_local
 DB_ROOT_USER=posgres
 DB_ROOT_PASSWORD=posgres
 
+CONTAINER_NAME=postgres-db
+
 DB_DOCKER_ENV="-e PGPASSWORD=$DB_ROOT_PASSWORD -e POSTGRES_USER=$DB_ROOT_USER"
 
 VOLUME_DIR=$HOME/docker-volumes/sync-postgres
 mkdir -p ${VOLUME_DIR}
 sudo chcon -Rt svirt_sandbox_file_t ${VOLUME_DIR}
 
+# remove previous container
+docker rm -f ${CONTAINER_NAME}
+
 # create a database
-CREATE_DB="docker run -it --rm --link postgres-db:postgres $DB_DOCKER_ENV postgres:9.2 createdb -h postgres -U postgres $DB_NAME"
+CREATE_DB="docker run -it --rm --link $CONTAINER_NAME:postgres $DB_DOCKER_ENV postgres:9.2 createdb -h postgres -U postgres $DB_NAME"
 
 # start the postgres db in the background with password
 PGDATA_VOLUME=/var/lib/postgresql/data/pgdata
-CMD="docker run -d --name postgres-db $DB_DOCKER_ENV -e PGDATA=$PGDATA_VOLUME -e DB_NAME=$DB_NAME -v $VOLUME_DIR:$PGDATA_VOLUME -p 5432:5432 $DB_IMAGE"
+CMD="docker run -d --name $CONTAINER_NAME $DB_DOCKER_ENV -e PGDATA=$PGDATA_VOLUME -e DB_NAME=$DB_NAME -v $VOLUME_DIR:$PGDATA_VOLUME -p 5432:5432 $DB_IMAGE"
 
 while getopts ":cpH" opt; do
   case ${opt} in

@@ -21,7 +21,6 @@
 package org.zanata.sync.quartz;
 
 import java.util.Optional;
-import javax.ws.rs.client.Client;
 
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.quartz.InterruptableJob;
@@ -48,18 +47,18 @@ public class SyncJob implements InterruptableJob {
     @Override
     public final void execute(JobExecutionContext context)
             throws JobExecutionException {
-        try (AutoCloseableDependentProvider<Client> provider = forBean(
-                Client.class)) {
+        try (AutoCloseableDependentProvider<RemoteJobExecutor> provider = forBean(
+                RemoteJobExecutor.class)) {
             SyncJobDataMap syncJobDataMap = SyncJobDataMap.fromContext(context);
             Long configId = syncJobDataMap.getConfigId();
             JobType jobType = syncJobDataMap.getJobType();
 
-            Client client = provider.getBean();
+            RemoteJobExecutor jobExecutor = provider.getBean();
             WorkService workService =
                     BeanProvider.getContextualReference(WorkService.class);
             Optional<SyncWorkConfig> workConfig = workService.load(configId);
             if (workConfig.isPresent()) {
-                new RemoteJobExecutor(client)
+                jobExecutor
                         .executeJob(context.getFireInstanceId(), workConfig.get(),
                                 jobType);
             } else {

@@ -20,9 +20,7 @@
  */
 package org.zanata.sync.api;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -41,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.JobRunStatus;
 import org.zanata.sync.dto.Payload;
+import org.zanata.sync.dto.RunningJobKey;
 import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.exception.JobNotFoundException;
@@ -48,7 +47,6 @@ import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobStatusType;
 import org.zanata.sync.model.JobType;
-import org.zanata.sync.dto.RunningJobKey;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.JobStatusService;
 import org.zanata.sync.service.SchedulerService;
@@ -92,7 +90,7 @@ public class JobResource {
     }
 
     /**
-     * Get job status
+     * Get job status. Used by polling when websockets is not supported.
      *
      * @param id - work identifier
      * @param type - {@link JobType}
@@ -116,26 +114,6 @@ public class JobResource {
             log.warn("get job status not found", e);
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-    }
-
-    @Path("/all/status")
-    @GET
-    public Response getAllJobStatus(@QueryParam("id") Long id) {
-        if (id == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        List<JobStatus> allJobStatus;
-        try {
-            SyncWorkConfig config = workService.getById(id);
-            allJobStatus = jobStatusService.getAllJobStatus(config);
-        } catch (WorkNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        List<JobRunStatus> entity = allJobStatus.stream()
-                .map(status -> JobRunStatus.fromEntity(status, id,
-                        status.getJobType()))
-                .collect(Collectors.toList());
-        return Response.ok(entity).build();
     }
 
     /**
@@ -208,7 +186,7 @@ public class JobResource {
     }
 
     /**
-     * trigger job
+     * Trigger job from the UI.
      *
      * @param id - work identifier
      * @param type - {@link JobType}

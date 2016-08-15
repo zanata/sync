@@ -24,8 +24,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -35,16 +37,24 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
+import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.WorkDetail;
+import org.zanata.sync.dto.ZanataWebHookEvent;
+import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
+import org.zanata.sync.jobs.RemoteJobExecutor;
 import org.zanata.sync.model.JobStatus;
+import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
@@ -56,9 +66,12 @@ import org.zanata.sync.service.JobStatusService;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
 import org.zanata.sync.service.WorkService;
+import org.zanata.sync.util.HmacUtil;
+import org.zanata.sync.util.JSONObjectMapper;
 import org.zanata.sync.validation.SyncWorkFormValidator;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -95,6 +108,19 @@ public class WorkResource {
 
     @Inject
     private SecurityTokens securityTokens;
+
+    @Context
+    private HttpServletRequest request;
+
+    @Context
+    private HttpHeaders httpHeaders;
+
+    @Inject
+    private JSONObjectMapper objectMapper;
+
+    @Inject
+    private RemoteJobExecutor remoteJobExecutor;
+
 
     /**
      * Use this to check whether frontend data is still valid against the
@@ -191,6 +217,46 @@ public class WorkResource {
         }*/
         // TODO create URI
         return Response.created(URI.create("")).entity(errors).build();
+    }
+
+    @Path("/{id}/translation/changed")
+    @POST
+    @NoSecurityCheck
+    // TODO ZNTA-1290 we may need to whitelist zanata server urls that can trigger this endpoint
+    public Response zanataWebHook(@PathParam("id") Long id, String payload) {
+        log.debug("webhook event received from {}", request.getRemoteAddr());
+        Optional<SyncWorkConfig> configOpt = workService.load(id);
+        if (!configOpt.isPresent()) {
+            log.warn("can not find config for id {}", id);
+            return Response.status(NOT_FOUND).build();
+        }
+
+        SyncWorkConfig config = configOpt.get();
+        // TODO ZNTA-1290 store webhook secret in the config and get it back here
+
+        List<String> headerHashes =
+                httpHeaders.getRequestHeader("X-Zanata-Webhook");
+        if (!headerHashes.isEmpty()) {
+            String headerHash = headerHashes.get(0);
+            String expectedHash = HmacUtil.signWebHookHeader(payload, "secret",
+                    request.getRequestURL().toString());
+
+            if (!headerHash.equals(expectedHash)) {
+                log.warn("webhook hash does not match content");
+                return Response.status(BAD_REQUEST).build();
+            }
+        }
+        log.debug("webhook payload: {}", payload);
+
+        // TODO ZNTA-1290 get language from the payload and only trigger job for that language
+        // payload: {"username":"admin","project":"test-repo","version":"master","docId":"book","locale":"ja","wordDeltasByState":{"New":-4,"Translated":4},"type":"DocumentStatsEvent"}
+        ZanataWebHookEvent webHookEvent =
+                objectMapper.fromJSON(ZanataWebHookEvent.class, payload);
+
+        // bypass schedulerService since it's not triggered by schedule but webhook
+        remoteJobExecutor.executeJob(UUID.randomUUID().toString(), config, JobType.REPO_SYNC);
+
+        return Response.ok().build();
     }
 
     @DELETE

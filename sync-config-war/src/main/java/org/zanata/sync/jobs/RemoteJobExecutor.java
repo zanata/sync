@@ -21,6 +21,8 @@
 package org.zanata.sync.jobs;
 
 import java.util.Map;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -51,13 +53,16 @@ import com.google.common.collect.Maps;
  * </pre>
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
+@Dependent
 public class RemoteJobExecutor {
     private static final Logger log =
             LoggerFactory.getLogger(RemoteJobExecutor.class);
     private static final String JOB_SERVER_URL =
             System.getProperty("jobs.server", "http://localhost:8080/jobs");
+
     private Client client;
 
+    @Inject
     public RemoteJobExecutor(Client client) {
         this.client = client;
     }

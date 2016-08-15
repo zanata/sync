@@ -29,7 +29,13 @@ import org.quartz.TriggerKey;
  * @author Alex Eng <a href="aeng@redhat.com">aeng@redhat.com</a>
  */
 public enum JobType {
+    /**
+     * sync source, translation or both to Zanata
+     */
     SERVER_SYNC,
+    /**
+     * sync translation to source repo
+     */
     REPO_SYNC;
 
     public JobKey toJobKey(Long workId) {
