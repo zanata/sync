@@ -20,11 +20,15 @@
  */
 package org.zanata.sync.jobs.system;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -32,6 +36,7 @@ import javax.servlet.annotation.WebListener;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
@@ -105,6 +110,7 @@ public class InitListener implements ServletContextListener {
             return;
         }
 
+        log.info("==== packaged custom key store (sha1): {}", sha1sum(cacerts));
 
         try (InputStream cacertsIS = cacerts.openStream()) {
             String trustStorePath =
@@ -117,6 +123,25 @@ public class InitListener implements ServletContextListener {
             Files.copy(cacertsIS, Paths.get(trustStorePath),
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    private static String sha1sum(URL fileURL) {
+        int bufferSize = 8192;
+        try (BufferedInputStream is = new BufferedInputStream(
+                fileURL.openStream(), bufferSize)) {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            int n = 0;
+            byte[] buffer = new byte[bufferSize];
+            while (n != -1) {
+                n = is.read(buffer);
+                if (n > 0) {
+                    digest.update(buffer, 0, n);
+                }
+            }
+            return new HexBinaryAdapter().marshal(digest.digest());
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw Throwables.propagate(e);
         }
     }
