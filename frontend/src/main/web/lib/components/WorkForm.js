@@ -46,7 +46,8 @@ export default React.createClass({
       syncToRepoCron: 'MANUAL',
       srcRepoAccountId,
       srcRepoUrl: '',
-      srcRepoBranch: ''
+      srcRepoBranch: '',
+      zanataWebHookSecret: ''
     }
   },
 
@@ -92,11 +93,15 @@ export default React.createClass({
     const repoAccounts = (zanataAccount.repoAccounts || [])
       .filter(acc => acc.repoType === this.state.selectedRepoPluginName)
 
-    const repoAccountOptions = repoAccounts.map(acc => acc.id)
-    const repoAccountLabels = repoAccounts.map(acc => `${acc.username}@${acc.repoHostname}`)
+    // filter repoAccount based on repoURL
+    const repoUrl = this.state.srcRepoUrl
+    const repoAccountFilter = acc => !repoUrl || repoUrl.startsWith(acc.repoHostname)
+
+    const repoAccountOptions = repoAccounts.filter(repoAccountFilter).map(acc => acc.id)
+    const repoAccountLabels = repoAccounts.filter(repoAccountFilter).map(acc => `${acc.username}@${acc.repoHostname}`)
 
     let repoAccountSelect
-    if (repoAccounts.length === 0) {
+    if (repoAccountOptions.length === 0) {
       repoAccountSelect = (<div className="text-danger">Click Account in the menu to create one</div>)
     } else {
       repoAccountSelect = (
@@ -117,6 +122,15 @@ export default React.createClass({
         <ZanataAccountDisplay zanataAccount={zanataAccount}/>
       </span>
     )
+
+    const useZanataWebHook = this.state.syncToRepoCron === 'WEBHOOK'
+
+    const webhookSecretInput = useZanataWebHook && (
+        <TextInput name='zanataWebHookSecret' label='Zanata Web Hook Secret (optional)'
+          onChange={callbackFor('zanataWebHookSecret')}
+          inputValue={this.state.zanataWebHookSecret} isSecret
+        />
+      )
     return (
       <div>
         <form className="form-horizontal">
@@ -156,6 +170,7 @@ export default React.createClass({
               optionsDesc={cronDisplays}
               selected={this.state.syncToRepoCron}
             />
+            {webhookSecretInput}
             <Select name='srcRepoPlugin' label='Repo type'
               onChange={callbackFor('srcRepoPlugin')}
               options={this.props.srcRepoPlugins}

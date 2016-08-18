@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
  */
 public enum CronType {
     MANUAL("Only run manually by user", ""),
+    WEBHOOK("Only triggered by web hook event", ""),
     ONE_HOUR("Hourly", "0 0 0/1 * * ?"),
     TWO_HOUR("Every two hours", "0 0 0/2 * * ?"),
     SIX_HOUR("Every six hours (6am, 12am, 6pm, 12pm)", "0 0 0/6 * * ?"),

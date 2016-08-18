@@ -108,7 +108,7 @@ public class CronTrigger {
         if (scheduler.checkExists(jobKey)) {
             return;
         }
-        String cronExp;
+        String cronExp = null;
         Class<SyncJob> jobClass = SyncJob.class;
         if (type.equals(JobType.REPO_SYNC)
                 && syncWorkConfig.getSyncToRepoCron() != null) {
@@ -116,9 +116,6 @@ public class CronTrigger {
         } else if (type.equals(JobType.SERVER_SYNC)
                 && syncWorkConfig.getSyncToZanataCron() != null) {
             cronExp = syncWorkConfig.getSyncToZanataCron().getExpression();
-        } else {
-            // two jobs are all set to run mannually
-            cronExp = null;
         }
 
         JobDetail jobDetail =

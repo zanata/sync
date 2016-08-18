@@ -55,6 +55,7 @@ public class SyncWorkForm implements Serializable {
     @NotNull
     private Long srcRepoAccountId;
 
+    private String zanataWebHookSecret;
     private boolean syncToZanataEnabled = true;
 
     private boolean syncToRepoEnabled = true;
@@ -67,7 +68,7 @@ public class SyncWorkForm implements Serializable {
     public SyncWorkForm(String name, String description,
             CronType syncToZanataCron,
             SyncOption syncOption, CronType syncToRepoCron,
-            String encryptionKey,
+            String zanataWebHookSecret,
             boolean syncToZanataEnabled,
             boolean syncToRepoEnabled, String srcRepoUrl,
             String srcRepoBranch, Long srcRepoAccountId) {
@@ -76,6 +77,7 @@ public class SyncWorkForm implements Serializable {
         this.syncToZanataCron = syncToZanataCron;
         this.syncOption = syncOption;
         this.syncToRepoCron = syncToRepoCron;
+        this.zanataWebHookSecret = zanataWebHookSecret;
         this.syncToZanataEnabled = syncToZanataEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
         this.srcRepoUrl = srcRepoUrl;
@@ -129,5 +131,9 @@ public class SyncWorkForm implements Serializable {
 
     public String getSrcRepoBranch() {
         return srcRepoBranch;
+    }
+
+    public String getZanataWebHookSecret() {
+        return zanataWebHookSecret;
     }
 }

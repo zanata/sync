@@ -40,8 +40,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
 import com.google.common.base.MoreObjects;
@@ -80,6 +78,7 @@ public class SyncWorkConfig {
     @Enumerated(EnumType.STRING)
     private SyncOption syncToZanataOption;
 
+    private String zanataWebHookSecret;
 
     private boolean syncToServerEnabled = true;
 
@@ -108,7 +107,7 @@ public class SyncWorkConfig {
     // TODO may not need the id parameter
     public SyncWorkConfig(Long id, String name, String description,
             CronType syncToZanataCron, CronType syncToRepoCron,
-            SyncOption syncToZanataOption,
+            String zanataWebHookSecret, SyncOption syncToZanataOption,
             boolean syncToServerEnabled, boolean syncToRepoEnabled,
             String srcRepoUrl,
             String srcRepoBranch, ZanataAccount zanataAccount,
@@ -116,6 +115,7 @@ public class SyncWorkConfig {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.zanataWebHookSecret = zanataWebHookSecret;
         this.syncToZanataOption = syncToZanataOption;
         this.syncToServerEnabled = syncToServerEnabled;
         this.syncToRepoEnabled = syncToRepoEnabled;
@@ -189,5 +189,9 @@ public class SyncWorkConfig {
 
     public RepoAccount getRepoAccount() {
         return repoAccount;
+    }
+
+    public String getZanataWebHookSecret() {
+        return zanataWebHookSecret;
     }
 }

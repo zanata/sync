@@ -59,6 +59,7 @@ export function submitNewWork(payload) {
   if (payload.syncToRepoEnabled) {
     entity.syncToRepoCron = payload.syncToRepoCron
   }
+  entity.zanataWebHookSecret = payload.zanataWebHookSecret
 
   console.log('==== entity for new work', entity)
 

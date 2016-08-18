@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     syncToServerEnabled BOOLEAN      NOT NULL,
     syncToZanataCron    VARCHAR(255),
     syncToZanataOption  VARCHAR(255),
+    zanataWebHookSecret       VARCHAR(255),
     repoAccount         BIGINT       NOT NULL,
     zanataAccount       BIGINT       NOT NULL,
     srcRepoUrl          VARCHAR(255) NOT NULL,

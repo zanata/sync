@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     syncToServerEnabled BOOLEAN      NOT NULL,
     syncToZanataCron    VARCHAR(255),
     syncToZanataOption  VARCHAR(255),
+    zanataWebHookSecret VARCHAR(255),
     repoAccount         BIGINT       NOT NULL REFERENCES RepoAccount (id),
     zanataAccount       BIGINT       NOT NULL REFERENCES ZanataAccount (id),
     srcRepoUrl          VARCHAR(255) NOT NULL,

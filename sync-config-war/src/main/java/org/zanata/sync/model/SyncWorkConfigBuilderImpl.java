@@ -49,6 +49,7 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
                 syncWorkForm.getDescription(),
                 syncWorkForm.getSyncToZanataCron(),
                 syncWorkForm.getSyncToRepoCron(),
+                syncWorkForm.getZanataWebHookSecret(),
                 syncWorkForm.getSyncOption(),
                 syncWorkForm.isSyncToZanataEnabled(),
                 syncWorkForm.isSyncToRepoEnabled(),

@@ -40,9 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
-import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +67,8 @@ import org.zanata.sync.service.WorkService;
 import org.zanata.sync.util.HmacUtil;
 import org.zanata.sync.util.JSONObjectMapper;
 import org.zanata.sync.validation.SyncWorkFormValidator;
+
+import com.google.common.base.Strings;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -232,20 +232,26 @@ public class WorkResource {
         }
 
         SyncWorkConfig config = configOpt.get();
-        // TODO ZNTA-1290 store webhook secret in the config and get it back here
+        String zanataWebHookSecret = config.getZanataWebHookSecret();
+        Optional<String> webHookHash = getWebHookHashFromHeader();
 
-        List<String> headerHashes =
-                httpHeaders.getRequestHeader("X-Zanata-Webhook");
-        if (!headerHashes.isEmpty()) {
-            String headerHash = headerHashes.get(0);
-            String expectedHash = HmacUtil.signWebHookHeader(payload, "secret",
-                    request.getRequestURL().toString());
+        if (Strings.isNullOrEmpty(zanataWebHookSecret) &&
+                webHookHash.isPresent()) {
+            log.warn(
+                    "zanata webhook secret is not supplied. Ignore web hook verification.",
+                    id);
+        } else if (webHookHash.isPresent()) {
+            String headerHash = webHookHash.get();
+            String expectedHash =
+                    HmacUtil.signWebHookHeader(payload, zanataWebHookSecret,
+                            request.getRequestURL().toString());
 
             if (!headerHash.equals(expectedHash)) {
                 log.warn("webhook hash does not match content");
                 return Response.status(BAD_REQUEST).build();
             }
         }
+
         log.debug("webhook payload: {}", payload);
 
         // TODO ZNTA-1290 get language from the payload and only trigger job for that language
@@ -253,10 +259,25 @@ public class WorkResource {
         ZanataWebHookEvent webHookEvent =
                 objectMapper.fromJSON(ZanataWebHookEvent.class, payload);
 
-        // bypass schedulerService since it's not triggered by schedule but webhook
-        remoteJobExecutor.executeJob(UUID.randomUUID().toString(), config, JobType.REPO_SYNC);
+        // bypass schedulerService since it's not triggered by schedule but by webhook
+        try {
+            schedulerService.triggerJob(id, JobType.REPO_SYNC);
+        } catch (JobNotFoundException | SchedulerException e) {
+            log.error("error triggering job", e);
+            return Response.serverError().build();
+        }
 
         return Response.ok().build();
+    }
+
+    private Optional<String> getWebHookHashFromHeader() {
+        List<String> headerHashes =
+                httpHeaders.getRequestHeader("X-Zanata-Webhook");
+
+        if (!headerHashes.isEmpty()) {
+            return Optional.of(headerHashes.get(0));
+        }
+        return Optional.empty();
     }
 
     @DELETE
