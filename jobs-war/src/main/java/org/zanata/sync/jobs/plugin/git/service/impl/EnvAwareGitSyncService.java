@@ -77,7 +77,17 @@ public class EnvAwareGitSyncService implements RepoSyncService {
 
     @Override
     public void syncTranslationToRepo() throws RepoSyncException {
-        jgit.syncTranslationToRepo();
+        if (hasNativeGit) {
+            try {
+                nativeGit.syncTranslationToRepo();
+            } catch (Exception e) {
+                log.info("native git clone failed [{}]. Re-try with JGit", e.getMessage());
+                log.debug("native git clone failed", e);
+                jgit.syncTranslationToRepo();
+            }
+        } else {
+            jgit.cloneRepo();
+        }
     }
 
     @Override

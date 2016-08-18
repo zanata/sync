@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
@@ -39,6 +40,9 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.OperationResult;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +50,7 @@ import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Note JGIT doesn't support shallow clone yet. But jenkins has an abstraction
@@ -93,8 +98,8 @@ public class GitSyncService implements RepoSyncService {
 
 
     private void checkOutBranch(File destPath, String branch) {
-        try {
-            Git git = Git.open(destPath);
+        try (Git git = Git.open(destPath)) {
+
             List<Ref> refs = git.branchList().setListMode(
                     ListBranchCommand.ListMode.ALL).call();
             Optional<Ref> remoteMaster =
@@ -155,8 +160,7 @@ public class GitSyncService implements RepoSyncService {
 
     @Override
     public void syncTranslationToRepo() throws RepoSyncException {
-        try {
-            Git git = Git.open(workingDir);
+        try (Git git = Git.open(workingDir)){
             StatusCommand statusCommand = git.status();
             Status status = statusCommand.call();
             Set<String> uncommittedChanges = status.getUncommittedChanges();
@@ -170,27 +174,29 @@ public class GitSyncService implements RepoSyncService {
 
                 log.info("commit changed files");
                 CommitCommand commitCommand = git.commit();
-                commitCommand.setCommitter("Zanata Auto Repo Sync",
-                        "zanata-users@redhat.com");
-                commitCommand.setMessage(
-                        "Zanata Auto Repo Sync (pushing translations)");
-                commitCommand.call();
+                commitCommand.setCommitter(commitAuthorName(),
+                        commitAuthorEmail());
+                commitCommand.setMessage(commitMessage());
+                RevCommit revCommit = commitCommand.call();
 
                 log.info("push to remote repo");
-                PushCommand pushCommand = git.push();
                 UsernamePasswordCredentialsProvider user =
                         new UsernamePasswordCredentialsProvider(
                                 credentials.getUsername(),
                                 credentials.getSecret());
-                pushCommand.setCredentialsProvider(user);
+                PushCommand pushCommand = git.push()
+                        .setCredentialsProvider(user);
+
                 pushCommand.call();
             } else {
                 log.info("nothing changed so nothing to do");
             }
         } catch (IOException e) {
+            log.error("what the heck", e);
             throw new RepoSyncException(
                     "failed opening " + workingDir + " as git repo", e);
         } catch (GitAPIException e) {
+            log.error("what the heck", e);
             throw new RepoSyncException(
                     "Failed committing translations into the repo", e);
         }

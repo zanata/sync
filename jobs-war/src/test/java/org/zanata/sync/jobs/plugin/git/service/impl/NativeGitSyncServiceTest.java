@@ -6,6 +6,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Condition;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.lib.Ref;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -53,6 +56,18 @@ public class NativeGitSyncServiceTest {
         assertThat(workDir.listFiles())
                 .extracting(File::getName)
                 .hasSameElementsAs(repoRepoFiles);
+    }
+
+    @Test
+    public void canCloneAndCheckoutToANewBranch() throws Exception {
+        git.setBranch("work");
+        git.cloneRepo();
+
+        Git git = Git.open(workDir);
+        List<Ref> refs = git.branchList().call();
+        List<String> refNames =
+                refs.stream().map(Ref::getName).collect(Collectors.toList());
+        assertThat(refNames).contains("refs/heads/work");
     }
 
     @Test

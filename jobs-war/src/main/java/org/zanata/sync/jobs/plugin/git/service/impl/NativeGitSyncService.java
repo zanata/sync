@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.concurrent.Callable;
 import javax.enterprise.context.Dependent;
 
 import org.slf4j.Logger;
@@ -34,8 +36,12 @@ import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 
 /**
  * This will try to use the native git executable on PATH.
@@ -61,20 +67,40 @@ public class NativeGitSyncService implements RepoSyncService {
                         urlEncode(credentials.getSecret()), protocolAndRest[1]);
 
         // git clone into current directory
+        log.info("start git clone using native git");
+        // --no-single-branch to fetch the tip of each remote branch
+        runNativeCommand(workingDir, "git", "clone", "--depth", "1",
+                "--no-single-branch", urlWithAuth, ".");
+        // check if the repo already has the requested branch
+        String targetBranch = getBranch();
+        log.info("check branch existence: {}", targetBranch);
+        List<String> output =
+                runNativeCommand(workingDir, "git", "branch", "--no-color",
+                        "--list", "--all", String.format("**/%s", targetBranch));
+        if (output.isEmpty()) {
+            // remote repo doesn't contain this branch. We need to create the branch locally
+            log.info("create and check out local branch: {}", targetBranch);
+            runNativeCommand(workingDir, "git", "checkout", "-b", targetBranch);
+        } else {
+            log.info("check out branch: {}", targetBranch);
+            runNativeCommand(workingDir, "git", "checkout", targetBranch);
+        }
+    }
+
+    private static List<String> runNativeCommand(File workingDir, String... commands) {
         ProcessBuilder processBuilder =
-                new ProcessBuilder("git", "clone", "--depth", "1", "--branch",
-                        getBranch(), urlWithAuth, ".")
+                new ProcessBuilder(commands)
                         .directory(workingDir)
                         .redirectErrorStream(true);
+        ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
         try {
-            log.info("start git clone using native git");
             Process process = processBuilder.start();
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream(),
                             Charsets.UTF_8))) {
                 String line = reader.readLine();
                 while (line != null) {
-                    log.info(line);
+                    resultBuilder.add(line);
                     line = reader.readLine();
                 }
                 int exitValue = process.waitFor();
@@ -90,10 +116,14 @@ public class NativeGitSyncService implements RepoSyncService {
             } finally {
                 process.destroyForcibly();
             }
-        } catch (IOException e) {
-            log.error("error running native git", e);
+        } catch (Exception e) {
+            log.error("error running native command", e);
             throw new RepoSyncException(e);
         }
+        ImmutableList<String> output = resultBuilder.build();
+        log.debug("{} output: \n{}", commands[0],
+                Joiner.on("\t" + System.lineSeparator()).join(output));
+        return output;
     }
 
     private static String urlEncode(String value) {
@@ -125,7 +155,16 @@ public class NativeGitSyncService implements RepoSyncService {
 
     @Override
     public void syncTranslationToRepo() throws RepoSyncException {
-        throw new UnsupportedOperationException("Use JGit instead");
+        List<String> output =
+                runNativeCommand(workingDir, "git", "status", "--porcelain");
+        if (output.isEmpty()) {
+            log.info("nothing changed so nothing to do");
+            return;
+        }
+        runNativeCommand(workingDir, "git", "add", ".");
+        runNativeCommand(workingDir, "git", "commit", "-m", commitMessage(),
+                "--author", commitAuthor());
+        runNativeCommand(workingDir, "git", "push", "--set-upstream", "origin", "zanata");
     }
 
     @Override

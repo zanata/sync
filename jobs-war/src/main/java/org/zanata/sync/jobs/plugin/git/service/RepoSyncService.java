@@ -40,4 +40,21 @@ public interface RepoSyncService {
     void setBranch(String branch);
 
     void setWorkingDir(File workingDir);
+
+    default String commitAuthorName() {
+        // TODO this will need to change to the job owner
+        return "Zanata Auto Repo Sync";
+    }
+
+    default String commitAuthorEmail() {
+        return "<zanata-users@redhat.com>";
+    }
+
+    default String commitAuthor() {
+        return commitAuthorName() + " " + commitAuthorEmail();
+    }
+
+    default String commitMessage() {
+        return "Zanata Sync (pushing translations)";
+    }
 }
