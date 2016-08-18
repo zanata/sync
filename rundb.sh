@@ -18,8 +18,11 @@ VOLUME_DIR=$HOME/docker-volumes/sync-postgres
 mkdir -p ${VOLUME_DIR}
 sudo chcon -Rt svirt_sandbox_file_t ${VOLUME_DIR}
 
-# remove previous container
-docker rm -f ${CONTAINER_NAME}
+# remove previous container if exists
+if [ ! -z $(docker ps -aq -f name=postgres-db) ]
+then
+    docker rm -f ${CONTAINER_NAME}
+fi
 
 # create a database
 CREATE_DB="docker run -it --rm --link $CONTAINER_NAME:postgres $DB_DOCKER_ENV postgres:9.2 createdb -h postgres -U postgres $DB_NAME"
