@@ -46,6 +46,15 @@
     <property name="jobs.server" value="${env.jobs_server}" />
   </system-properties>
 
+  <vault>
+    <vault-option name="KEYSTORE_URL" value="${env.OPENSHIFT_DATA_DIR}vault/vault.keystore"/>
+    <vault-option name="KEYSTORE_PASSWORD" value="MASK-CHpdb9sY29r"/>
+    <vault-option name="KEYSTORE_ALIAS" value="vault"/>
+    <vault-option name="SALT" value="abcd1234"/>
+    <vault-option name="ITERATION_COUNT" value="29"/>
+    <vault-option name="ENC_FILE_DIR" value="${env.OPENSHIFT_DATA_DIR}vault/"/>
+  </vault>
+
   <management>
     <security-realms>
       <security-realm name="ApplicationRealm">

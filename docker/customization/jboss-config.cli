@@ -15,4 +15,14 @@ batch
 /subsystem=datasources/jdbc-driver=postgresql:add(driver-name="postgresql",driver-module-name="org.postgresql.jdbc")
 data-source add --name=syncDS --jndi-name=java:jboss/datasources/syncDS --driver-name=postgresql --connection-url=jdbc:postgresql://${env.DB_PORT_5432_TCP_ADDR:}:5432/${env.DB_ENV_DB_NAME:} --user-name=${env.DB_ENV_POSTGRES_USER:postgres} --password=${env.DB_ENV_PGPASSWORD:postgres}
 
+# ==== add security vault ====
+/core-service=vault:add(vault-options=[ \
+    ("KEYSTORE_URL" => "${env.KEY_STORE_URL:unknown}"), \
+    ("KEYSTORE_PASSWORD" => "${env.KEY_STORE_PASS:MASK-CHpdb9sY29r}"), \
+    ("KEYSTORE_ALIAS" => "vault"), \
+    ("SALT" => "abcd1234"), \
+    ("ITERATION_COUNT" => "29"), \
+    ("ENC_FILE_DIR" => "${env.ENC_FILE_DIR:unknown}")])
+
+
 run-batch
