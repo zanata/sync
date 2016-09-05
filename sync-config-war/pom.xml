@@ -122,12 +122,6 @@
       <version>0.1.53</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.picketbox</groupId>
-      <artifactId>jboss-security-spi</artifactId>
-      <version>4.9.7.Final</version>
-    </dependency>
-
     <!-- JPA/hibernate -->
     <dependency>
       <groupId>org.hibernate.common</groupId>

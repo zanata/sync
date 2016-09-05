@@ -21,15 +21,12 @@
 package org.zanata.sync.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.KeyPair;
-import com.jcraft.jsch.KeyPairRSA;
 
 /**
  *

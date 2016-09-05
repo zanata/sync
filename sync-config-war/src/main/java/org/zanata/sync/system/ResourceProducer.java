@@ -34,8 +34,6 @@ import javax.ws.rs.client.Client;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.security.vault.SecurityVaultException;
-import org.jboss.security.vault.SecurityVaultUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.App;
@@ -61,14 +59,6 @@ public class ResourceProducer {
     public void onStartUp(@Observes @Initialized ServletContext servletContext) {
         resourceReadyEvent.fire(new ResourceReadyEvent());
 
-        try {
-            String storedValue = SecurityVaultUtil
-                    .getValueAsString("VAULT::dummy::dummy::1");
-            log.info(">>>>>>>>>> stored value in vault: {}", storedValue);
-
-        } catch (SecurityVaultException e) {
-            throw Throwables.propagate(e);
-        }
     }
 
 //    @Produces
