@@ -11,7 +11,7 @@ JOBS_WAR=$(find . -type f -name "*jobs*.war")
 
 set -x
 
-if [ -z ${CONFIG_WAR} -a -e ${CONFIG_WAR} ]
+if [ -f ${CONFIG_WAR} ]
 then
     echo ">>>> copy existing config war: $(ls -ltr ${CONFIG_WAR})"
     cp ${CONFIG_WAR} ${SYNC_DEPLOYMENT_DIR}/sync.war
@@ -20,7 +20,7 @@ else
     cp $(find . -type f -name "*config*.war") ${SYNC_DEPLOYMENT_DIR}/sync.war
 fi
 
-if [ -z ${JOBS_WAR} -a -e ${JOBS_WAR} ]
+if [ -f ${JOBS_WAR} ]
 then
     echo ">>>> copy existing jobs war: $(ls -ltr ${JOBS_WAR})"
     cp ${JOBS_WAR} ${SYNC_DEPLOYMENT_DIR}/jobs.war
