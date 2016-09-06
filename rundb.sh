@@ -43,7 +43,6 @@ while getopts ":cpH" opt; do
       ;;
     H)
       echo "========   HELP   ========="
-      echo "-b                 : will build the app"
       echo "-c                 : will create database: $DB_NAME"
       echo "-p                 : will pull docker image: $DB_IMAGE"
       echo "-H                 : display help"

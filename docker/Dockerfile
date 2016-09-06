@@ -25,3 +25,6 @@ USER jboss
 RUN $CUSTOMIZATION_DIR/change-config.sh
 
 VOLUME /opt/jboss/wildfly/standalone/deployments/
+
+# for override default java security store
+VOLUME /etc/pki/ca-trust/extracted/

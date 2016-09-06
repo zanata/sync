@@ -40,7 +40,7 @@ public class EncryptionUtil {
 
     private static Cipher makeCipher() {
         try {
-            return Cipher.getInstance("AES/ECB/PKCS5Padding");
+            return Cipher.getInstance("AES");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new IllegalStateException("can not create cipher", e);
         }

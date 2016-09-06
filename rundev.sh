@@ -33,4 +33,5 @@ JBOSS_DEPLOYMENT_VOLUME=/opt/jboss/wildfly/standalone/deployments
 
 docker run --rm -p 8080:8080 --link postgres-db:db --name sync-dev \
     -v ${SYNC_DEPLOYMENT_DIR}:${JBOSS_DEPLOYMENT_VOLUME} \
+    -v /etc/pki/ca-trust/extracted/:/etc/pki/ca-trust/extracted/ \
     zanata/sync
