@@ -29,14 +29,23 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotNull;
+
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.zanata.sync.util.EncryptionUtil;
+import com.google.common.base.Strings;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Entity
 @Access(AccessType.FIELD)
-public class RepoAccount {
+public class RepoAccount implements HasSensitiveFields {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -96,5 +105,36 @@ public class RepoAccount {
         this.repoHostname = repoHostname;
         this.username = username;
         this.secret = secret;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void preSave() {
+        encryptValues();
+    }
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void postLoad() {
+        decryptValues();
+    }
+
+    @Override
+    public void encryptValues() {
+        EncryptionUtil encryptionUtil =
+                BeanProvider.getContextualReference(EncryptionUtil.class);
+        if (!Strings.isNullOrEmpty(secret)) {
+            secret = encryptionUtil.encrypt(secret);
+        }
+    }
+
+    @Override
+    public void decryptValues() {
+        EncryptionUtil encryptionUtil =
+                BeanProvider.getContextualReference(EncryptionUtil.class);
+        if (!Strings.isNullOrEmpty(secret)) {
+            secret = encryptionUtil.decrypt(secret);
+        }
     }
 }

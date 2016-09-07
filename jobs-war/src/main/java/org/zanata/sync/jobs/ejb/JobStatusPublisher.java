@@ -70,7 +70,12 @@ public class JobStatusPublisher {
             log.error("Error publishing job status", e);
         } finally {
             if (response != null) {
-                response.close();
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    log.debug("error closing response", e);
+                    // ignored
+                }
             }
         }
     }

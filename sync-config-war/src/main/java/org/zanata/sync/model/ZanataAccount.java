@@ -33,10 +33,20 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.zanata.sync.dto.ZanataUserAccount;
+import org.zanata.sync.util.AutoCloseableDependentProvider;
+import org.zanata.sync.util.EncryptionUtil;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 
 
@@ -61,7 +71,7 @@ import com.google.common.collect.Sets;
 //        @UniqueConstraint(columnNames = "localUsername"),
         @UniqueConstraint(columnNames = { "server", "username" })
 })
-public class ZanataAccount {
+public class ZanataAccount implements HasSensitiveFields {
     public static final String FIND_BY_USERNAME_SERVER_QUERY =
             "findByUsernameAndServer";
     public static final String FIND_BY_LOCAL_USERNAME_QUERY =
@@ -126,5 +136,36 @@ public class ZanataAccount {
         this.username = zanataUserAccount.getUsername();
         this.server = zanataUserAccount.getZanataServer();
         this.secret = zanataUserAccount.getApiKey();
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void preSave() {
+        encryptValues();
+    }
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void postLoad() {
+        decryptValues();
+    }
+
+    @Override
+    public void encryptValues() {
+        EncryptionUtil encryptionUtil =
+                BeanProvider.getContextualReference(EncryptionUtil.class);
+        if (!Strings.isNullOrEmpty(secret)) {
+            secret = encryptionUtil.encrypt(secret);
+        }
+    }
+
+    @Override
+    public void decryptValues() {
+        EncryptionUtil encryptionUtil =
+                BeanProvider.getContextualReference(EncryptionUtil.class);
+        if (!Strings.isNullOrEmpty(secret)) {
+            secret = encryptionUtil.decrypt(secret);
+        }
     }
 }

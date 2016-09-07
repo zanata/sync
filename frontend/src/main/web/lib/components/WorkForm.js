@@ -138,6 +138,21 @@ export default React.createClass({
             placeholder='work name' inputValue={this.state.name}/>
           <TextInput name='description' onChange={callbackFor('description')}
             lines={3} inputValue={this.state.description}/>
+          {webhookSecretInput}
+          <Select name='srcRepoPlugin' label='Repo type'
+            onChange={callbackFor('srcRepoPlugin')}
+            options={this.props.srcRepoPlugins}
+            selected={this.state.selectedRepoPluginName}
+          />
+          {repoAccountSelect}
+          <TextInput name='srcRepoUrl' label='URL'
+            onChange={callbackFor('srcRepoUrl')}
+            placeholder='https://github.com/zanata/zanata-server.git'
+            inputValue={this.state.srcRepoUrl}/>
+          <TextInput name='srcRepoBranch' label='Branch'
+            onChange={callbackFor('srcRepoBranch')}
+            placeholder='master'
+            inputValue={this.state.srcRepoBranch}/>
 
           <FieldSet legend={srcRepoSettingsLegend}>
             <Checkbox name='syncToZanataEnabled'
@@ -158,7 +173,7 @@ export default React.createClass({
             />
           </FieldSet>
 
-          <FieldSet legend='Source repository settings'>
+          <FieldSet legend='Sync to Source repository settings'>
             <Checkbox name="syncToRepoEnabled"
               label='Enable sync to source repository'
               onChange={callbackFor('syncToRepoEnabled')}
@@ -170,21 +185,6 @@ export default React.createClass({
               optionsDesc={cronDisplays}
               selected={this.state.syncToRepoCron}
             />
-            {webhookSecretInput}
-            <Select name='srcRepoPlugin' label='Repo type'
-              onChange={callbackFor('srcRepoPlugin')}
-              options={this.props.srcRepoPlugins}
-              selected={this.state.selectedRepoPluginName}
-            />
-            {repoAccountSelect}
-            <TextInput name='srcRepoUrl' label='URL'
-              onChange={callbackFor('srcRepoUrl')}
-              placeholder='https://github.com/zanata/zanata-server.git'
-              inputValue={this.state.srcRepoUrl}/>
-            <TextInput name='srcRepoBranch' label='Branch'
-              onChange={callbackFor('srcRepoBranch')}
-              placeholder='master'
-              inputValue={this.state.srcRepoBranch}/>
           </FieldSet>
 
           <FormButtons onSave={saveCallback} saving={saving}

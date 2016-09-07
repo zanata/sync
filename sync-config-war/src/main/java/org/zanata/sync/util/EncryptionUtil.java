@@ -29,12 +29,18 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import org.zanata.sync.EncryptionKey;
 
 /**
  * TODO pahuang check this http://www.macs.hw.ac.uk/~ml355/lore/pkencryption.htm
  * @author Patrick Huang <a
  *         href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
+@ApplicationScoped
 public class EncryptionUtil {
     private static Cipher cipher = makeCipher();
 
@@ -46,9 +52,13 @@ public class EncryptionUtil {
         }
     }
 
-    private final SecretKeySpec key;
+    private SecretKeySpec key;
 
-    public EncryptionUtil(byte[] keyBytes) {
+    public EncryptionUtil() {
+    }
+
+    @Inject
+    public EncryptionUtil(@EncryptionKey byte[] keyBytes) {
         // java only allow 128bit (16 chars) in key by default (seems to vary between openJDK and sun JDK)
         byte[] validKeyBytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00,

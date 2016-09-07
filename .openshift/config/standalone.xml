@@ -44,6 +44,7 @@
       value="on" />
     <property name="zanata.server.urls" value="${env.zanata_servers}" />
     <property name="jobs.server" value="${env.jobs_server}" />
+    <property name="secretStore" value="${env.OPENSHIFT_DATA_DIR}/secretStore" />
   </system-properties>
 
   <management>
@@ -114,8 +115,8 @@
             <password>sa</password>
           </security>
         </datasource>
-        <datasource jndi-name="java:jboss/datasources/syncDS"
-          enabled="${mysql.enabled}" use-java-context="true" pool-name="syncDS"
+        <datasource jndi-name="java:jboss/datasources/syncMySqlDS"
+          enabled="${mysql.enabled}" use-java-context="true" pool-name="syncMySqlDS"
           use-ccm="true">
           <connection-url>jdbc:mysql://${env.OPENSHIFT_MYSQL_DB_HOST}:${env.OPENSHIFT_MYSQL_DB_PORT}/${env.OPENSHIFT_APP_NAME}
           </connection-url>
@@ -135,7 +136,7 @@
             <allow-multiple-users />
           </pool>
         </datasource>
-        <datasource jndi-name="java:jboss/datasources/PostgreSQLDS"
+        <datasource jndi-name="java:jboss/datasources/syncDS"
           enabled="${postgresql.enabled}" use-java-context="true"
           pool-name="PostgreSQLDS"
           use-ccm="true">

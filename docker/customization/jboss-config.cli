@@ -8,6 +8,7 @@ connect
 batch
 
 # /system-property=foo:add(value=bar)
+/system-property=secretStore:add(value="/opt/jboss/wildfly/customization/secretStore")
 
 # ==== add datasource ====
 # the env variables are coming from rundb.sh (then used as linked docker container)

@@ -22,7 +22,7 @@ TODO:
 ```
 
              +-----------------+                        +------------------+
-+----------+ | Sync UI App     |                        | Job execution App|
++----------+ | Sync Manager App|                        | Sync Worker App  |
 |Single    | | (artifact from  |                        | (artifact from   |
 |Page      | | sync-config-war |                        |  jobs-war module)+-+
 |App       | | module)         |                        |                  | +-+
@@ -54,12 +54,12 @@ TODO:
 
 Update your standalone.xml:
 
-- add system properties:
+- (for Zanata server) add system properties:
   ```<property name="zanata.support.oauth" value="true"/>``` and make sure you
   are running a Zanata version that supports OAuth (current master is)
-- add a new datasource and bind it to JNDI ```java:jboss/datasources/syncDS```
+- add a new datasource for Zanata Sync. Bind it to JNDI ```java:jboss/datasources/syncDS```
   (don't forget to create a new database too)
-- under ```<subsystem xmlns="urn:jboss:domain:web">```
+- (EAP6 only) to enable websocket support, under ```<subsystem xmlns="urn:jboss:domain:web">```
 ```diff
 - <connector name="http" protocol="HTTP/1.1" scheme="http" socket-binding="http"/>
 + <connector name="http" protocol="org.apache.coyote.http11.Http11NioProtocol"
