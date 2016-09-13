@@ -27,7 +27,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javax.enterprise.context.Dependent;
 
 import org.slf4j.Logger;
@@ -36,11 +35,9 @@ import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -57,6 +54,7 @@ public class NativeGitSyncService implements RepoSyncService {
     private String url;
     private File workingDir;
     private Credentials credentials;
+    private String commitMessage;
 
     @Override
     public void cloneRepo() throws RepoSyncException {
@@ -164,7 +162,7 @@ public class NativeGitSyncService implements RepoSyncService {
         runNativeCommand(workingDir, "git", "add", ".");
         runNativeCommand(workingDir, "git", "commit", "-m", commitMessage(),
                 "--author", commitAuthor());
-        runNativeCommand(workingDir, "git", "push", "--set-upstream", "origin", "zanata");
+        runNativeCommand(workingDir, "git", "push", "--set-upstream", "origin", getBranch());
     }
 
     @Override
@@ -185,5 +183,17 @@ public class NativeGitSyncService implements RepoSyncService {
     @Override
     public void setWorkingDir(File workingDir) {
         this.workingDir = workingDir;
+    }
+
+    @Override
+    public void setZanataUser(String zanataUrl, String zanataUsername) {
+        commitMessage = String
+                .format("Zanata Sync created by %s from %s", zanataUsername,
+                        zanataUrl);
+    }
+
+    @Override
+    public String commitMessage() {
+        return commitMessage;
     }
 }

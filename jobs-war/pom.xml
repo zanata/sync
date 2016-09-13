@@ -21,6 +21,17 @@
     <!-- bundled 2.3.x in EAP6 -->
     <resteasy.version>3.0.12.Final</resteasy.version>
     <zanata-client-commands.version>3.8.1</zanata-client-commands.version>
+    <!-- cargo settings -->
+    <cargo.host>localhost</cargo.host>
+    <cargo.port.offset>0</cargo.port.offset>
+    <cargo.installation>http://download.jboss.org/wildfly/8.2.1.Final/wildfly-8.2.1.Final.tar.gz</cargo.installation>
+    <cargo.containerId>wildfly8x</cargo.containerId>
+    <cargo.extract.dir>${project.build.directory}/cargo/installs</cargo.extract.dir>
+    <cargo.container.home>${project.build.directory}/jboss/container</cargo.container.home>
+    <cargo.servlet.port>8280</cargo.servlet.port>
+    <cargo.jboss.management-http.port>10190</cargo.jboss.management-http.port>
+    <cargo.jboss.management-native.port>10199</cargo.jboss.management-native.port>
+    <context.path>jobs</context.path>
   </properties>
   <dependencies>
     <!--
@@ -175,6 +186,14 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-netty</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -214,6 +233,107 @@
     </profile>
   </profiles>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+        <version>1.5.1</version>
+        <configuration>
+          <container>
+            <containerId>${cargo.containerId}</containerId>
+
+            <type>installed</type>
+
+            <!--if install from url-->
+            <zipUrlInstaller>
+              <url>${cargo.installation}</url>
+              <downloadDir>${user.home}/Downloads</downloadDir>
+              <extractDir>${cargo.extract.dir}</extractDir>
+            </zipUrlInstaller>
+
+            <output>${project.build.directory}/container.log</output>
+            <append>false</append>
+            <log>${project.build.directory}/cargo.log</log>
+          </container>
+
+          <configuration>
+            <type>standalone</type>
+            <home>${cargo.container.home}</home>
+
+            <properties>
+              <cargo.jboss.configuration>standalone</cargo.jboss.configuration>
+              <cargo.port.offset>${cargo.port.offset}</cargo.port.offset>
+              <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+              <cargo.jboss.management-http.port>${cargo.jboss.management-http.port}</cargo.jboss.management-http.port>
+              <cargo.jboss.management-native.port>${cargo.jboss.management-native.port}</cargo.jboss.management-native.port>
+            </properties>
+          </configuration>
+
+          <deployables>
+            <deployable>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <type>war</type>
+
+              <pingURL>http://${cargo.host}:${cargo.servlet.port}/${context.path}/</pingURL>
+              <pingTimeout>600000</pingTimeout>
+              <properties>
+                <context>${context.path}</context>
+              </properties>
+            </deployable>
+
+          </deployables>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>cargo-start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>cargo-stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.19.1</version>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <printSummary>true</printSummary>
+          <runOrder>alphabetical</runOrder>
+          <!--<forkMode>always</forkMode>-->
+          <includes>
+            <include>**/*ITCase.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
 
 
 </project>

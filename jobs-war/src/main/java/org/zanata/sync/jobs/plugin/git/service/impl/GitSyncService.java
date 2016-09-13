@@ -69,6 +69,7 @@ public class GitSyncService implements RepoSyncService {
     private String url;
     private String branch;
     private File workingDir;
+    private String commitMessage;
 
     @Override
     public void cloneRepo() throws RepoSyncException {
@@ -174,7 +175,7 @@ public class GitSyncService implements RepoSyncService {
 
                 log.info("commit changed files");
                 CommitCommand commitCommand = git.commit();
-                commitCommand.setCommitter(commitAuthorName(),
+                commitCommand.setAuthor(commitAuthorName(),
                         commitAuthorEmail());
                 commitCommand.setMessage(commitMessage());
                 RevCommit revCommit = commitCommand.call();
@@ -225,5 +226,17 @@ public class GitSyncService implements RepoSyncService {
     @Override
     public void setWorkingDir(File workingDir) {
         this.workingDir = workingDir;
+    }
+
+    @Override
+    public void setZanataUser(String zanataUrl, String zanataUsername) {
+        commitMessage = String
+                .format("Zanata Sync created by %s from %s", zanataUsername,
+                        zanataUrl);
+    }
+
+    @Override
+    public String commitMessage() {
+        return commitMessage;
     }
 }

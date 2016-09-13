@@ -54,6 +54,7 @@ public class GitSyncServiceTest {
         remoteRepo = remoteGitRepoRule.getRemoteRepo();
         syncService.setUrl("file://" + remoteRepo.getAbsolutePath());
         syncService.setWorkingDir(dest);
+        syncService.setZanataUser("http://localhost:8080/zanata", "pahuang");
     }
 
     @Test
@@ -97,7 +98,7 @@ public class GitSyncServiceTest {
         List<String> logMessage = revCommits.stream()
                 .map(RevCommit::getShortMessage).collect(
                         Collectors.toList());
-        assertThat(logMessage.get(0)).contains("pushing translation");
+        assertThat(logMessage.get(0)).contains("Zanata Sync");
     }
 
     @Test

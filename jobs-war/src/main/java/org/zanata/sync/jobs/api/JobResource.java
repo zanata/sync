@@ -197,6 +197,12 @@ public class JobResource {
                 new UsernamePasswordCredential(repoUsername, repoSecret));
         service.setUrl(repoUrl);
         service.setBranch(repoBranch);
+
+        String zanataUrl = JobDetailEntry.zanataUrl.extract(jobDetail);
+        String zanataUsername =
+                JobDetailEntry.zanataUsername.extract(jobDetail);
+
+        service.setZanataUser(zanataUrl, zanataUsername);
         return Either.fromLeft(service, Response.class);
     }
 
@@ -219,7 +225,7 @@ public class JobResource {
         }
 
         return Either.fromLeft(
-                new ZanataSyncServiceImpl(zanataUsername, zanataSecret,
+                new ZanataSyncServiceImpl(zanataUrl, zanataUsername, zanataSecret,
                         syncToZanataOption), Response.class);
     }
 

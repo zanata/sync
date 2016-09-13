@@ -24,6 +24,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.client.commands.PushPullOptions;
 import org.zanata.client.commands.pull.PullOptions;
 import org.zanata.client.commands.pull.PullOptionsImpl;
 import org.zanata.client.commands.push.PushOptions;
@@ -36,15 +39,19 @@ import org.zanata.sync.jobs.plugin.zanata.util.PushPullOptionsUtil;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class ZanataSyncServiceImpl implements ZanataSyncService {
+    private static final Logger log =
+            LoggerFactory.getLogger(ZanataSyncServiceImpl.class);
 
     private final PullOptions pullOptions;
     private final PushOptions pushOptions;
 
     private final PushServiceImpl pushService = new PushServiceImpl();
     private final PullServiceImpl pullService = new PullServiceImpl();
+    private final String zanataUrl;
 
-    public ZanataSyncServiceImpl(String username,
+    public ZanataSyncServiceImpl(String zanataUrl, String username,
             String apiKey, String syncToZanataOption) {
+        this.zanataUrl = zanataUrl;
         PullOptionsImpl pullOptions = new PullOptionsImpl();
         PushOptionsImpl pushOptions = new PushOptionsImpl();
         pullOptions.setInteractiveMode(false);
@@ -75,7 +82,19 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
         File projectConfig = findProjectConfigOrThrow(repoBase);
         PushPullOptionsUtil
                 .applyProjectConfig(getPushOptions(), projectConfig);
+        checkURL(getPushOptions());
         pushService.pushToZanata(getPushOptions());
+    }
+
+    private void checkURL(PushPullOptions options) {
+        String urlInProjectConfig = options.getUrl().toString();
+        // check URL defined in zanata.xml from source repository against the
+        // one from API call (which is defines where the zanata account belongs
+        // to)
+        if (!urlInProjectConfig.equals(zanataUrl)) {
+            log.warn("Using account from [{}] but the repo has zanata.xml using [{}]",
+                    zanataUrl, urlInProjectConfig);
+        }
     }
 
     private File findProjectConfigOrThrow(Path repoBase) {
@@ -95,6 +114,7 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
                 findProjectConfigOrThrow(repoBase);
         PushPullOptionsUtil
                 .applyProjectConfig(getPullOptions(), projectConfig);
+        checkURL(getPullOptions());
         pullService.pullFromZanata(getPullOptions());
     }
 }

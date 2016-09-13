@@ -81,8 +81,8 @@ public class EnvAwareGitSyncService implements RepoSyncService {
             try {
                 nativeGit.syncTranslationToRepo();
             } catch (Exception e) {
-                log.info("native git clone failed [{}]. Re-try with JGit", e.getMessage());
-                log.debug("native git clone failed", e);
+                log.info("native git sync translation failed [{}]. Re-try with JGit", e.getMessage());
+                log.debug("native git sync failed", e);
                 jgit.syncTranslationToRepo();
             }
         } else {
@@ -112,5 +112,11 @@ public class EnvAwareGitSyncService implements RepoSyncService {
     public void setWorkingDir(File workingDir) {
         jgit.setWorkingDir(workingDir);
         nativeGit.setWorkingDir(workingDir);
+    }
+
+    @Override
+    public void setZanataUser(String zanataUrl, String zanataUsername) {
+        jgit.setZanataUser(zanataUrl, zanataUsername);
+        nativeGit.setZanataUser(zanataUrl, zanataUsername);
     }
 }
