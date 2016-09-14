@@ -49,6 +49,7 @@ public class EnvAwareGitSyncService implements RepoSyncService {
     private boolean hasNativeGit;
     private GitSyncService jgit;
     private NativeGitSyncService nativeGit;
+    private boolean failedNativeGit;
 
     @Inject
     public EnvAwareGitSyncService(GitSyncService jgit,
@@ -62,13 +63,14 @@ public class EnvAwareGitSyncService implements RepoSyncService {
 
     @Override
     public void cloneRepo() throws RepoSyncException {
-        if (hasNativeGit) {
+        if (hasNativeGit && !failedNativeGit) {
             try {
                 nativeGit.cloneRepo();
             } catch (Exception e) {
                 log.info("native git clone failed [{}]. Re-try with JGit", e.getMessage());
                 log.debug("native git clone failed", e);
                 jgit.cloneRepo();
+                failedNativeGit = true;
             }
         } else {
             jgit.cloneRepo();
@@ -77,7 +79,7 @@ public class EnvAwareGitSyncService implements RepoSyncService {
 
     @Override
     public void syncTranslationToRepo() throws RepoSyncException {
-        if (hasNativeGit) {
+        if (hasNativeGit && !failedNativeGit) {
             try {
                 nativeGit.syncTranslationToRepo();
             } catch (Exception e) {
@@ -86,7 +88,7 @@ public class EnvAwareGitSyncService implements RepoSyncService {
                 jgit.syncTranslationToRepo();
             }
         } else {
-            jgit.cloneRepo();
+            jgit.syncTranslationToRepo();
         }
     }
 
@@ -110,8 +112,13 @@ public class EnvAwareGitSyncService implements RepoSyncService {
 
     @Override
     public void setWorkingDir(File workingDir) {
-        jgit.setWorkingDir(workingDir);
-        nativeGit.setWorkingDir(workingDir);
+        File nativeGitWorkDir = new File(workingDir, "nativeGit");
+        File jgitWorkDir = new File(workingDir, "jgit");
+        nativeGitWorkDir.mkdirs();
+        jgitWorkDir.mkdirs();
+
+        this.jgit.setWorkingDir(jgitWorkDir);
+        this.nativeGit.setWorkingDir(nativeGitWorkDir);
     }
 
     @Override

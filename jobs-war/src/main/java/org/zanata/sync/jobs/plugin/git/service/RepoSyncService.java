@@ -46,11 +46,12 @@ public interface RepoSyncService {
     }
 
     default String commitAuthorEmail() {
-        return "<zanata-devel@redhat.com>";
+        return "zanata-devel@redhat.com";
     }
 
     default String commitAuthor() {
-        return commitAuthorName() + " " + commitAuthorEmail();
+        return String
+                .format("%s <%s>", commitAuthorName(), commitAuthorEmail());
     }
 
     default String commitMessage() {

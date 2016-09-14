@@ -21,6 +21,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
+import org.zanata.sync.jobs.plugin.zanata.service.impl.ZanataSyncServiceImpl;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;

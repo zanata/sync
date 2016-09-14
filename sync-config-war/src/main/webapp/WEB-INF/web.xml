@@ -82,6 +82,7 @@
     <web-resource-collection>
       <web-resource-name>CSS and other assets</web-resource-name>
       <url-pattern>/app/*</url-pattern>
+      <url-pattern>/favicon.ico</url-pattern>
     </web-resource-collection>
   </security-constraint>
 
