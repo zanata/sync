@@ -198,11 +198,10 @@ public class JobResource {
         service.setUrl(repoUrl);
         service.setBranch(repoBranch);
 
-        String zanataUrl = JobDetailEntry.zanataUrl.extract(jobDetail);
         String zanataUsername =
                 JobDetailEntry.zanataUsername.extract(jobDetail);
 
-        service.setZanataUser(zanataUrl, zanataUsername);
+        service.setZanataUser(zanataUsername);
         return Either.fromLeft(service, Response.class);
     }
 

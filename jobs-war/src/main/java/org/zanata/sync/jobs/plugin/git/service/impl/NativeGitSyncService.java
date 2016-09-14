@@ -186,10 +186,9 @@ public class NativeGitSyncService implements RepoSyncService {
     }
 
     @Override
-    public void setZanataUser(String zanataUrl, String zanataUsername) {
+    public void setZanataUser(String zanataUsername) {
         commitMessage = String
-                .format("Zanata Sync created by %s from %s", zanataUsername,
-                        zanataUrl);
+                .format("Zanata Sync job triggered by %s", zanataUsername);
     }
 
     @Override

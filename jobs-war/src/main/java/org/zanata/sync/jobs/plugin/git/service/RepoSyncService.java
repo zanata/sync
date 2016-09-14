@@ -58,5 +58,5 @@ public interface RepoSyncService {
         return "Zanata Sync (pushing translations)";
     }
 
-    void setZanataUser(String zanataUrl, String zanataUsername);
+    void setZanataUser(String zanataUsername);
 }

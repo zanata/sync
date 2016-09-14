@@ -55,7 +55,7 @@ public class GitSyncServiceTest {
         remoteRepo = remoteGitRepoRule.getRemoteRepo();
         syncService.setUrl("file://" + remoteRepo.getAbsolutePath());
         syncService.setWorkingDir(dest);
-        syncService.setZanataUser("http://localhost:8080/zanata", "pahuang");
+        syncService.setZanataUser("pahuang");
     }
 
     @Test

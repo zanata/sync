@@ -122,8 +122,8 @@ public class EnvAwareGitSyncService implements RepoSyncService {
     }
 
     @Override
-    public void setZanataUser(String zanataUrl, String zanataUsername) {
-        jgit.setZanataUser(zanataUrl, zanataUsername);
-        nativeGit.setZanataUser(zanataUrl, zanataUsername);
+    public void setZanataUser(String zanataUsername) {
+        jgit.setZanataUser(zanataUsername);
+        nativeGit.setZanataUser(zanataUsername);
     }
 }
