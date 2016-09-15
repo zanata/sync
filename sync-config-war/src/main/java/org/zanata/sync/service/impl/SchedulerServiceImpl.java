@@ -105,8 +105,6 @@ public class SchedulerServiceImpl implements SchedulerService {
         log.info("=====================================================");
         log.info("== build version: {}", appConfiguration.getBuildVersion());
         log.info("== build revision: {}", appConfiguration.getBuildInfo());
-        log.info("== fields to encrypt: {}",
-                appConfiguration.getFieldsNeedEncryption());
         log.info("=====================================================");
         log.info("=====================================================");
 

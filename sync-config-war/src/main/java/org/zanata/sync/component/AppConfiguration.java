@@ -58,14 +58,4 @@ public class AppConfiguration implements Serializable {
     }
 
 
-    public List<String> getFieldsNeedEncryption() {
-        Optional<SystemSettings> encryptFieldsOpt = systemSettingsDAO
-                .getSystemSettings(SystemSettings.FIELDS_NEED_ENCRYPTION);
-        if (encryptFieldsOpt.isPresent()) {
-            return Splitter.on(",").omitEmptyStrings().trimResults()
-                    .splitToList(encryptFieldsOpt.get().getValue());
-        }
-        return ImmutableList.of();
-    }
-
 }

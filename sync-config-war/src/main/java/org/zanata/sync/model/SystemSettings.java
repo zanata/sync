@@ -39,7 +39,6 @@ import static javax.persistence.AccessType.FIELD;
 @Table(name = "System_Settings_table")
 @Access(FIELD)
 public class SystemSettings implements Serializable {
-    public static final String FIELDS_NEED_ENCRYPTION = "fields.need.encryption";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

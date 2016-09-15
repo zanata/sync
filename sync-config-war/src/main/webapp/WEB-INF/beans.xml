@@ -5,7 +5,7 @@
   <alternatives>
   </alternatives>
   <decorators>
-    <class>org.zanata.sync.dao.SyncWorkConfigSerializerEncryptionDecorator</class>
+    <!--<class>org.zanata.sync.dao.SyncWorkConfigSerializerEncryptionDecorator</class>-->
   </decorators>
   <interceptors>
     <class>org.zanata.sync.interceptor.WithRequestScopeInterceptor</class>
