@@ -28,23 +28,18 @@ public class NativeGitSyncServiceTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private NativeGitSyncService git;
-    private File remoteRepo;
     private File workDir;
-    private List<String> repoRepoFiles;
 
     @Before
     public void setUp() throws Exception {
         git = new NativeGitSyncService();
 
-        remoteRepo = remoteGitRepoRule.getRemoteRepo();
         workDir = temporaryFolder.newFolder();
 
         git.setCredentials(new UsernamePasswordCredential("admin", "pass"));
-        git.setUrl("file://" + remoteRepo.getAbsolutePath());
+        git.setUrl(remoteGitRepoRule.getRemoteUrl());
         git.setWorkingDir(workDir);
-        repoRepoFiles = Lists.newArrayList(remoteRepo.listFiles()).stream()
-                .map(File::getName).collect(
-                        Collectors.toList());
+
     }
 
     @Test
@@ -55,7 +50,7 @@ public class NativeGitSyncServiceTest {
                 .as("the folder should contain one text file and one .git folder");
         assertThat(workDir.listFiles())
                 .extracting(File::getName)
-                .hasSameElementsAs(repoRepoFiles);
+                .hasSameElementsAs(remoteGitRepoRule.getFilesInWorkTree("master"));
     }
 
     @Test

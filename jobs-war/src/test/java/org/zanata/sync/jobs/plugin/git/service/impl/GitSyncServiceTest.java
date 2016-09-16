@@ -1,17 +1,11 @@
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assume;
 import org.junit.Before;
@@ -21,11 +15,6 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
-import org.zanata.sync.jobs.plugin.zanata.service.impl.ZanataSyncServiceImpl;
-import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +29,6 @@ public class GitSyncServiceTest {
 
     private GitSyncService syncService;
     private File dest;
-    private File remoteRepo;
 
     @Before
     public void setUp() throws Exception {
@@ -52,8 +40,7 @@ public class GitSyncServiceTest {
         syncService.setCredentials(credential);
 
         dest = temporaryFolder.newFolder();
-        remoteRepo = remoteGitRepoRule.getRemoteRepo();
-        syncService.setUrl("file://" + remoteRepo.getAbsolutePath());
+        syncService.setUrl(remoteGitRepoRule.getRemoteUrl());
         syncService.setWorkingDir(dest);
         syncService.setZanataUser("pahuang");
     }
@@ -93,13 +80,9 @@ public class GitSyncServiceTest {
         // commit the change
         syncService.syncTranslationToRepo();
 
-        Ref ref = Git.open(remoteRepo).checkout().setName("junit").call();
-        Iterable<RevCommit> logs = Git.open(remoteRepo).log().call();
-        ImmutableList<RevCommit> revCommits = ImmutableList.copyOf(logs);
-        List<String> logMessage = revCommits.stream()
-                .map(RevCommit::getShortMessage).collect(
-                        Collectors.toList());
-        assertThat(logMessage.get(0)).contains("Zanata Sync");
+
+        assertThat(remoteGitRepoRule.getFilesInWorkTree("junit")).contains("test.txt");
+        assertThat(remoteGitRepoRule.getCommitMessages("junit").get(0)).contains("Zanata Sync");
     }
 
     @Test

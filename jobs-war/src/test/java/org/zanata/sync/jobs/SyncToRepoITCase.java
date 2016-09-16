@@ -87,14 +87,17 @@ public class SyncToRepoITCase {
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        log.debug("====remote: {}", remoteGitRepoRule.getRemoteRepo().getAbsolutePath());
+        log.debug("====remote: {}", remoteGitRepoRule.getRemoteUrl());
         Awaitility.await()
                 .pollInterval(1, TimeUnit.SECONDS)
                 .atMost(5, TimeUnit.MINUTES).until(() -> {
-            List<String> commitMessages = remoteGitRepoRule.getCommitMessages();
+            List<String> commitMessages =
+                    remoteGitRepoRule.getCommitMessages("master");
             log.debug(".... checking result ....{}", commitMessages);
             assertThat(commitMessages).isNotEmpty();
-            assertThat(commitMessages.get(0)).startsWith("Zanata Sync created by " + zanataUsername + " from " + zanataUrl);
+            assertThat(commitMessages.get(0))
+                    .startsWith(
+                            "Zanata Sync job triggered by " + zanataUsername);
         });
     }
 
@@ -114,7 +117,7 @@ public class SyncToRepoITCase {
      */
     private Map<String, String> createPayload() {
         Map<String, String> map = Maps.newHashMap();
-        map.put(JobDetailEntry.srcRepoUrl.name(), "file://" + remoteGitRepoRule.getRemoteRepo().getAbsolutePath());
+        map.put(JobDetailEntry.srcRepoUrl.name(), remoteGitRepoRule.getRemoteUrl());
         map.put(JobDetailEntry.srcRepoType.name(), "git");
         map.put(JobDetailEntry.zanataUrl.name(), zanataUrl);
         map.put(JobDetailEntry.zanataUsername.name(), zanataUsername);
