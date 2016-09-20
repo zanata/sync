@@ -38,6 +38,7 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
+import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -75,25 +76,38 @@ public class GitSyncService implements RepoSyncService {
     public void cloneRepo() throws RepoSyncException {
         log.info("doing git clone: {} -> {}", url, workingDir.getAbsolutePath());
         doGitClone(url, workingDir);
-        checkOutBranch(workingDir, branch);
+        checkOutBranch(workingDir, getBranch());
     }
 
     private void doGitClone(String repoUrl, File destPath) {
         destPath.mkdirs();
-        UsernamePasswordCredentialsProvider user =
-                new UsernamePasswordCredentialsProvider(
-                        credentials.getUsername(),
-                        credentials.getSecret());
+
         CloneCommand clone = Git.cloneRepository();
+
+        setUserIfProvided(clone);
+
         clone.setBare(false)
                 .setCloneAllBranches(true)
-                .setDirectory(destPath).setURI(repoUrl)
-                .setCredentialsProvider(user);
+                .setDirectory(destPath).setURI(repoUrl);
         try {
+
             clone.call();
-            log.info("git clone finished: {}", repoUrl);
+            log.info("git clone finished: {} -> {}", repoUrl, destPath);
+
         } catch (GitAPIException e) {
             throw new RepoSyncException(e);
+        }
+    }
+
+    private <T extends TransportCommand> void setUserIfProvided(T command) {
+        if (credentials != null &&
+                !Strings.isNullOrEmpty(credentials.getUsername()) &&
+                !Strings.isNullOrEmpty(credentials.getSecret())) {
+            UsernamePasswordCredentialsProvider user =
+                    new UsernamePasswordCredentialsProvider(
+                            credentials.getUsername(),
+                            credentials.getSecret());
+            command.setCredentialsProvider(user);
         }
     }
 
@@ -185,9 +199,8 @@ public class GitSyncService implements RepoSyncService {
                         new UsernamePasswordCredentialsProvider(
                                 credentials.getUsername(),
                                 credentials.getSecret());
-                PushCommand pushCommand = git.push()
-                        .setCredentialsProvider(user);
-
+                PushCommand pushCommand = git.push();
+                setUserIfProvided(pushCommand);
                 pushCommand.call();
             } else {
                 log.info("nothing changed so nothing to do");
@@ -215,11 +228,15 @@ public class GitSyncService implements RepoSyncService {
 
     @Override
     public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    private String getBranch() {
         if (Strings.isNullOrEmpty(branch)) {
             log.debug("will use master as default branch");
-            this.branch = "master";
+            return "master";
         } else {
-            this.branch = branch;
+            return branch;
         }
     }
 
