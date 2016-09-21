@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import com.google.common.collect.Maps;
@@ -68,15 +69,19 @@ public class RemoteJobExecutor {
     }
 
     public void executeJob(String id, SyncWorkConfig workConfig, JobType jobType) {
-        Map<String ,String> jobDetail = Maps.newHashMap();
-        jobDetail.put("srcRepoUrl", workConfig.getSrcRepoUrl());
-        jobDetail.put("srcRepoUsername", workConfig.getRepoAccount().getUsername());
-        jobDetail.put("srcRepoSecret", workConfig.getRepoAccount().getSecret());
-        jobDetail.put("srcRepoBranch", workConfig.getSrcRepoBranch());
-        jobDetail.put("syncToZanataOption", workConfig.getSyncToZanataOption().name());
-        jobDetail.put("srcRepoType", workConfig.getRepoAccount().getRepoType());
-        jobDetail.put("zanataUsername", workConfig.getZanataAccount().getUsername());
-        jobDetail.put("zanataSecret", workConfig.getZanataAccount().getSecret());
+
+        SyncJobDetail jobDetail = SyncJobDetail.Builder.builder()
+                .setSrcRepoType(workConfig.getRepoAccount().getRepoType())
+                .setSrcRepoUrl(workConfig.getSrcRepoUrl())
+                .setSrcRepoBranch(workConfig.getSrcRepoBranch())
+                .setSrcRepoSecret(workConfig.getRepoAccount().getSecret())
+                .setSrcRepoUsername(workConfig.getRepoAccount().getUsername())
+                .setZanataUrl(workConfig.getZanataAccount().getServer())
+                .setZanataUsername(workConfig.getZanataAccount().getUsername())
+                .setZanataSecret(workConfig.getZanataAccount().getSecret())
+                .setSyncToZanataOption(workConfig.getSyncToZanataOption())
+                .build();
+
         log.debug("about to execute job remotely with: {}", jobDetail);
         Response response;
         switch (jobType) {

@@ -31,6 +31,7 @@ import org.zanata.client.commands.pull.PullOptions;
 import org.zanata.client.commands.pull.PullOptionsImpl;
 import org.zanata.client.commands.push.PushOptions;
 import org.zanata.client.commands.push.PushOptionsImpl;
+import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.jobs.common.exception.ZanataSyncException;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
 import org.zanata.sync.jobs.plugin.zanata.util.PushPullOptionsUtil;

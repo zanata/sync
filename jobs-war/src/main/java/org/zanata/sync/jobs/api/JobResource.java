@@ -21,11 +21,8 @@
 package org.zanata.sync.jobs.api;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -40,6 +37,8 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
+import org.zanata.sync.common.model.SyncJobDetail;
+import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.jobs.common.Either;
 import org.zanata.sync.jobs.common.model.ErrorMessage;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
@@ -86,6 +85,7 @@ public class JobResource {
         }
     }
     // TODO until we make trigger job an aync task, we won't be able to get status or cancel running job (To make it an async task, we will need database backend to store running job)
+
     /**
      * Get job status
      *
@@ -132,39 +132,18 @@ public class JobResource {
     }
 
     /**
-     * trigger job with jobDetail containing following fields:
-     * <pre>
-     *  <ul>
-     *      <li>srcRepoUrl</li>
-     *      <li>srcRepoUsername</li>
-     *      <li>srcRepoSecret</li>
-     *      <li>srcRepoBranch</li>
-     *      <li>syncToZanataOption=source|trans|both</li>
-     *      <li>srcRepoType=git|anything else we may support in the future</li>
-     *      <li>zanataUrl</li>
-     *      <li>zanataUsername</li>
-     *      <li>zanataSecret</li>
-     *   </ul>
-     * </pre>
+     * trigger sync to zanata job (push files from source repo to zanata).
      *
      * @param id
      *         - work identifier
      * @param jobDetail
      *         detail about a job.
      * @return - http code
-     * @see JobDetailEntry
      */
     @Path("/2zanata/start/{id}")
     @POST
     public Response triggerJobToSyncToZanata(@PathParam(value = "id") String id,
-            Map<String, String> jobDetail) {
-        List<String> unknownEntries = JobDetailEntry.unknownEntries(jobDetail);
-        if (unknownEntries.size() > 0) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorMessage("unknown entry",
-                            "unknown entries:" + unknownEntries)).build();
-        }
-
+            SyncJobDetail jobDetail) {
         Either<RepoSyncService, Response> srcRepoPlugin =
                 createRepoSyncService(jobDetail);
         Either<ZanataSyncService, Response> zanataSyncService =
@@ -177,12 +156,12 @@ public class JobResource {
     }
 
     private Either<RepoSyncService, Response> createRepoSyncService(
-            Map<String, String> jobDetail) {
-        String repoUrl = JobDetailEntry.srcRepoUrl.extract(jobDetail);
-        String repoUsername = Strings.nullToEmpty(JobDetailEntry.srcRepoUsername.extract(jobDetail));
-        String repoSecret = Strings.nullToEmpty(JobDetailEntry.srcRepoSecret.extract(jobDetail));
-        String repoBranch = JobDetailEntry.srcRepoBranch.extract(jobDetail);
-        String repoType = JobDetailEntry.srcRepoType.extract(jobDetail);
+            SyncJobDetail jobDetail) {
+        String repoUrl = jobDetail.getSrcRepoUrl();
+        String repoUsername = jobDetail.getSrcRepoUsername();
+        String repoSecret = Strings.nullToEmpty(jobDetail.getSrcRepoSecret());
+        String repoBranch = jobDetail.getSrcRepoBranch();
+        String repoType = jobDetail.getSrcRepoType();
 
 
         if (repoUrl == null || repoType == null) {
@@ -198,22 +177,22 @@ public class JobResource {
         service.setUrl(repoUrl);
         service.setBranch(repoBranch);
 
-        String zanataUsername =
-                JobDetailEntry.zanataUsername.extract(jobDetail);
+        String zanataUsername = jobDetail.getZanataUsername();
 
         service.setZanataUser(zanataUsername);
         return Either.fromLeft(service, Response.class);
     }
 
     private static Either<ZanataSyncService, Response> createZanataSyncService(
-            Map<String, String> jobDetail) {
+            SyncJobDetail jobDetail) {
         // TODO at the moment we assumes zanata.xml is in the repo so this is not needed
-        String zanataUrl = JobDetailEntry.zanataUrl.extract(jobDetail);
-        String zanataUsername =
-                JobDetailEntry.zanataUsername.extract(jobDetail);
-        String zanataSecret = JobDetailEntry.zanataSecret.extract(jobDetail);
-        String syncToZanataOption =
-                JobDetailEntry.syncToZanataOption.extract(jobDetail);
+        String zanataUrl = jobDetail.getZanataUrl();
+        String zanataUsername = jobDetail.getZanataUsername();
+        String zanataSecret = jobDetail.getZanataSecret();
+        SyncOption syncToZanataOption = jobDetail.getSyncToZanataOption();
+        String pushToZanataOption =
+                syncToZanataOption != null ? syncToZanataOption.getValue() :
+                        null;
 
         if (zanataUsername == null || zanataSecret == null) {
             return Either.fromRight(ZanataSyncService.class, Response.status(
@@ -224,33 +203,26 @@ public class JobResource {
         }
 
         return Either.fromLeft(
-                new ZanataSyncServiceImpl(zanataUrl, zanataUsername, zanataSecret,
-                        syncToZanataOption), Response.class);
+                new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
+                        zanataSecret,
+                        pushToZanataOption), Response.class);
     }
 
     /**
-     * trigger job to sync to source repo with jobDetail. JobDetail should
-     * contain same fields as in org.zanata.sync.api.JobResourceImpl#triggerJobToSyncToZanata(java.lang.String,
-     * java.util.Map).
+     * trigger job to sync to source repo (pull translation from zanata then
+     * commit and push to source repo).
      *
      * @param id
      *         - work identifier
      * @param jobDetail
      *         detail about a job.
      * @return - http code
-     * @see JobDetailEntry
      */
     @Path("2repo/start/{id}")
     @POST
     public Response triggerJobToSyncToSourceRepo(
             @PathParam(value = "id") String id,
-            Map<String, String> jobDetail) {
-        List<String> unknownEntries = JobDetailEntry.unknownEntries(jobDetail);
-        if (unknownEntries.size() > 0) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorMessage("unknown entry",
-                            "unknown entries:" + unknownEntries)).build();
-        }
+            SyncJobDetail jobDetail) {
 
         Either<RepoSyncService, Response> srcRepoPlugin =
                 createRepoSyncService(jobDetail);

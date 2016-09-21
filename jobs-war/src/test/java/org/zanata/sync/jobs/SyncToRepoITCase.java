@@ -1,6 +1,5 @@
 package org.zanata.sync.jobs;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +9,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
@@ -21,9 +19,8 @@ import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.jobs.api.JobDetailEntry;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.plugin.git.service.impl.RemoteGitRepoRule;
-import com.google.common.collect.Maps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +75,7 @@ public class SyncToRepoITCase {
         mockZanataServer.setUpPullExpectation();
         Client client = ClientBuilder.newClient();
 
-        Map<String, String> payload = createPayload();
+        SyncJobDetail payload = createPayload();
         Response response =
                 client.target("http://localhost:8280/jobs/api/job/2repo/start/id1")
                         .request(MediaType.APPLICATION_JSON_TYPE)
@@ -101,27 +98,12 @@ public class SyncToRepoITCase {
         });
     }
 
-
-
-    /**
-     * <li>srcRepoUrl</li>
-     *      <li>srcRepoUsername</li>
-     *      <li>srcRepoSecret</li>
-     *      <li>srcRepoBranch</li>
-     *      <li>syncToZanataOption=source|trans|both</li>
-     *      <li>srcRepoType=git|anything else we may support in the future</li>
-     *      <li>zanataUrl</li>
-     *      <li>zanataUsername</li>
-     *      <li>zanataSecret</li>
-     * @return
-     */
-    private Map<String, String> createPayload() {
-        Map<String, String> map = Maps.newHashMap();
-        map.put(JobDetailEntry.srcRepoUrl.name(), remoteGitRepoRule.getRemoteUrl());
-        map.put(JobDetailEntry.srcRepoType.name(), "git");
-        map.put(JobDetailEntry.zanataUrl.name(), zanataUrl);
-        map.put(JobDetailEntry.zanataUsername.name(), zanataUsername);
-        map.put(JobDetailEntry.zanataSecret.name(), "secret");
-        return map;
+    private SyncJobDetail createPayload() {
+        return SyncJobDetail.Builder.builder()
+                .setSrcRepoUrl(remoteGitRepoRule.getRemoteUrl())
+                .setSrcRepoType("git")
+                .setZanataUsername(zanataUsername)
+                .setZanataSecret("secret")
+                .build();
     }
 }
