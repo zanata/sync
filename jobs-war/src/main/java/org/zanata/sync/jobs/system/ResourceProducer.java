@@ -23,8 +23,10 @@ package org.zanata.sync.jobs.system;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.regex.Pattern;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.ws.rs.client.Client;
 
@@ -35,6 +37,9 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.annotation.RepoPlugin;
+import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Single place to produce anything system wide. Althouth it's
@@ -54,6 +59,8 @@ public class ResourceProducer {
             "jaxrs.connection.pool.size";
 
     private boolean hasNativeGit = isGitExecutableOnPath();
+    private ImmutableMap<String, RepoSyncService>
+            repoTypeToServiceMap;
 
     private static boolean isGitExecutableOnPath() {
         Pattern pattern = Pattern.compile(Pattern.quote(File.pathSeparator));
@@ -99,5 +106,22 @@ public class ResourceProducer {
     @HasNativeGit
     protected boolean hasNativeGit() {
         return hasNativeGit;
+    }
+
+    @Produces
+    @RepoPlugin
+    protected Map<String, RepoSyncService> repoTypeToServiceMap(@RepoPlugin
+            Instance<RepoSyncService> repoSyncServices) {
+        if (repoTypeToServiceMap == null) {
+            ImmutableMap.Builder<String, RepoSyncService> builder =
+                    ImmutableMap.builder();
+            repoSyncServices.forEach(repoSyncService -> {
+                RepoPlugin annotation = repoSyncService.getClass()
+                        .getAnnotation(RepoPlugin.class);
+                builder.put(annotation.value(), repoSyncService);
+            });
+            repoTypeToServiceMap = builder.build();
+        }
+        return repoTypeToServiceMap;
     }
 }

@@ -21,9 +21,16 @@
 package org.zanata.sync.jobs.api;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -47,7 +54,6 @@ import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
 import org.zanata.sync.jobs.plugin.zanata.service.impl.ZanataSyncServiceImpl;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -58,32 +64,16 @@ import com.google.common.collect.ImmutableMap;
 public class JobResource {
     private static final Logger log =
             LoggerFactory.getLogger(JobResource.class);
+    private final Validator validator =
+            Validation.buildDefaultValidatorFactory().getValidator();
 
     @Inject
     private JobRunner jobRunner;
 
     @Inject
     @RepoPlugin
-    private Instance<RepoSyncService> repoSyncServices;
-    private static ImmutableMap<String, RepoSyncService> repoSyncServiceMap;
+    private Map<String, RepoSyncService> repoTypeToServiceMap;
 
-    @PostConstruct
-    public void init() {
-        if (repoSyncServiceMap == null) {
-            synchronized (log) {
-                if (repoSyncServiceMap == null) {
-                    ImmutableMap.Builder<String, RepoSyncService> builder =
-                            ImmutableMap.builder();
-                    this.repoSyncServices.forEach(repoSyncService -> {
-                        RepoPlugin annotation = repoSyncService.getClass()
-                                .getAnnotation(RepoPlugin.class);
-                        builder.put(annotation.value(), repoSyncService);
-                    });
-                    repoSyncServiceMap = builder.build();
-                }
-            }
-        }
-    }
     // TODO until we make trigger job an aync task, we won't be able to get status or cancel running job (To make it an async task, we will need database backend to store running job)
 
     /**
@@ -144,6 +134,18 @@ public class JobResource {
     @POST
     public Response triggerJobToSyncToZanata(@PathParam(value = "id") String id,
             SyncJobDetail jobDetail) {
+        Set<ConstraintViolation<SyncJobDetail>> violations =
+                validator.validate(jobDetail);
+        if (!violations.isEmpty()) {
+            List<ErrorMessage> errors = violations.stream()
+                    .map(violation -> new ErrorMessage(
+                            violation.getPropertyPath().toString(),
+                            violation.getMessage())).collect(
+                            Collectors.toList());
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
+                    .build();
+        }
+
         Either<RepoSyncService, Response> srcRepoPlugin =
                 createRepoSyncService(jobDetail);
         Either<ZanataSyncService, Response> zanataSyncService =
@@ -163,16 +165,7 @@ public class JobResource {
         String repoBranch = jobDetail.getSrcRepoBranch();
         String repoType = jobDetail.getSrcRepoType();
 
-
-
-        if (repoUrl == null || repoType == null) {
-            return Either.fromRight(RepoSyncService.class,
-                    Response.status(Response.Status.NOT_ACCEPTABLE)
-                            .entity(new ErrorMessage("Missing entries",
-                                    "missing repo url and type")).build());
-        }
-
-        RepoSyncService service = repoSyncServiceMap.get(repoType);
+        RepoSyncService service = repoTypeToServiceMap.get(repoType);
         service.setCredentials(
                 new UsernamePasswordCredential(repoUsername, repoSecret));
         service.setUrl(repoUrl);
@@ -195,14 +188,6 @@ public class JobResource {
                 syncToZanataOption != null ? syncToZanataOption.getValue() :
                         null;
 
-        if (zanataUsername == null || zanataSecret == null) {
-            return Either.fromRight(ZanataSyncService.class, Response.status(
-                    Response.Status.NOT_ACCEPTABLE)
-                    .entity(new ErrorMessage("Missing entries",
-                            "missing zanata username and secret"))
-                    .build());
-        }
-
         return Either.fromLeft(
                 new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
                         zanataSecret,
@@ -224,6 +209,17 @@ public class JobResource {
     public Response triggerJobToSyncToSourceRepo(
             @PathParam(value = "id") String id,
             SyncJobDetail jobDetail) {
+        Set<ConstraintViolation<SyncJobDetail>> violations =
+                validator.validate(jobDetail);
+        if (!violations.isEmpty()) {
+            List<ErrorMessage> errors = violations.stream()
+                    .map(violation -> new ErrorMessage(
+                            violation.getPropertyPath().toString(),
+                            violation.getMessage())).collect(
+                            Collectors.toList());
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
+                    .build();
+        }
 
         Either<RepoSyncService, Response> srcRepoPlugin =
                 createRepoSyncService(jobDetail);
