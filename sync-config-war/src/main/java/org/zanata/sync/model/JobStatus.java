@@ -22,7 +22,6 @@ package org.zanata.sync.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -39,6 +38,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.zanata.sync.common.model.JobStatusType;
 import com.google.common.base.MoreObjects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

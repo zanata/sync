@@ -35,7 +35,7 @@ import org.zanata.sync.jobs.common.AutoCleanablePath;
 import org.zanata.sync.jobs.common.Either;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>

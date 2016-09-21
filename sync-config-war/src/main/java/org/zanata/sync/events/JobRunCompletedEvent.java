@@ -22,7 +22,7 @@ package org.zanata.sync.events;
 
 import java.util.Date;
 
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.util.DateUtil;
 

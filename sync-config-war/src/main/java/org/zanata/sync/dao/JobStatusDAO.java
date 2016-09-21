@@ -31,7 +31,7 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.model.JobStatus;
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import com.google.common.annotations.VisibleForTesting;

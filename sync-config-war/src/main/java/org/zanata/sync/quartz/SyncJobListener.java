@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.events.JobStartedEvent;
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 
 /**

@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.jobs.system.ConfigWarUrl;
 import org.zanata.sync.jobs.system.RestClient;
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 

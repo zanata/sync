@@ -45,7 +45,7 @@ import org.zanata.sync.events.JobRunCompletedEvent;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
 import org.zanata.sync.model.JobStatus;
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.JobStatusService;

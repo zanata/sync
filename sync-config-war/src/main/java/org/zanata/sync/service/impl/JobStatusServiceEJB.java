@@ -30,7 +30,7 @@ import javax.inject.Inject;
 
 import org.zanata.sync.dao.JobStatusDAO;
 import org.zanata.sync.model.JobStatus;
-import org.zanata.sync.model.JobStatusType;
+import org.zanata.sync.common.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.JobStatusService;
