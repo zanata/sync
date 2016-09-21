@@ -24,7 +24,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -47,27 +46,26 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.dto.Payload;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.dto.WorkDetail;
+import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.dto.ZanataWebHookEvent;
 import org.zanata.sync.exception.JobNotFoundException;
 import org.zanata.sync.exception.WorkNotFoundException;
-import org.zanata.sync.jobs.RemoteJobExecutor;
 import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.RepoAccount;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.model.SyncWorkConfigBuilder;
-import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.model.ZanataAccount;
 import org.zanata.sync.security.SecurityTokens;
 import org.zanata.sync.service.AccountService;
 import org.zanata.sync.service.JobStatusService;
 import org.zanata.sync.service.PluginsService;
 import org.zanata.sync.service.SchedulerService;
+import org.zanata.sync.service.WebHookService;
 import org.zanata.sync.service.WorkService;
 import org.zanata.sync.util.HmacUtil;
 import org.zanata.sync.util.JSONObjectMapper;
 import org.zanata.sync.validation.SyncWorkFormValidator;
-
 import com.google.common.base.Strings;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -119,7 +117,7 @@ public class WorkResource {
     private JSONObjectMapper objectMapper;
 
     @Inject
-    private RemoteJobExecutor remoteJobExecutor;
+    private WebHookService webHookService;
 
 
     /**
@@ -254,17 +252,14 @@ public class WorkResource {
 
         log.debug("webhook payload: {}", payload);
 
-        // TODO ZNTA-1290 get language from the payload and only trigger job for that language
-        // payload: {"username":"admin","project":"test-repo","version":"master","docId":"book","locale":"ja","wordDeltasByState":{"New":-4,"Translated":4},"type":"DocumentStatsEvent"}
-        ZanataWebHookEvent webHookEvent =
-                objectMapper.fromJSON(ZanataWebHookEvent.class, payload);
-
-        // bypass schedulerService since it's not triggered by schedule but by webhook
+        // payload: {"projectSlug":"gettext-project","versionSlug":"master","localeId":"zh-CN","type":"TranslationChangedEvent"}
         try {
-            schedulerService.triggerJob(id, JobType.REPO_SYNC);
-        } catch (JobNotFoundException | SchedulerException e) {
-            log.error("error triggering job", e);
-            return Response.serverError().build();
+            ZanataWebHookEvent webHookEvent =
+                    objectMapper.fromJSON(ZanataWebHookEvent.class, payload);
+            // bypass schedulerService since it's not triggered by schedule but by webhook
+            webHookService.processZanataWebHook(config, webHookEvent);
+        } catch (Exception e) {
+            log.error("failed to process zanata webhook {}", e);
         }
 
         return Response.ok().build();

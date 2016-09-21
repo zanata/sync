@@ -48,4 +48,5 @@ public interface WorkService {
     List<WorkSummary> getWorkFor(String username, String zanataServer);
 
     List<WorkSummary> getWorkForCurrentUser();
+
 }

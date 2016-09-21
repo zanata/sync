@@ -20,18 +20,12 @@
  */
 package org.zanata.sync.service;
 
-import java.util.List;
-import java.util.Optional;
 import javax.websocket.Session;
 
 import org.quartz.SchedulerException;
 import org.quartz.UnableToInterruptJobException;
 import org.zanata.sync.dto.JobRunStatus;
-import org.zanata.sync.dto.JobSummary;
-import org.zanata.sync.dto.WorkSummary;
 import org.zanata.sync.exception.JobNotFoundException;
-import org.zanata.sync.exception.WorkNotFoundException;
-import org.zanata.sync.model.JobStatus;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 
@@ -63,7 +57,7 @@ public interface SchedulerService {
      *         config id
      * @param type
      *         job type
-     * @return true if the job is triggered of false if the job is alreayd
+     * @return true if the job is triggered of false if the job is already
      * running.
      * @throws JobNotFoundException
      * @throws SchedulerException

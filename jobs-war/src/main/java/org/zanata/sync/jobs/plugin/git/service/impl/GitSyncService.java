@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 
@@ -34,6 +33,7 @@ import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
@@ -42,8 +42,6 @@ import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.OperationResult;
-import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +49,6 @@ import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Note JGIT doesn't support shallow clone yet. But jenkins has an abstraction
@@ -83,14 +80,11 @@ public class GitSyncService implements RepoSyncService {
         destPath.mkdirs();
 
         CloneCommand clone = Git.cloneRepository();
-
-        setUserIfProvided(clone);
-
-        clone.setBare(false)
+        setUserIfProvided(clone)
+                .setBare(false)
                 .setCloneAllBranches(true)
                 .setDirectory(destPath).setURI(repoUrl);
         try {
-
             clone.call();
             log.info("git clone finished: {} -> {}", repoUrl, destPath);
 
@@ -99,7 +93,7 @@ public class GitSyncService implements RepoSyncService {
         }
     }
 
-    private <T extends TransportCommand> void setUserIfProvided(T command) {
+    private <T extends TransportCommand<T, ?>> T setUserIfProvided(T command) {
         if (credentials != null &&
                 !Strings.isNullOrEmpty(credentials.getUsername()) &&
                 !Strings.isNullOrEmpty(credentials.getSecret())) {
@@ -107,7 +101,10 @@ public class GitSyncService implements RepoSyncService {
                     new UsernamePasswordCredentialsProvider(
                             credentials.getUsername(),
                             credentials.getSecret());
-            command.setCredentialsProvider(user);
+            return command.setCredentialsProvider(user);
+        } else {
+            log.info("no credential is provided: {}", credentials);
+            return command;
         }
     }
 

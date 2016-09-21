@@ -18,43 +18,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.jobs.common.model;
+package org.zanata.sync.service;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
+
+import org.zanata.sync.dto.ZanataWebHookEvent;
+import org.zanata.sync.model.SyncWorkConfig;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-public class UsernamePasswordCredential implements Credentials {
+public interface WebHookService {
 
-    private final String username;
-    private final String secret;
-
-    public UsernamePasswordCredential(String username,
-            String secret) {
-        this.username = Strings.nullToEmpty(username);
-        this.secret = Strings.nullToEmpty(secret);
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("username", username)
-                .add("secret", maskSecret())
-                .toString();
-    }
-
-    private String maskSecret() {
-        return secret != null ? Strings.repeat("*", secret.length()) :
-                null;
-    }
+    void processZanataWebHook(SyncWorkConfig config, ZanataWebHookEvent event);
 }
