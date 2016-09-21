@@ -1,9 +1,7 @@
-package org.zanata.sync.component;
+package org.zanata.sync.system;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -12,10 +10,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dao.SystemSettingsDAO;
-import org.zanata.sync.model.SystemSettings;
-import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

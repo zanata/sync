@@ -8,7 +8,7 @@
     <!--<class>org.zanata.sync.dao.SyncWorkConfigSerializerEncryptionDecorator</class>-->
   </decorators>
   <interceptors>
-    <class>org.zanata.sync.interceptor.WithRequestScopeInterceptor</class>
+    <!--<class>org.zanata.sync.interceptor.WithRequestScopeInterceptor</class>-->
     <class>org.apache.deltaspike.security.impl.extension.SecurityInterceptor</class>
     <!--<class>org.apache.deltaspike.jpa.impl.transaction.TransactionalInterceptor</class>-->
   </interceptors>

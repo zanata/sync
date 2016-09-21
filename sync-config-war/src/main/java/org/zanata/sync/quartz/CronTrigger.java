@@ -23,7 +23,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.UnableToInterruptJobException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.zanata.sync.component.AppConfiguration;
+import org.zanata.sync.system.AppConfiguration;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 import org.zanata.sync.service.PluginsService;

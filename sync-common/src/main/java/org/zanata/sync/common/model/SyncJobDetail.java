@@ -20,6 +20,7 @@
  */
 package org.zanata.sync.common.model;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -38,11 +39,15 @@ public class SyncJobDetail {
     private String srcRepoUsername;
     private String srcRepoSecret;
     private String srcRepoBranch;
-//    @org.zanata.sync.validation.SupportedRepo
+
+    @Size(min = 1, max = 255)
     private String srcRepoType;
 
     private String zanataUrl;
+
+    @Size(min = 3, max = 255)
     private String zanataUsername;
+    @NotNull
     private String zanataSecret;
     private SyncOption syncToZanataOption;
 

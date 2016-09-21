@@ -164,6 +164,7 @@ public class JobResource {
         String repoType = jobDetail.getSrcRepoType();
 
 
+
         if (repoUrl == null || repoType == null) {
             return Either.fromRight(RepoSyncService.class,
                     Response.status(Response.Status.NOT_ACCEPTABLE)

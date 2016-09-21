@@ -36,7 +36,7 @@ import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.UnableToInterruptJobException;
-import org.zanata.sync.component.AppConfiguration;
+import org.zanata.sync.system.AppConfiguration;
 import org.zanata.sync.dto.JobRunStatus;
 import org.zanata.sync.events.JobProgressEvent;
 import org.zanata.sync.events.JobRunCompletedEvent;
