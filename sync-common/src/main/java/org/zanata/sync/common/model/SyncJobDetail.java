@@ -20,6 +20,8 @@
  */
 package org.zanata.sync.common.model;
 
+import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
 
@@ -31,22 +33,20 @@ import static org.zanata.sync.common.util.StringUtil.mask;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SyncJobDetail {
-    // entries for syncing to source repo
-//    srcRepoUrl, srcRepoUsername, srcRepoSecret, srcRepoBranch, srcRepoType,
-//    syncToZanataOption,
-    // entries for syncing to Zanata
-//    zanataUrl, zanataUsername, zanataSecret;
-
+    @Size(min = 5, max = 255)
     private String srcRepoUrl;
     private String srcRepoUsername;
     private String srcRepoSecret;
     private String srcRepoBranch;
+//    @org.zanata.sync.validation.SupportedRepo
     private String srcRepoType;
 
     private String zanataUrl;
     private String zanataUsername;
     private String zanataSecret;
     private SyncOption syncToZanataOption;
+
+    private String localeId;
 
     public String getSrcRepoUrl() {
         return srcRepoUrl;
@@ -84,6 +84,10 @@ public class SyncJobDetail {
         return syncToZanataOption;
     }
 
+    public String getLocaleId() {
+        return localeId;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -96,6 +100,7 @@ public class SyncJobDetail {
                 .add("zanataUsername", zanataUsername)
                 .add("zanataSecret", mask(zanataSecret))
                 .add("syncToZanataOption", syncToZanataOption)
+                .add("localeId", localeId)
                 .toString();
     }
 
@@ -153,6 +158,11 @@ public class SyncJobDetail {
         public Builder setSyncToZanataOption(
                 SyncOption syncToZanataOption) {
             syncJobDetail.syncToZanataOption = syncToZanataOption;
+            return this;
+        }
+
+        public Builder setLocaleId(String localeId) {
+            syncJobDetail.localeId = localeId;
             return this;
         }
 
