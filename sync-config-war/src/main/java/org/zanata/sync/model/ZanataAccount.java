@@ -41,6 +41,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.deltaspike.core.api.provider.BeanManagerProvider;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.zanata.sync.dto.ZanataUserAccount;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
@@ -153,18 +154,18 @@ public class ZanataAccount implements HasSensitiveFields {
 
     @Override
     public void encryptValues() {
-        EncryptionUtil encryptionUtil =
-                BeanProvider.getContextualReference(EncryptionUtil.class);
         if (!Strings.isNullOrEmpty(secret)) {
+            EncryptionUtil encryptionUtil =
+                    BeanProvider.getContextualReference(EncryptionUtil.class);
             secret = encryptionUtil.encrypt(secret);
         }
     }
 
     @Override
     public void decryptValues() {
-        EncryptionUtil encryptionUtil =
-                BeanProvider.getContextualReference(EncryptionUtil.class);
         if (!Strings.isNullOrEmpty(secret)) {
+            EncryptionUtil encryptionUtil =
+                    BeanProvider.getContextualReference(EncryptionUtil.class);
             secret = encryptionUtil.decrypt(secret);
         }
     }

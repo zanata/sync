@@ -122,18 +122,18 @@ public class RepoAccount implements HasSensitiveFields {
 
     @Override
     public void encryptValues() {
-        EncryptionUtil encryptionUtil =
-                BeanProvider.getContextualReference(EncryptionUtil.class);
         if (!Strings.isNullOrEmpty(secret)) {
+            EncryptionUtil encryptionUtil =
+                    BeanProvider.getContextualReference(EncryptionUtil.class);
             secret = encryptionUtil.encrypt(secret);
         }
     }
 
     @Override
     public void decryptValues() {
-        EncryptionUtil encryptionUtil =
-                BeanProvider.getContextualReference(EncryptionUtil.class);
         if (!Strings.isNullOrEmpty(secret)) {
+            EncryptionUtil encryptionUtil =
+                    BeanProvider.getContextualReference(EncryptionUtil.class);
             secret = encryptionUtil.decrypt(secret);
         }
     }
