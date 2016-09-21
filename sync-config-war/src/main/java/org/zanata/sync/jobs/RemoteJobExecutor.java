@@ -68,8 +68,8 @@ public class RemoteJobExecutor {
         this.client = client;
     }
 
-    public void executeJob(String id, SyncWorkConfig workConfig, JobType jobType) {
-
+    public void executeJob(String id, SyncWorkConfig workConfig,
+            JobType jobType, String localeId) {
         SyncJobDetail jobDetail = SyncJobDetail.Builder.builder()
                 .setSrcRepoType(workConfig.getRepoAccount().getRepoType())
                 .setSrcRepoUrl(workConfig.getSrcRepoUrl())
@@ -80,6 +80,7 @@ public class RemoteJobExecutor {
                 .setZanataUsername(workConfig.getZanataAccount().getUsername())
                 .setZanataSecret(workConfig.getZanataAccount().getSecret())
                 .setSyncToZanataOption(workConfig.getSyncToZanataOption())
+                .setLocaleId(localeId)
                 .build();
 
         log.debug("about to execute job remotely with: {}", jobDetail);

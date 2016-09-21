@@ -188,10 +188,12 @@ public class JobResource {
                 syncToZanataOption != null ? syncToZanataOption.getValue() :
                         null;
 
+        String localeId = jobDetail.getLocaleId();
+
         return Either.fromLeft(
                 new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
                         zanataSecret,
-                        pushToZanataOption), Response.class);
+                        pushToZanataOption, localeId), Response.class);
     }
 
     /**

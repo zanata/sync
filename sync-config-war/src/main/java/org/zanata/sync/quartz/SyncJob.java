@@ -60,7 +60,7 @@ public class SyncJob implements InterruptableJob {
             if (workConfig.isPresent()) {
                 jobExecutor
                         .executeJob(context.getFireInstanceId(), workConfig.get(),
-                                jobType);
+                                jobType, null);
             } else {
                 log.warn("can not load config for id {}", configId);
             }

@@ -35,6 +35,7 @@ import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.jobs.common.exception.ZanataSyncException;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
 import org.zanata.sync.jobs.plugin.zanata.util.PushPullOptionsUtil;
+import com.google.common.base.Strings;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -51,7 +52,7 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
     private final String zanataUrl;
 
     public ZanataSyncServiceImpl(String zanataUrl, String username,
-            String apiKey, String syncToZanataOption) {
+            String apiKey, String syncToZanataOption, String localeId) {
         this.zanataUrl = zanataUrl;
         PullOptionsImpl pullOptions = new PullOptionsImpl();
         PushOptionsImpl pushOptions = new PushOptionsImpl();
@@ -66,6 +67,10 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
         this.pullOptions = pullOptions;
 //        this.pushOptions.setLogHttp(true);
 //        this.pullOptions.setLogHttp(true);
+        if (!Strings.isNullOrEmpty(localeId)) {
+            pullOptions.setLocales(localeId);
+            pushOptions.setLocales(localeId);
+        }
     }
 
     @Override
