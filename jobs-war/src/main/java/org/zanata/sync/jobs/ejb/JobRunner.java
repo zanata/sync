@@ -22,20 +22,24 @@ package org.zanata.sync.jobs.ejb;
 
 import java.nio.file.Files;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.annotation.RepoPlugin;
+import org.zanata.sync.common.model.JobStatusType;
+import org.zanata.sync.common.model.SyncJobDetail;
+import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.jobs.common.AutoCleanablePath;
-import org.zanata.sync.jobs.common.Either;
+import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
-import org.zanata.sync.common.model.JobStatusType;
+import org.zanata.sync.jobs.plugin.zanata.service.impl.ZanataSyncServiceImpl;
+import com.google.common.collect.Lists;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -47,15 +51,43 @@ public class JobRunner {
     @Inject
     private JobStatusPublisher jobStatusPublisher;
 
-    public Future<Void> syncToZanata(
-            RepoSyncService srcRepoPlugin,
-            ZanataSyncService zanataSyncService,
-            String id) {
+    @Inject
+    @RepoPlugin
+    private Instance<RepoSyncService> repoSyncServices;
+
+    public Future<Void> syncToSrcRepo(String id,
+            SyncJobDetail jobDetail) {
+        log.debug("running sync to repo job for id: {}", id);
+
+        try (AutoCleanablePath workingDir = new AutoCleanablePath(
+                Files.createTempDirectory(id))) {
+            ZanataSyncService zanataSyncService =
+                    createZanataSyncService(jobDetail);
+            RepoSyncService repoSyncService =
+                    getRepoFor(jobDetail.getSrcRepoType());
+
+            repoSyncService.cloneRepo(jobDetail, workingDir.toPath());
+            zanataSyncService.pullFromZanata(workingDir.toPath());
+            repoSyncService
+                    .syncTranslationToRepo(jobDetail, workingDir.toPath());
+            jobStatusPublisher.putStatus(id, JobStatusType.COMPLETED);
+        } catch (Exception e) {
+            log.error("Failed to sync to source repo", e);
+            jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
+        }
+        return new AsyncResult<>(null);
+    }
+
+    public Future<Void> syncToZanata(String id, SyncJobDetail jobDetail) {
         log.debug("running sync to zanata job for id: {}", id);
         try (AutoCleanablePath workingDir = new AutoCleanablePath(
                 Files.createTempDirectory(id))) {
-            srcRepoPlugin.setWorkingDir(workingDir.toFile());
-            srcRepoPlugin.cloneRepo();
+            ZanataSyncService zanataSyncService =
+                    createZanataSyncService(jobDetail);
+            RepoSyncService repoSyncService =
+                    getRepoFor(jobDetail.getSrcRepoType());
+
+            repoSyncService.cloneRepo(jobDetail, workingDir.toPath());
             zanataSyncService.pushToZanata(workingDir.toPath());
 
             jobStatusPublisher.putStatus(id, JobStatusType.COMPLETED);
@@ -66,23 +98,32 @@ public class JobRunner {
         return new AsyncResult<>(null);
     }
 
-    public Future<Void> syncToSrcRepo(String id,
-            RepoSyncService srcRepoPlugin,
-            ZanataSyncService zanataSyncService) {
-        log.debug("running sync to repo job for id: {}", id);
+    private static ZanataSyncService createZanataSyncService(
+            SyncJobDetail jobDetail) {
+        // TODO at the moment we assumes zanata.xml is in the repo so this is not needed
+        String zanataUrl = jobDetail.getZanataUrl();
+        String zanataUsername = jobDetail.getZanataUsername();
+        String zanataSecret = jobDetail.getZanataSecret();
+        SyncOption syncToZanataOption = jobDetail.getSyncToZanataOption();
+        String pushToZanataOption =
+                syncToZanataOption != null ? syncToZanataOption.getValue() :
+                        null;
 
-        try (AutoCleanablePath workingDir = new AutoCleanablePath(
-                Files.createTempDirectory(id))) {
+        String localeId = jobDetail.getLocaleId();
 
-            srcRepoPlugin.setWorkingDir(workingDir.toFile());
-            srcRepoPlugin.cloneRepo();
-            zanataSyncService.pullFromZanata(workingDir.toPath());
-            srcRepoPlugin.syncTranslationToRepo();
-            jobStatusPublisher.putStatus(id, JobStatusType.COMPLETED);
-        } catch (Exception e) {
-            log.error("Failed to sync to source repo", e);
-            jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
-        }
-        return new AsyncResult<>(null);
+        return new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
+                zanataSecret,
+                pushToZanataOption, localeId);
     }
+
+    private RepoSyncService getRepoFor(String repoType) {
+        for (RepoSyncService repoSyncService : repoSyncServices) {
+            if (repoSyncService.supportedRepoType().equals(repoType)) {
+                return repoSyncService;
+            }
+        }
+        throw new RepoSyncException(
+                "can not find service for repo type:" + repoType);
+    }
+
 }

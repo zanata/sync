@@ -22,7 +22,6 @@ package org.zanata.sync.jobs.api;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -41,17 +40,9 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.common.model.SyncJobDetail;
-import org.zanata.sync.common.model.SyncOption;
-import org.zanata.sync.jobs.common.Either;
 import org.zanata.sync.jobs.common.model.ErrorMessage;
-import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
 import org.zanata.sync.jobs.ejb.JobRunner;
-import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
-import org.zanata.sync.jobs.plugin.zanata.ZanataSyncService;
-import org.zanata.sync.jobs.plugin.zanata.service.impl.ZanataSyncServiceImpl;
-import com.google.common.base.Strings;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -67,10 +58,6 @@ public class JobResource {
 
     @Inject
     private JobRunner jobRunner;
-
-    @Inject
-    @RepoPlugin
-    private Map<String, RepoSyncService> repoTypeToServiceMap;
 
     // TODO until we make trigger job an aync task, we won't be able to get status or cancel running job (To make it an async task, we will need database backend to store running job)
 
@@ -140,13 +127,8 @@ public class JobResource {
                     .build();
         }
 
-        RepoSyncService srcRepoPlugin =
-                createRepoSyncService(jobDetail);
-        ZanataSyncService zanataSyncService =
-                createZanataSyncService(jobDetail);
-
         log.info(">>>>>> about to run 2zanata job for {}", id);
-        jobRunner.syncToZanata(srcRepoPlugin, zanataSyncService, id);
+        jobRunner.syncToZanata(id, jobDetail);
         // TODO return a URI to get access to the async job
         return Response.created(URI.create(id)).build();
     }
@@ -158,44 +140,6 @@ public class JobResource {
                                 violation.getPropertyPath().toString(),
                                 violation.getMessage())).collect(
                                 Collectors.toList());
-    }
-
-    private RepoSyncService createRepoSyncService(
-            SyncJobDetail jobDetail) {
-        String repoUrl = jobDetail.getSrcRepoUrl();
-        String repoUsername = jobDetail.getSrcRepoUsername();
-        String repoSecret = Strings.nullToEmpty(jobDetail.getSrcRepoSecret());
-        String repoBranch = jobDetail.getSrcRepoBranch();
-        String repoType = jobDetail.getSrcRepoType();
-
-        RepoSyncService service = repoTypeToServiceMap.get(repoType);
-        service.setCredentials(
-                new UsernamePasswordCredential(repoUsername, repoSecret));
-        service.setUrl(repoUrl);
-        service.setBranch(repoBranch);
-
-        String zanataUsername = jobDetail.getZanataUsername();
-
-        service.setZanataUser(zanataUsername);
-        return service;
-    }
-
-    private static ZanataSyncService createZanataSyncService(
-            SyncJobDetail jobDetail) {
-        // TODO at the moment we assumes zanata.xml is in the repo so this is not needed
-        String zanataUrl = jobDetail.getZanataUrl();
-        String zanataUsername = jobDetail.getZanataUsername();
-        String zanataSecret = jobDetail.getZanataSecret();
-        SyncOption syncToZanataOption = jobDetail.getSyncToZanataOption();
-        String pushToZanataOption =
-                syncToZanataOption != null ? syncToZanataOption.getValue() :
-                        null;
-
-        String localeId = jobDetail.getLocaleId();
-
-        return new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
-                zanataSecret,
-                pushToZanataOption, localeId);
     }
 
     /**
@@ -221,13 +165,8 @@ public class JobResource {
                     .build();
         }
 
-        RepoSyncService srcRepoPlugin =
-                createRepoSyncService(jobDetail);
-        ZanataSyncService zanataSyncService =
-                createZanataSyncService(jobDetail);
-
         log.info(">>>>>> about to run 2repo job for {}", id);
-        jobRunner.syncToSrcRepo(id, srcRepoPlugin, zanataSyncService);
+        jobRunner.syncToSrcRepo(id, jobDetail);
 
         // TODO create URI to access running async job
         return Response.created(URI.create(id)).build();

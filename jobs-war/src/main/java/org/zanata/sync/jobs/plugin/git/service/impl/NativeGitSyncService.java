@@ -26,14 +26,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.util.List;
 import javax.enterprise.context.Dependent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
+import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
+import org.zanata.sync.plugin.git.GitPlugin;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -50,19 +54,16 @@ public class NativeGitSyncService implements RepoSyncService {
     private static final Logger log =
             LoggerFactory.getLogger(NativeGitSyncService.class);
 
-    private String branch;
-    private String url;
-    private File workingDir;
-    private Credentials credentials;
-    private String commitMessage;
-
     @Override
-    public void cloneRepo() throws RepoSyncException {
-        String[] protocolAndRest = protocolAndRest(url);
+    public void cloneRepo(SyncJobDetail jobDetail, Path workingDir) throws RepoSyncException {
+        UsernamePasswordCredential credential =
+                new UsernamePasswordCredential(jobDetail.getSrcRepoUsername(),
+                        jobDetail.getSrcRepoSecret());
+        String[] protocolAndRest = protocolAndRest(jobDetail.getSrcRepoUrl());
         String urlWithAuth =
                 String.format("%s://%s:%s@%s", protocolAndRest[0],
-                        urlEncode(credentials.getUsername()),
-                        urlEncode(credentials.getSecret()), protocolAndRest[1]);
+                        urlEncode(credential.getUsername()),
+                        urlEncode(credential.getSecret()), protocolAndRest[1]);
 
         // git clone into current directory
         log.info("start git clone using native git");
@@ -70,7 +71,7 @@ public class NativeGitSyncService implements RepoSyncService {
         runNativeCommand(workingDir, "git", "clone", "--depth", "1",
                 "--no-single-branch", urlWithAuth, ".");
         // check if the repo already has the requested branch
-        String targetBranch = getBranch();
+        String targetBranch = getBranchOrDefault(jobDetail.getSrcRepoBranch());
         log.info("check branch existence: {}", targetBranch);
         List<String> output =
                 runNativeCommand(workingDir, "git", "branch", "--no-color",
@@ -85,10 +86,10 @@ public class NativeGitSyncService implements RepoSyncService {
         }
     }
 
-    private static List<String> runNativeCommand(File workingDir, String... commands) {
+    private static List<String> runNativeCommand(Path workingDir, String... commands) {
         ProcessBuilder processBuilder =
                 new ProcessBuilder(commands)
-                        .directory(workingDir)
+                        .directory(workingDir.toFile())
                         .redirectErrorStream(true);
         ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
         try {
@@ -132,15 +133,6 @@ public class NativeGitSyncService implements RepoSyncService {
         }
     }
 
-    private String getBranch() {
-        if (Strings.isNullOrEmpty(branch)) {
-            log.debug("will use master as default branch");
-            return "master";
-        } else {
-            return branch;
-        }
-    }
-
     private static String[] protocolAndRest(String url) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(url),
                 "url is null or empty");
@@ -152,7 +144,7 @@ public class NativeGitSyncService implements RepoSyncService {
     }
 
     @Override
-    public void syncTranslationToRepo() throws RepoSyncException {
+    public void syncTranslationToRepo(SyncJobDetail jobDetail, Path workingDir) throws RepoSyncException {
         List<String> output =
                 runNativeCommand(workingDir, "git", "status", "--porcelain");
         if (output.isEmpty()) {
@@ -160,39 +152,13 @@ public class NativeGitSyncService implements RepoSyncService {
             return;
         }
         runNativeCommand(workingDir, "git", "add", ".");
-        runNativeCommand(workingDir, "git", "commit", "-m", commitMessage(),
+        runNativeCommand(workingDir, "git", "commit", "-m", commitMessage("TODO zanata user name"),
                 "--author", commitAuthor());
-        runNativeCommand(workingDir, "git", "push", "--set-upstream", "origin", getBranch());
+        runNativeCommand(workingDir, "git", "push", "--set-upstream", "origin", getBranchOrDefault(jobDetail.getSrcRepoBranch()));
     }
 
     @Override
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
-    }
-
-    @Override
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    @Override
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    @Override
-    public void setWorkingDir(File workingDir) {
-        this.workingDir = workingDir;
-    }
-
-    @Override
-    public void setZanataUser(String zanataUsername) {
-        commitMessage = String
-                .format("Zanata Sync job triggered by %s", zanataUsername);
-    }
-
-    @Override
-    public String commitMessage() {
-        return commitMessage;
+    public String supportedRepoType() {
+        return GitPlugin.NAME;
     }
 }

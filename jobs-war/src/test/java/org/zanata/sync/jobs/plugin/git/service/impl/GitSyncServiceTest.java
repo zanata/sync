@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +36,7 @@ public class GitSyncServiceTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GitSyncService syncService;
-    private File dest;
+    private Path dest;
 
     @Before
     public void setUp() throws Exception {
@@ -43,38 +45,32 @@ public class GitSyncServiceTest {
                 "", "");
         syncService =
                 new GitSyncService(null);
-        syncService.setCredentials(credential);
 
-        dest = temporaryFolder.newFolder();
-        syncService.setUrl(remoteGitRepoRule.getRemoteUrl());
-        syncService.setWorkingDir(dest);
-        syncService.setZanataUser("pahuang");
+        dest = temporaryFolder.newFolder().toPath();
     }
 
     @Test
     public void canCloneGitRepo() throws IOException {
-        assertThat(dest.listFiles()).isNullOrEmpty();
-        syncService.setBranch("master");
-        syncService.cloneRepo();
+        assertThat(dest.toFile().listFiles()).isNullOrEmpty();
+        syncService.cloneRepo(createJobDetail("master"), dest);
 
-        assertThat(dest.listFiles()).isNotEmpty();
+        assertThat(dest.toFile().listFiles()).isNotEmpty();
     }
 
     @Test
     public void canCheckOutBranch() {
-        syncService.setBranch("junit");
-        syncService.cloneRepo();
+        syncService.cloneRepo(createJobDetail("junit"), dest);
 
-        assertThat(dest.listFiles()).isNotEmpty();
+        assertThat(dest.toFile().listFiles()).isNotEmpty();
     }
 
     @Test
     public void canPushToBranch() throws Exception {
-        syncService.setBranch("junit");
-        syncService.cloneRepo();
+        SyncJobDetail jobDetail = createJobDetail("junit");
+        syncService.cloneRepo(jobDetail, dest);
 
         // add a new file
-        File newFile = new File(dest, "test.txt");
+        File newFile = new File(dest.toFile(), "test.txt");
         try (PrintWriter printWriter = new PrintWriter(
                 new FileWriter(newFile, true))) {
             printWriter.print(new Date());
@@ -84,7 +80,7 @@ public class GitSyncServiceTest {
         }
 
         // commit the change
-        syncService.syncTranslationToRepo();
+        syncService.syncTranslationToRepo(jobDetail, dest);
 
 
         assertThat(remoteGitRepoRule.getFilesInWorkTree("junit")).contains("test.txt");
@@ -99,12 +95,13 @@ public class GitSyncServiceTest {
                 sslTrustStore,
                 CoreMatchers.notNullValue());
 
+        SyncJobDetail jobDetail = SyncJobDetail.Builder.builder()
+                .setZanataUsername("pahuang")
+                .setSrcRepoUrl(
+                        "https://gitlab.cee.redhat.com/pahuang/zanata-itos.git")
+                .build();
 
-        syncService
-                .setUrl("https://gitlab.cee.redhat.com/pahuang/zanata-itos.git");
-        syncService.setBranch("master");
-
-        syncService.cloneRepo();
+        syncService.cloneRepo(jobDetail, dest);
     }
 
     @Test
@@ -118,5 +115,14 @@ public class GitSyncServiceTest {
                 refs.stream().map(Ref::getName).collect(Collectors.toList());
 
         System.out.println(refNames);
+    }
+
+    private SyncJobDetail createJobDetail(String branch) {
+        return SyncJobDetail.Builder.builder()
+                .setZanataUsername("pahuang")
+                .setSrcRepoBranch(branch)
+                .setSrcRepoUrl(remoteGitRepoRule.getRemoteUrl())
+                .build();
+
     }
 }

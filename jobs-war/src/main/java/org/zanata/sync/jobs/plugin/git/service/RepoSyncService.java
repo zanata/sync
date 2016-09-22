@@ -20,26 +20,22 @@
  */
 package org.zanata.sync.jobs.plugin.git.service;
 
-import java.io.File;
+import java.nio.file.Path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
-import org.zanata.sync.jobs.common.model.Credentials;
+import com.google.common.base.Strings;
 
 public interface RepoSyncService {
+    Logger log =
+            LoggerFactory.getLogger(RepoSyncService.class);
 
-    void cloneRepo()
+    void cloneRepo(SyncJobDetail jobDetail, Path path) throws RepoSyncException;
+
+    void syncTranslationToRepo(SyncJobDetail jobDetail, Path path)
             throws RepoSyncException;
-
-    void syncTranslationToRepo()
-            throws RepoSyncException;
-
-    void setCredentials(Credentials credentials);
-
-    void setUrl(String url);
-
-    void setBranch(String branch);
-
-    void setWorkingDir(File workingDir);
 
     default String commitAuthorName() {
         return "Zanata Sync";
@@ -54,9 +50,20 @@ public interface RepoSyncService {
                 .format("%s <%s>", commitAuthorName(), commitAuthorEmail());
     }
 
-    default String commitMessage() {
-        return "Zanata Sync (pushing translations)";
+    default String commitMessage(String zanataUsername) {
+        return String
+                .format("Zanata Sync job triggered by %s", zanataUsername);
     }
 
-    void setZanataUser(String zanataUsername);
+    default String getBranchOrDefault(String branch) {
+        if (Strings.isNullOrEmpty(branch)) {
+            log.debug("will use master as default branch");
+            return "master";
+        } else {
+            return branch;
+        }
+    }
+
+    String supportedRepoType();
+
 }

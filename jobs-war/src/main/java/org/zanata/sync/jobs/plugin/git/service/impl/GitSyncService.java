@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -48,10 +49,14 @@ import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.common.annotation.RepoPlugin;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.cache.RepoCache;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
+import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
+import org.zanata.sync.plugin.git.GitPlugin;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -63,17 +68,11 @@ import com.google.common.collect.Sets;
  *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Dependent
-// note: it has to be dependent scope so that the async JobRunner will use the same object in JobResource
+@ApplicationScoped
+@RepoPlugin
 public class GitSyncService implements RepoSyncService {
     private static final Logger log =
             LoggerFactory.getLogger(GitSyncService.class);
-
-    private Credentials credentials;
-    private String url;
-    private String branch;
-    private File workingDir;
-    private String commitMessage;
 
     private RepoCache repoCache;
 
@@ -82,28 +81,35 @@ public class GitSyncService implements RepoSyncService {
         this.repoCache = repoCache;
     }
 
-    @Override
-    public void cloneRepo() throws RepoSyncException {
-        log.info("doing git clone: {} -> {}", url,
-                workingDir.getAbsolutePath());
+    @SuppressWarnings("unused")
+    public GitSyncService() {
+    }
 
-        Path dest = workingDir.toPath();
+    @Override
+    public void cloneRepo(SyncJobDetail jobDetail, Path workingDir) {
+        String srcRepoUrl = jobDetail.getSrcRepoUrl();
+        log.info("doing git clone: {} -> {}", srcRepoUrl,
+                workingDir.toAbsolutePath());
+        UsernamePasswordCredential credential =
+                new UsernamePasswordCredential(jobDetail.getSrcRepoUsername(),
+                        jobDetail.getSrcRepoSecret());
+
         // this is to make unit test easier
         if (repoCache != null) {
-            repoCache.get(url, dest, () -> {
-                doGitClone(url, workingDir);
-                return dest;
+            repoCache.get(srcRepoUrl, workingDir, () -> {
+                doGitClone(srcRepoUrl, workingDir.toFile(), credential);
+                return workingDir;
             });
         } else {
-            doGitClone(url, workingDir);
+            doGitClone(srcRepoUrl, workingDir.toFile(), credential);
         }
-        doGitFetch(workingDir);
-        checkOutBranch(workingDir, getBranch());
-        cleanUpCurrentBranch(workingDir);
+        doGitFetch(workingDir.toFile());
+        checkOutBranch(workingDir.toFile(), getBranchOrDefault(jobDetail.getSrcRepoBranch()));
+        cleanUpCurrentBranch(workingDir.toFile());
     }
 
     // if we get the repo from cache, it may contain files from other branch as untracked files
-    private void cleanUpCurrentBranch(File workingDir) {
+    private static void cleanUpCurrentBranch(File workingDir) {
         try (Git git = Git.open(workingDir)) {
             log.debug("git clean current work tree");
             git.clean().setCleanDirectories(true)
@@ -113,11 +119,12 @@ public class GitSyncService implements RepoSyncService {
         }
     }
 
-    private void doGitClone(String repoUrl, File destPath) {
+    private static void doGitClone(String repoUrl, File destPath,
+            Credentials credentials) {
         destPath.mkdirs();
 
         CloneCommand clone = Git.cloneRepository();
-        setUserIfProvided(clone)
+        setUserIfProvided(clone, credentials)
                 .setBare(false)
                 .setCloneAllBranches(true)
                 .setDirectory(destPath).setURI(repoUrl);
@@ -130,7 +137,8 @@ public class GitSyncService implements RepoSyncService {
         }
     }
 
-    private <T extends TransportCommand<T, ?>> T setUserIfProvided(T command) {
+    private static <T extends TransportCommand<T, ?>> T setUserIfProvided(
+            T command, Credentials credentials) {
         if (credentials != null &&
                 !Strings.isNullOrEmpty(credentials.getUsername()) &&
                 !Strings.isNullOrEmpty(credentials.getSecret())) {
@@ -217,15 +225,11 @@ public class GitSyncService implements RepoSyncService {
             }
         } catch (IOException | GitAPIException e) {
             throw new RepoSyncException(e);
-        } finally {
-            if (repoCache != null) {
-                log.debug("store current working dir to cache");
-                repoCache.put(url, workingDir.toPath());
-            }
         }
+        // TODO store the repo back to cache
     }
 
-    private void doGitFetch(File workingDir) {
+    private static void doGitFetch(File workingDir) {
         try (Git git = Git.open(workingDir)) {
             log.info("doing git fetch");
             FetchResult result = git.fetch().call();
@@ -237,8 +241,13 @@ public class GitSyncService implements RepoSyncService {
     }
 
     @Override
-    public void syncTranslationToRepo() throws RepoSyncException {
-        try (Git git = Git.open(workingDir)) {
+    public void syncTranslationToRepo(SyncJobDetail jobDetail, Path workingDir) {
+        UsernamePasswordCredential
+                user =
+                new UsernamePasswordCredential(
+                        jobDetail.getSrcRepoUsername(),
+                        jobDetail.getSrcRepoSecret());
+        try (Git git = Git.open(workingDir.toFile())) {
             if (log.isDebugEnabled()) {
                 log.debug("before syncing translation, current branch: {}",
                         git.getRepository().getBranch());
@@ -258,16 +267,12 @@ public class GitSyncService implements RepoSyncService {
                 CommitCommand commitCommand = git.commit();
                 commitCommand.setAuthor(commitAuthorName(),
                         commitAuthorEmail());
-                commitCommand.setMessage(commitMessage());
+                commitCommand.setMessage(commitMessage(jobDetail.getZanataUsername()));
                 RevCommit revCommit = commitCommand.call();
 
                 log.info("push to remote repo");
-                UsernamePasswordCredentialsProvider user =
-                        new UsernamePasswordCredentialsProvider(
-                                credentials.getUsername(),
-                                credentials.getSecret());
                 PushCommand pushCommand = git.push();
-                setUserIfProvided(pushCommand);
+                setUserIfProvided(pushCommand, user);
                 pushCommand.call();
             } else {
                 log.info("nothing changed so nothing to do");
@@ -284,42 +289,7 @@ public class GitSyncService implements RepoSyncService {
     }
 
     @Override
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
-    }
-
-    @Override
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    @Override
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    private String getBranch() {
-        if (Strings.isNullOrEmpty(branch)) {
-            log.debug("will use master as default branch");
-            return "master";
-        } else {
-            return branch;
-        }
-    }
-
-    @Override
-    public void setWorkingDir(File workingDir) {
-        this.workingDir = workingDir;
-    }
-
-    @Override
-    public void setZanataUser(String zanataUsername) {
-        commitMessage = String
-                .format("Zanata Sync job triggered by %s", zanataUsername);
-    }
-
-    @Override
-    public String commitMessage() {
-        return commitMessage;
+    public String supportedRepoType() {
+        return GitPlugin.NAME;
     }
 }

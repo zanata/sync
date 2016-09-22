@@ -277,7 +277,7 @@
               <type>war</type>
 
               <pingURL>http://${cargo.host}:${cargo.servlet.port}/${context.path}/</pingURL>
-              <pingTimeout>600000</pingTimeout>
+              <pingTimeout>30000</pingTimeout>
               <properties>
                 <context>${context.path}</context>
               </properties>

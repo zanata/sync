@@ -86,8 +86,8 @@ public class SyncToRepoITCase {
 
         log.debug("====remote: {}", remoteGitRepoRule.getRemoteUrl());
         Awaitility.await()
-                .pollInterval(1, TimeUnit.SECONDS)
-                .atMost(5, TimeUnit.MINUTES).until(() -> {
+                .pollInterval(5, TimeUnit.SECONDS)
+                .atMost(2, TimeUnit.MINUTES).until(() -> {
             List<String> commitMessages =
                     remoteGitRepoRule.getCommitMessages("master");
             log.debug(".... checking result ....{}", commitMessages);

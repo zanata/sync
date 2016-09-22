@@ -60,8 +60,6 @@ public class ResourceProducer {
             "jaxrs.connection.pool.size";
 
     private boolean hasNativeGit = isGitExecutableOnPath();
-    private ImmutableMap<String, RepoSyncService>
-            repoTypeToServiceMap;
 
     private static boolean isGitExecutableOnPath() {
         Pattern pattern = Pattern.compile(Pattern.quote(File.pathSeparator));
@@ -107,23 +105,6 @@ public class ResourceProducer {
     @HasNativeGit
     protected boolean hasNativeGit() {
         return hasNativeGit;
-    }
-
-    @Produces
-    @RepoPlugin
-    protected Map<String, RepoSyncService> repoTypeToServiceMap(@RepoPlugin
-            Instance<RepoSyncService> repoSyncServices) {
-        if (repoTypeToServiceMap == null) {
-            ImmutableMap.Builder<String, RepoSyncService> builder =
-                    ImmutableMap.builder();
-            repoSyncServices.forEach(repoSyncService -> {
-                RepoPlugin annotation = repoSyncService.getClass()
-                        .getAnnotation(RepoPlugin.class);
-                builder.put(annotation.value(), repoSyncService);
-            });
-            repoTypeToServiceMap = builder.build();
-        }
-        return repoTypeToServiceMap;
     }
 
     @Produces

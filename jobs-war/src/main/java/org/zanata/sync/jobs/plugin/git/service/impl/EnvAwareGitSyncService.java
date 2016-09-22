@@ -21,13 +21,11 @@
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
 import java.io.File;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.common.annotation.RepoPlugin;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
@@ -40,9 +38,9 @@ import org.zanata.sync.plugin.git.GitPlugin;
  *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Alternative
-@Dependent // note: it has to be dependent scope so that the async JobRunner will use the same object in JobResource
-@RepoPlugin(GitPlugin.NAME)
+//@Alternative
+//@Dependent // note: it has to be dependent scope so that the async JobRunner will use the same object in JobResource
+//@RepoPlugin(GitPlugin.NAME)
 public class EnvAwareGitSyncService implements RepoSyncService {
     private static final Logger log =
             LoggerFactory.getLogger(EnvAwareGitSyncService.class);
@@ -51,7 +49,7 @@ public class EnvAwareGitSyncService implements RepoSyncService {
     private NativeGitSyncService nativeGit;
     private boolean failedNativeGit;
 
-    @Inject
+//    @Inject
     public EnvAwareGitSyncService(GitSyncService jgit,
             NativeGitSyncService nativeGit,
             @HasNativeGit boolean hasNativeGit) {
@@ -60,70 +58,43 @@ public class EnvAwareGitSyncService implements RepoSyncService {
         this.hasNativeGit = hasNativeGit;
     }
 
+    public EnvAwareGitSyncService() {
+    }
 
     @Override
-    public void cloneRepo() throws RepoSyncException {
+    public void cloneRepo(SyncJobDetail jobDetail, Path workingDir) throws RepoSyncException {
         if (hasNativeGit && !failedNativeGit) {
             try {
-                nativeGit.cloneRepo();
+                nativeGit.cloneRepo(jobDetail, workingDir);
             } catch (Exception e) {
                 log.info("native git clone failed [{}]. Re-try with JGit", e.getMessage());
                 log.debug("native git clone failed", e);
-                jgit.cloneRepo();
+                jgit.cloneRepo(jobDetail, workingDir);
                 failedNativeGit = true;
             }
         } else {
-            jgit.cloneRepo();
+            jgit.cloneRepo(jobDetail, workingDir);
         }
     }
 
     @Override
-    public void syncTranslationToRepo() throws RepoSyncException {
+    public void syncTranslationToRepo(SyncJobDetail jobDetail, Path workingDir) throws RepoSyncException {
         if (hasNativeGit && !failedNativeGit) {
             try {
-                nativeGit.syncTranslationToRepo();
+                nativeGit.syncTranslationToRepo(jobDetail, workingDir);
             } catch (Exception e) {
                 log.info("native git sync translation failed [{}]. Re-try with JGit", e.getMessage());
                 log.debug("native git sync failed", e);
-                jgit.syncTranslationToRepo();
+                jgit.syncTranslationToRepo(jobDetail, workingDir);
             }
         } else {
-            jgit.syncTranslationToRepo();
+            jgit.syncTranslationToRepo(jobDetail, workingDir);
         }
     }
 
     @Override
-    public void setCredentials(Credentials credentials) {
-        jgit.setCredentials(credentials);
-        nativeGit.setCredentials(credentials);
+    public String supportedRepoType() {
+        return GitPlugin.NAME;
     }
 
-    @Override
-    public void setUrl(String url) {
-        jgit.setUrl(url);
-        nativeGit.setUrl(url);
-    }
-
-    @Override
-    public void setBranch(String branch) {
-        jgit.setBranch(branch);
-        nativeGit.setBranch(branch);
-    }
-
-    @Override
-    public void setWorkingDir(File workingDir) {
-        File nativeGitWorkDir = new File(workingDir, "nativeGit");
-        File jgitWorkDir = new File(workingDir, "jgit");
-        nativeGitWorkDir.mkdirs();
-        jgitWorkDir.mkdirs();
-
-        this.jgit.setWorkingDir(jgitWorkDir);
-        this.nativeGit.setWorkingDir(nativeGitWorkDir);
-    }
-
-    @Override
-    public void setZanataUser(String zanataUsername) {
-        jgit.setZanataUser(zanataUsername);
-        nativeGit.setZanataUser(zanataUsername);
-    }
 }
