@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -142,9 +140,9 @@ public class JobResource {
                     .build();
         }
 
-        Either<RepoSyncService, Response> srcRepoPlugin =
+        RepoSyncService srcRepoPlugin =
                 createRepoSyncService(jobDetail);
-        Either<ZanataSyncService, Response> zanataSyncService =
+        ZanataSyncService zanataSyncService =
                 createZanataSyncService(jobDetail);
 
         log.info(">>>>>> about to run 2zanata job for {}", id);
@@ -162,7 +160,7 @@ public class JobResource {
                                 Collectors.toList());
     }
 
-    private Either<RepoSyncService, Response> createRepoSyncService(
+    private RepoSyncService createRepoSyncService(
             SyncJobDetail jobDetail) {
         String repoUrl = jobDetail.getSrcRepoUrl();
         String repoUsername = jobDetail.getSrcRepoUsername();
@@ -179,10 +177,10 @@ public class JobResource {
         String zanataUsername = jobDetail.getZanataUsername();
 
         service.setZanataUser(zanataUsername);
-        return Either.fromLeft(service, Response.class);
+        return service;
     }
 
-    private static Either<ZanataSyncService, Response> createZanataSyncService(
+    private static ZanataSyncService createZanataSyncService(
             SyncJobDetail jobDetail) {
         // TODO at the moment we assumes zanata.xml is in the repo so this is not needed
         String zanataUrl = jobDetail.getZanataUrl();
@@ -195,10 +193,9 @@ public class JobResource {
 
         String localeId = jobDetail.getLocaleId();
 
-        return Either.fromLeft(
-                new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
-                        zanataSecret,
-                        pushToZanataOption, localeId), Response.class);
+        return new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
+                zanataSecret,
+                pushToZanataOption, localeId);
     }
 
     /**
@@ -224,9 +221,9 @@ public class JobResource {
                     .build();
         }
 
-        Either<RepoSyncService, Response> srcRepoPlugin =
+        RepoSyncService srcRepoPlugin =
                 createRepoSyncService(jobDetail);
-        Either<ZanataSyncService, Response> zanataSyncService =
+        ZanataSyncService zanataSyncService =
                 createZanataSyncService(jobDetail);
 
         log.info(">>>>>> about to run 2repo job for {}", id);

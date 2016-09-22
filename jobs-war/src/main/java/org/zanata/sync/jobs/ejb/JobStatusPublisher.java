@@ -80,15 +80,4 @@ public class JobStatusPublisher {
         }
     }
 
-    void publishStatus(String jobId, Response response) {
-        log.debug("publish job status {} -> {}", jobId, response.getStatus());
-        if (response.getStatus() ==
-                Response.Status.OK.getStatusCode()) {
-            putStatus(jobId, JobStatusType.COMPLETED);
-        } else {
-            log.info("job response is not ok: {}",
-                    response.getStatus());
-            putStatus(jobId, JobStatusType.ERROR);
-        }
-    }
 }

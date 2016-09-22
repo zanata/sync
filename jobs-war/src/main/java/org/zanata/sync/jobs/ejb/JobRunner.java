@@ -48,21 +48,17 @@ public class JobRunner {
     private JobStatusPublisher jobStatusPublisher;
 
     public Future<Void> syncToZanata(
-            Either<RepoSyncService, Response> srcRepoPlugin,
-            Either<ZanataSyncService, Response> zanataSyncService,
+            RepoSyncService srcRepoPlugin,
+            ZanataSyncService zanataSyncService,
             String id) {
         log.debug("running sync to zanata job for id: {}", id);
         try (AutoCleanablePath workingDir = new AutoCleanablePath(
                 Files.createTempDirectory(id))) {
-            Response response = srcRepoPlugin
-                    .map(plugin -> zanataSyncService.map(zanata -> {
-                        plugin.setWorkingDir(workingDir.toFile());
-                        plugin.cloneRepo();
-                        zanata.pushToZanata(workingDir.toPath());
-                        return Response.ok().build();
-                    }, Function.identity()), Function.identity());
+            srcRepoPlugin.setWorkingDir(workingDir.toFile());
+            srcRepoPlugin.cloneRepo();
+            zanataSyncService.pushToZanata(workingDir.toPath());
 
-            jobStatusPublisher.publishStatus(id, response);
+            jobStatusPublisher.putStatus(id, JobStatusType.COMPLETED);
         } catch (Exception e) {
             log.error("Failed to sync to Zanata", e);
             jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
@@ -71,22 +67,18 @@ public class JobRunner {
     }
 
     public Future<Void> syncToSrcRepo(String id,
-            Either<RepoSyncService, Response> srcRepoPlugin,
-            Either<ZanataSyncService, Response> zanataSyncService) {
+            RepoSyncService srcRepoPlugin,
+            ZanataSyncService zanataSyncService) {
         log.debug("running sync to repo job for id: {}", id);
 
         try (AutoCleanablePath workingDir = new AutoCleanablePath(
                 Files.createTempDirectory(id))) {
 
-            Response response = srcRepoPlugin
-                    .map(plugin -> zanataSyncService.map(zanata -> {
-                        plugin.setWorkingDir(workingDir.toFile());
-                        plugin.cloneRepo();
-                        zanata.pullFromZanata(workingDir.toPath());
-                        plugin.syncTranslationToRepo();
-                        return Response.ok().build();
-                    }, Function.identity()), Function.identity());
-            jobStatusPublisher.publishStatus(id, response);
+            srcRepoPlugin.setWorkingDir(workingDir.toFile());
+            srcRepoPlugin.cloneRepo();
+            zanataSyncService.pullFromZanata(workingDir.toPath());
+            srcRepoPlugin.syncTranslationToRepo();
+            jobStatusPublisher.putStatus(id, JobStatusType.COMPLETED);
         } catch (Exception e) {
             log.error("Failed to sync to source repo", e);
             jobStatusPublisher.putStatus(id, JobStatusType.ERROR);
