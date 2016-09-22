@@ -5,7 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assume;
 import org.junit.Before;
@@ -36,7 +42,7 @@ public class GitSyncServiceTest {
         UsernamePasswordCredential credential = new UsernamePasswordCredential(
                 "", "");
         syncService =
-                new GitSyncService();
+                new GitSyncService(null);
         syncService.setCredentials(credential);
 
         dest = temporaryFolder.newFolder();
@@ -99,5 +105,18 @@ public class GitSyncServiceTest {
         syncService.setBranch("master");
 
         syncService.cloneRepo();
+    }
+
+    @Test
+    public void experiment() throws IOException, GitAPIException {
+        Git git = Git.open(new File("/home/pahuang/work/test/test-repo"));
+        List<Ref> refs =
+                git.branchList().setListMode(ListBranchCommand.ListMode.ALL)
+                        .call();
+
+        List<String> refNames =
+                refs.stream().map(Ref::getName).collect(Collectors.toList());
+
+        System.out.println(refNames);
     }
 }

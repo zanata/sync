@@ -18,24 +18,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.common.util;
+package org.zanata.sync.jobs.system;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
 /**
+ * Source repository cache storage directory.
+ *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-public class StringUtil {
-
-    public static String mask(String value) {
-        if (value == null || value.length() == 0) {
-            return null;
-        }
-        int length = value.length();
-        if (length > 5) {
-            // only display first and last two characters
-            return String.format("%s***%s", value.substring(0, 2), value.substring(
-                    length - 2, length - 1));
-        } else {
-            return String.format("%s****", value.substring(0, 1));
-        }
-    }
+@Qualifier
+@Documented
+@Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD,
+        ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RepoCacheDir {
 }

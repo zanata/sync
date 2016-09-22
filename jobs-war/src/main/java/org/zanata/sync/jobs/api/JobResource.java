@@ -136,12 +136,8 @@ public class JobResource {
             SyncJobDetail jobDetail) {
         Set<ConstraintViolation<SyncJobDetail>> violations =
                 validator.validate(jobDetail);
-        if (!violations.isEmpty()) {
-            List<ErrorMessage> errors = violations.stream()
-                    .map(violation -> new ErrorMessage(
-                            violation.getPropertyPath().toString(),
-                            violation.getMessage())).collect(
-                            Collectors.toList());
+        List<ErrorMessage> errors = violationToErrorMsg(violations);
+        if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }
@@ -155,6 +151,15 @@ public class JobResource {
         jobRunner.syncToZanata(srcRepoPlugin, zanataSyncService, id);
         // TODO return a URI to get access to the async job
         return Response.created(URI.create(id)).build();
+    }
+
+    private static List<ErrorMessage> violationToErrorMsg(
+            Set<ConstraintViolation<SyncJobDetail>> violations) {
+        return violations.stream()
+                        .map(violation -> new ErrorMessage(
+                                violation.getPropertyPath().toString(),
+                                violation.getMessage())).collect(
+                                Collectors.toList());
     }
 
     private Either<RepoSyncService, Response> createRepoSyncService(
@@ -213,12 +218,8 @@ public class JobResource {
             SyncJobDetail jobDetail) {
         Set<ConstraintViolation<SyncJobDetail>> violations =
                 validator.validate(jobDetail);
-        if (!violations.isEmpty()) {
-            List<ErrorMessage> errors = violations.stream()
-                    .map(violation -> new ErrorMessage(
-                            violation.getPropertyPath().toString(),
-                            violation.getMessage())).collect(
-                            Collectors.toList());
+        List<ErrorMessage> errors = violationToErrorMsg(violations);
+        if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }

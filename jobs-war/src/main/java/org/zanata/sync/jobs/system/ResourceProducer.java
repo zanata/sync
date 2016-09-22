@@ -22,6 +22,7 @@ package org.zanata.sync.jobs.system;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -123,5 +124,14 @@ public class ResourceProducer {
             repoTypeToServiceMap = builder.build();
         }
         return repoTypeToServiceMap;
+    }
+
+    @Produces
+    @RepoCacheDir
+    protected Path cacheDir() {
+        String cacheDir = System.getProperty("repo.cache.dir",
+                Paths.get(System.getProperty("java.io.tmpdir"), "repo-cache")
+                        .toString());
+        return Paths.get(cacheDir);
     }
 }
