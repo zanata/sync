@@ -74,17 +74,6 @@ public class GitSyncService implements RepoSyncService {
     private static final Logger log =
             LoggerFactory.getLogger(GitSyncService.class);
 
-    private RepoCache repoCache;
-
-    @Inject
-    public GitSyncService(RepoCache repoCache) {
-        this.repoCache = repoCache;
-    }
-
-    @SuppressWarnings("unused")
-    public GitSyncService() {
-    }
-
     @Override
     public void cloneRepo(SyncJobDetail jobDetail, Path workingDir) {
         String srcRepoUrl = jobDetail.getSrcRepoUrl();
@@ -93,16 +82,7 @@ public class GitSyncService implements RepoSyncService {
         UsernamePasswordCredential credential =
                 new UsernamePasswordCredential(jobDetail.getSrcRepoUsername(),
                         jobDetail.getSrcRepoSecret());
-
-        // this is to make unit test easier
-        if (repoCache != null) {
-            repoCache.get(srcRepoUrl, workingDir, () -> {
-                doGitClone(srcRepoUrl, workingDir.toFile(), credential);
-                return workingDir;
-            });
-        } else {
-            doGitClone(srcRepoUrl, workingDir.toFile(), credential);
-        }
+        doGitClone(srcRepoUrl, workingDir.toFile(), credential);
         doGitFetch(workingDir.toFile());
         checkOutBranch(workingDir.toFile(), getBranchOrDefault(jobDetail.getSrcRepoBranch()));
         cleanUpCurrentBranch(workingDir.toFile());
@@ -226,7 +206,6 @@ public class GitSyncService implements RepoSyncService {
         } catch (IOException | GitAPIException e) {
             throw new RepoSyncException(e);
         }
-        // TODO store the repo back to cache
     }
 
     private static void doGitFetch(File workingDir) {

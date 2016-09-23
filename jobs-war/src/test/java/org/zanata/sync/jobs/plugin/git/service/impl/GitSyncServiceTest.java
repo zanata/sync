@@ -43,8 +43,7 @@ public class GitSyncServiceTest {
         // set up a repo on local file system and use it as a remote to test
         UsernamePasswordCredential credential = new UsernamePasswordCredential(
                 "", "");
-        syncService =
-                new GitSyncService(null);
+        syncService = new GitSyncService();
 
         dest = temporaryFolder.newFolder().toPath();
     }

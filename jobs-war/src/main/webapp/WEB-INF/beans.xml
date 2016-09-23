@@ -6,6 +6,7 @@
     <!--<class>org.zanata.sync.jobs.plugin.git.service.impl.EnvAwareGitSyncService</class>-->
   </alternatives>
   <decorators>
+    <class>org.zanata.sync.jobs.plugin.git.service.impl.CacheableRepoSyncService</class>
   </decorators>
   <interceptors>
   </interceptors>

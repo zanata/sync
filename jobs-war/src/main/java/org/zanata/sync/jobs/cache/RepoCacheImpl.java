@@ -49,6 +49,7 @@ import com.google.common.hash.Hashing;
 import static java.nio.file.FileVisitResult.CONTINUE;
 
 /**
+ * TODO we may need to put a lock for each url and only allow one thread to access one folder
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @ApplicationScoped
