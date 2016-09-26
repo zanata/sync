@@ -28,8 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
 
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
@@ -51,7 +49,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.common.model.SyncJobDetail;
-import org.zanata.sync.jobs.cache.RepoCache;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
@@ -82,25 +79,27 @@ public class GitSyncService implements RepoSyncService {
         UsernamePasswordCredential credential =
                 new UsernamePasswordCredential(jobDetail.getSrcRepoUsername(),
                         jobDetail.getSrcRepoSecret());
-        doGitClone(srcRepoUrl, workingDir.toFile(), credential);
-        doGitFetch(workingDir.toFile());
-        checkOutBranch(workingDir.toFile(), getBranchOrDefault(jobDetail.getSrcRepoBranch()));
-        cleanUpCurrentBranch(workingDir.toFile());
-    }
-
-    // if we get the repo from cache, it may contain files from other branch as untracked files
-    private static void cleanUpCurrentBranch(File workingDir) {
-        try (Git git = Git.open(workingDir)) {
-            log.debug("git clean current work tree");
-            git.clean().setCleanDirectories(true)
-                    .setPaths(Sets.newHashSet(".")).call();
+        String targetBranch =
+                getBranchOrDefault(jobDetail.getSrcRepoBranch());
+        try (Git git = doGitClone(srcRepoUrl, workingDir.toFile(), credential)) {
+            doGitFetch(git);
+            checkOutBranch(git, targetBranch);
+            cleanUpCurrentBranch(git);
         } catch (IOException | GitAPIException e) {
-            throw new RepoSyncException(e);
+            throw new RepoSyncException("Failed to clone source repo: " + jobDetail, e);
         }
     }
 
-    private static void doGitClone(String repoUrl, File destPath,
-            Credentials credentials) {
+    // if we get the repo from cache, it may contain files from other branch as untracked files
+    protected static void cleanUpCurrentBranch(Git git)
+            throws GitAPIException {
+        log.debug("git clean current work tree");
+        git.clean().setCleanDirectories(true)
+                .setPaths(Sets.newHashSet(".")).call();
+    }
+
+    private static Git doGitClone(String repoUrl, File destPath,
+            Credentials credentials) throws GitAPIException {
         destPath.mkdirs();
 
         CloneCommand clone = Git.cloneRepository();
@@ -108,13 +107,9 @@ public class GitSyncService implements RepoSyncService {
                 .setBare(false)
                 .setCloneAllBranches(true)
                 .setDirectory(destPath).setURI(repoUrl);
-        try {
-            clone.call();
-            log.info("git clone finished: {} -> {}", repoUrl, destPath);
+        log.info("git clone finished: {} -> {}", repoUrl, destPath);
+        return clone.call();
 
-        } catch (GitAPIException e) {
-            throw new RepoSyncException(e);
-        }
     }
 
     private static <T extends TransportCommand<T, ?>> T setUserIfProvided(
@@ -134,89 +129,80 @@ public class GitSyncService implements RepoSyncService {
     }
 
 
-    private void checkOutBranch(File destPath, String branch) {
-        try (Git git = Git.open(destPath)) {
+    protected static void checkOutBranch(Git git, String branch)
+            throws GitAPIException, IOException {
+        String currentBranch = git.getRepository().getBranch();
+        if (currentBranch.equals(branch)) {
+            log.info("already on branch: {}. will do a git pull", branch);
+            PullResult pullResult = git.pull().call();
+            log.debug("pull result: {}", pullResult);
+            Preconditions.checkState(pullResult.isSuccessful());
+            return;
+        }
 
-            String currentBranch = git.getRepository().getBranch();
-            if (currentBranch.equals(branch)) {
-                log.info("already on branch: {}. will do a git pull", branch);
-                PullResult pullResult = git.pull().call();
-                log.debug("pull result: {}", pullResult);
-                Preconditions.checkState(pullResult.isSuccessful());
-                return;
+
+        List<Ref> refs = git.branchList().setListMode(
+                ListBranchCommand.ListMode.ALL).call();
+        /* refs will have name like these:
+        refs/heads/master,
+        refs/heads/trans,
+        refs/heads/zanata,
+        refs/remotes/origin/HEAD,
+        refs/remotes/origin/master,
+        refs/remotes/origin/trans,
+        refs/remotes/origin/zanata
+
+        where the local branches are: master, trans, zanata
+        remote branches are: master, trans, zanata
+        */
+        Optional<Ref> localBranchRef = Optional.empty();
+        Optional<Ref> remoteBranchRef = Optional.empty();
+        for (Ref ref : refs) {
+            String refName = ref.getName();
+            if (refName.equals("refs/heads/" + branch)) {
+                localBranchRef = Optional.of(ref);
             }
-
-
-            List<Ref> refs = git.branchList().setListMode(
-                    ListBranchCommand.ListMode.ALL).call();
-            /* refs will have name like these:
-            refs/heads/master,
-            refs/heads/trans,
-            refs/heads/zanata,
-            refs/remotes/origin/HEAD,
-            refs/remotes/origin/master,
-            refs/remotes/origin/trans,
-            refs/remotes/origin/zanata
-
-            where the local branches are: master, trans, zanata
-            remote branches are: master, trans, zanata
-            */
-            Optional<Ref> localBranchRef = Optional.empty();
-            Optional<Ref> remoteBranchRef = Optional.empty();
-            for (Ref ref : refs) {
-                String refName = ref.getName();
-                if (refName.equals("refs/heads/" + branch)) {
-                    localBranchRef = Optional.of(ref);
-                }
-                if (refName.equals("refs/remotes/origin/" + branch)) {
-                    remoteBranchRef = Optional.of(ref);
-                }
+            if (refName.equals("refs/remotes/origin/" + branch)) {
+                remoteBranchRef = Optional.of(ref);
             }
+        }
 
-            // if local branch exists and we are now on a different branch,
-            // we delete it first then re-checkout
-            if (localBranchRef.isPresent()) {
-                log.debug("deleting local branch {}", branch);
-                git.branchDelete().setBranchNames(branch).call();
-            }
+        // if local branch exists and we are now on a different branch,
+        // we delete it first then re-checkout
+        if (localBranchRef.isPresent()) {
+            log.debug("deleting local branch {}", branch);
+            git.branchDelete().setBranchNames(branch).call();
+        }
 
-            if (remoteBranchRef.isPresent()) {
-                // if remote branch exists, we create a new local branch based on it.
-                git.checkout()
-                        .setCreateBranch(true)
-                        .setForce(true).setName(branch)
-                        .setStartPoint("origin/" + branch)
-                        .setUpstreamMode(
-                                CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .call();
-            } else {
-                // If branch does not exists in remote, create new local branch based on master branch.
-                git.checkout()
-                        .setCreateBranch(true)
-                        .setForce(true).setName(branch)
-                        .setStartPoint("origin/master")
-                        .setUpstreamMode(
-                                CreateBranchCommand.SetupUpstreamMode.TRACK)
-                        .call();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("current branch is: {}",
-                        git.getRepository().getBranch());
-            }
-        } catch (IOException | GitAPIException e) {
-            throw new RepoSyncException(e);
+        if (remoteBranchRef.isPresent()) {
+            // if remote branch exists, we create a new local branch based on it.
+            git.checkout()
+                    .setCreateBranch(true)
+                    .setForce(true).setName(branch)
+                    .setStartPoint("origin/" + branch)
+                    .setUpstreamMode(
+                            CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .call();
+        } else {
+            // If branch does not exists in remote, create new local branch based on master branch.
+            git.checkout()
+                    .setCreateBranch(true)
+                    .setForce(true).setName(branch)
+                    .setStartPoint("origin/master")
+                    .setUpstreamMode(
+                            CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .call();
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("current branch is: {}",
+                    git.getRepository().getBranch());
         }
     }
 
-    private static void doGitFetch(File workingDir) {
-        try (Git git = Git.open(workingDir)) {
+    protected static void doGitFetch(Git git) throws GitAPIException {
             log.info("doing git fetch");
             FetchResult result = git.fetch().call();
             log.info("git fetch result: {}", result.getMessages());
-        } catch (IOException | GitAPIException e) {
-            throw new RepoSyncException(e);
-        }
-
     }
 
     @Override

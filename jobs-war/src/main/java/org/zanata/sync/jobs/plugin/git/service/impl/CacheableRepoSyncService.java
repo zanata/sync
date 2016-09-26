@@ -20,12 +20,15 @@
  */
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import javax.decorator.Decorator;
 import javax.decorator.Delegate;
 import javax.inject.Inject;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
@@ -58,6 +61,13 @@ public class CacheableRepoSyncService implements RepoSyncService {
                 .getAndCopyToIfPresent(jobDetail.getSrcRepoUrl(), workingDir)) {
             delegate.cloneRepo(jobDetail, workingDir);
             repoCache.put(jobDetail.getSrcRepoUrl(), workingDir);
+        }
+        try (Git git = Git.open(workingDir.toFile())) {
+            GitSyncService.doGitFetch(git);
+            GitSyncService.checkOutBranch(git, getBranchOrDefault(jobDetail.getSrcRepoBranch()));
+            GitSyncService.cleanUpCurrentBranch(git);
+        } catch (IOException | GitAPIException e) {
+            throw new RepoSyncException("failed clone repo:" + jobDetail, e);
         }
         // this will cause stack overflow (the delegate will go into another decorator and causes infinite looping
 //        Callable<Path> loader = () -> {

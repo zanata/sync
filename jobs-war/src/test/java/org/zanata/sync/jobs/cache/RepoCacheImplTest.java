@@ -43,9 +43,7 @@ public class RepoCacheImplTest {
     public void setUp() throws IOException {
         Path cacheDir = tempFolder.newFolder().toPath();
         repoCache = new RepoCacheImpl(cacheDir);
-        repoPath = new File(
-                URI.create(remoteGitRepoRule.getRemoteUrl()).toURL().getFile())
-                .toPath();
+        repoPath = remoteGitRepoRule.getRemoteRepoPath();
 
     }
 

@@ -3,6 +3,7 @@ package org.zanata.sync.jobs.plugin.git.service.impl;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,5 +112,9 @@ public class RemoteGitRepoRule extends TemporaryFolder {
 
     public String getRemoteUrl() {
         return String.format("file://%s", remoteRepo.getAbsolutePath());
+    }
+
+    public Path getRemoteRepoPath() {
+        return remoteRepo.toPath();
     }
 }

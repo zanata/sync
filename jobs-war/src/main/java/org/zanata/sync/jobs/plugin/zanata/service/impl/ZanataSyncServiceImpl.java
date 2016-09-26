@@ -93,13 +93,15 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
     }
 
     private void checkURL(PushPullOptions options) {
-        String urlInProjectConfig = options.getUrl().toString();
-        // check URL defined in zanata.xml from source repository against the
-        // one from API call (which is defines where the zanata account belongs
-        // to)
-        if (!urlInProjectConfig.equals(zanataUrl)) {
-            log.warn("Using account from [{}] but the repo has zanata.xml using [{}]",
-                    zanataUrl, urlInProjectConfig);
+        if (options.getUrl() != null) {
+            String urlInProjectConfig = options.getUrl().toString();
+            // check URL defined in zanata.xml from source repository against the
+            // one from API call (which is defines where the zanata account belongs
+            // to)
+            if (!urlInProjectConfig.equals(zanataUrl)) {
+                log.warn("Using account from [{}] but the repo has zanata.xml using [{}]",
+                        zanataUrl, urlInProjectConfig);
+            }
         }
     }
 

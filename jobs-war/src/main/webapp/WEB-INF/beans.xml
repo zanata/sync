@@ -4,6 +4,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
   <alternatives>
     <!--<class>org.zanata.sync.jobs.plugin.git.service.impl.EnvAwareGitSyncService</class>-->
+    <class>org.zanata.sync.jobs.cache.GitRepoCache</class>
   </alternatives>
   <decorators>
     <class>org.zanata.sync.jobs.plugin.git.service.impl.CacheableRepoSyncService</class>

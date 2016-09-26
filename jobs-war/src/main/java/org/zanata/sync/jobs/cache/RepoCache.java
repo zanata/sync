@@ -20,16 +20,23 @@
  */
 package org.zanata.sync.jobs.cache;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.Charsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.sync.jobs.common.exception.RepoSyncException;
 import com.google.common.hash.Hashing;
 
 public interface RepoCache {
-
+    Logger log = LoggerFactory.getLogger(RepoCache.class);
 
     /**
      * Will try to get the repo cache if available and copy to {@code dest}.
@@ -44,7 +51,17 @@ public interface RepoCache {
 
     void put(String url, Path src);
 
-    void get(String url, Path dest, Callable<Path> loader);
+    default void get(String url, Path dest, Callable<Path> loader) {
+        if (!getAndCopyToIfPresent(url, dest)) {
+            try {
+                Path source = loader.call();
+                put(url, source);
+            } catch (Exception e) {
+                log.error("error calling the cache loader", e);
+                throw new RepoSyncException(e.getMessage());
+            }
+        }
+    }
 
     /**
      * Get the path of cached repo.
@@ -95,6 +112,33 @@ public interface RepoCache {
      */
     void cleanUp();
 
+    /**
+     * For a given url, return the cache directory for it.
+     * @param cacheDir root cache directory
+     * @param url the repo url
+     * @return where to store this repo cache
+     */
+    default Path cacheDirForRepo(Path cacheDir, String url) {
+        String hash = Key.of(url).getHash();
+        return Paths.get(cacheDir.toString(), hash);
+    }
+
+    default Optional<Path> getCachedRepo(Path rootCacheDir, String url) {
+        Path expected = cacheDirForRepo(rootCacheDir, url);
+        boolean exists = Files.exists(expected);
+        if (exists && Files.isDirectory(expected)) {
+            try (Stream<Path> subPaths = Files.list(expected)) {
+                if (subPaths.count() > 0) {
+                    return Optional.of(expected);
+                }
+            } catch (IOException e) {
+                log.warn("error reading cached repo folder: " + expected, e);
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
+    }
+
     class Key {
         private final String url;
         private final String hash;
@@ -116,7 +160,7 @@ public interface RepoCache {
             return url;
         }
 
-        public String getHash() {
+        String getHash() {
             return hash;
         }
 

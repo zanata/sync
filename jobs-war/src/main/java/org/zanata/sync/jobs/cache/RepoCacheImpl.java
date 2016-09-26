@@ -73,19 +73,6 @@ public class RepoCacheImpl implements RepoCache {
     }
 
     @Override
-    public void get(String url, Path dest, Callable<Path> loader) {
-        if (!getAndCopyToIfPresent(url, dest)) {
-            try {
-                Path source = loader.call();
-                put(url, source);
-            } catch (Exception e) {
-                log.error("error calling the cache loader", e);
-                throw new RepoSyncException(e.getMessage());
-            }
-        }
-    }
-
-    @Override
     public boolean getAndCopyToIfPresent(String url, Path dest) {
         Optional<Path> cachedRepo = getCachedRepo(url);
         if (!cachedRepo.isPresent()) {
@@ -103,19 +90,8 @@ public class RepoCacheImpl implements RepoCache {
         }
     }
 
-    private Path cacheDirForRepo(String url) {
-        String key = urlToKey(url);
-        return Paths.get(cacheDir.toString(), key);
-    }
-
-    private static String urlToKey(String url) {
-        return Hashing.sha1().hashString(url, Charsets.UTF_8).toString();
-    }
-
     private long copyDir(Path source, Path target) throws IOException {
-        if (!Files.exists(target)) {
-            Files.createDirectory(target);
-        }
+        Files.createDirectories(target);
         AtomicLong totalSize = new AtomicLong(0);
         Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS),
                 Integer.MAX_VALUE,
@@ -172,7 +148,7 @@ public class RepoCacheImpl implements RepoCache {
     @Override
     public void put(String url, Path src) {
         try {
-            long totalSize = copyDir(src, cacheDirForRepo(url));
+            long totalSize = copyDir(src, cacheDirForRepo(cacheDir, url));
             log.info("stored cache for [{}]. total size: {}", url, totalSize);
         } catch (Exception e) {
             log.warn("failed storing repo cache", e);
@@ -181,13 +157,7 @@ public class RepoCacheImpl implements RepoCache {
 
     @Override
     public Optional<Path> getCachedRepo(String url) {
-        Path expected = cacheDirForRepo(url);
-        boolean directory = Files.isDirectory(expected);
-        boolean exists = Files.exists(expected);
-        if (directory && exists) {
-            return Optional.of(expected);
-        }
-        return Optional.empty();
+        return getCachedRepo(cacheDir, url);
     }
 
     @Override
