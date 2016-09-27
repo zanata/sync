@@ -111,9 +111,7 @@ public class JobRunner {
 
         String localeId = jobDetail.getLocaleId();
 
-        return new ZanataSyncServiceImpl(zanataUrl, zanataUsername,
-                zanataSecret,
-                pushToZanataOption, localeId);
+        return new ZanataSyncServiceImpl(jobDetail);
     }
 
     private RepoSyncService getRepoFor(String repoType) {

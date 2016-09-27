@@ -53,6 +53,8 @@ public class SyncJobDetail {
 
     private String localeId;
 
+    private String projectConfigs;
+
     public String getSrcRepoUrl() {
         return srcRepoUrl;
     }
@@ -93,6 +95,10 @@ public class SyncJobDetail {
         return localeId;
     }
 
+    public String getProjectConfigs() {
+        return projectConfigs;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -106,6 +112,7 @@ public class SyncJobDetail {
                 .add("zanataSecret", mask(zanataSecret))
                 .add("syncToZanataOption", syncToZanataOption)
                 .add("localeId", localeId)
+                .add("projectConfigs", projectConfigs)
                 .toString();
     }
 
@@ -168,6 +175,11 @@ public class SyncJobDetail {
 
         public Builder setLocaleId(String localeId) {
             syncJobDetail.localeId = localeId;
+            return this;
+        }
+
+        public Builder setProjectConfigs(String projectConfigs) {
+            syncJobDetail.projectConfigs = projectConfigs;
             return this;
         }
 

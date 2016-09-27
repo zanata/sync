@@ -1,12 +1,13 @@
 package org.zanata.sync.validation;
 
 import java.util.Map;
-import javax.validation.Validator;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.dto.SyncWorkForm;
 import org.zanata.sync.system.ResourceProducer;
+import org.zanata.sync.util.CronType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
@@ -18,11 +19,11 @@ public class SyncWorkFormValidatorTest {
     private static final boolean ENABLE_ZANATA_SYNC = true;
     private static final boolean ENABLE_REPO_SYNC = true;
     private SyncWorkFormValidator validator;
-    private Validator validatorImpl = new ResourceProducer().getValidator();
 
     @Before
     public void setUp() {
-        validator = new SyncWorkFormValidator(validatorImpl);
+        validator = new SyncWorkFormValidator(
+                new ResourceProducer().getValidator());
     }
 
     @Test
@@ -30,7 +31,7 @@ public class SyncWorkFormValidatorTest {
         SyncWorkForm form =
                 new SyncWorkForm("a", null, null, null, null,
                         null, DISABLE_ZANATA_SYNC,
-                        DISABLE_REPO_SYNC, null, null, null);
+                        DISABLE_REPO_SYNC, null, null, null, null);
         Map<String, String> errors = validator.validate(form);
         assertThat(errors).containsOnly(
                 entry("name", "size must be between 5 and 100"),
@@ -45,7 +46,7 @@ public class SyncWorkFormValidatorTest {
         SyncWorkForm form =
                 new SyncWorkForm("abcde", null, null, null, null,
                         null, ENABLE_ZANATA_SYNC,
-                        DISABLE_REPO_SYNC, null, null, 1L);
+                        DISABLE_REPO_SYNC, null, null, 1L, null);
         Map<String, String> errors = validator.validate(form);
 
         assertThat(errors)
@@ -59,7 +60,7 @@ public class SyncWorkFormValidatorTest {
         SyncWorkForm form =
                 new SyncWorkForm("abcde", null, null, null, null,
                         null, DISABLE_ZANATA_SYNC,
-                        ENABLE_REPO_SYNC, null, null, null);
+                        ENABLE_REPO_SYNC, null, null, null, null);
         Map<String, String> errors = validator.validate(form);
 
         assertThat(errors)
@@ -67,19 +68,25 @@ public class SyncWorkFormValidatorTest {
                         "srcRepoAccountId");
     }
 
-    /*@Test
-    public void canValidateUnknownSourceRepoPluginName() {
-        SyncWorkForm form =
-                new SyncWorkForm("abcde", null, null, SyncOption.SOURCE,
-                        CronType.MANUAL, null,
-                        DISABLE_ZANATA_SYNC, ENABLE_REPO_SYNC,
-                        null, null, repoAccId);
-        Map<String, String> errors = validator.validateForm(form);
+    @Test
+    public void canValidateProjectPaths() {
+        SyncWorkForm form1 =
+                new SyncWorkForm("a name", null, CronType.MANUAL,
+                        SyncOption.SOURCE, CronType.MANUAL,
+                        null, ENABLE_ZANATA_SYNC,
+                        ENABLE_REPO_SYNC, "http://github.com/a", null, 1L,
+                        "/a/b/zanata.xml");
+        assertThat(validator.validate(form1)).containsOnly(
+                entry("projectConfigs", "only accepts relative paths separated by comma"));
 
-        assertThat(errors)
-                .containsOnly(
-                        entry("srcRepoPluginName",
-                                "unsupported source repository type"),
-                        entry("srcRepoUrl", "may not be empty"));
-    }*/
+        SyncWorkForm form2 =
+                new SyncWorkForm("a name", null, CronType.MANUAL,
+                        SyncOption.SOURCE, CronType.MANUAL,
+                        null, ENABLE_ZANATA_SYNC,
+                        ENABLE_REPO_SYNC, "http://github.com/a", null, 1L,
+                        "a/b/not_zanata.xml");
+        assertThat(validator.validate(form2)).containsOnly(
+                entry("projectConfigs", "only accepts relative paths separated by comma"));
+    }
+
 }

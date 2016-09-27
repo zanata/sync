@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     repoAccount         BIGINT       NOT NULL REFERENCES RepoAccount (id),
     zanataAccount       BIGINT       NOT NULL REFERENCES ZanataAccount (id),
     srcRepoUrl          VARCHAR(255) NOT NULL,
-    srcRepoBranch       VARCHAR(255) NOT NULL
+    srcRepoBranch       VARCHAR(255) NOT NULL,
+    projectConfigs      VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS Job_Status_table (

@@ -39,7 +39,7 @@ public class JobStatusDAOTest {
                 new SyncWorkConfig(null, "name", null, null, null, null,
                         SyncOption.SOURCE, true, true,
                         "https://github.com/zanata/zanata-server.git",
-                        null, zanataAccount, repoAccount);
+                        null, zanataAccount, repoAccount, null);
         entityManagerRule.getEm().persist(syncWorkConfig);
         JobStatus jobStatus =
                 new JobStatus("id", syncWorkConfig, JobType.REPO_SYNC,

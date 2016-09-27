@@ -54,7 +54,8 @@ public class SyncWorkConfigBuilderImpl implements SyncWorkConfigBuilder {
                 syncWorkForm.isSyncToZanataEnabled(),
                 syncWorkForm.isSyncToRepoEnabled(),
                 syncWorkForm.getSrcRepoUrl(),
-                syncWorkForm.getSrcRepoBranch(), zanataAccount, repoAccount);
+                syncWorkForm.getSrcRepoBranch(), zanataAccount, repoAccount,
+                syncWorkForm.getProjectConfigs());
     }
 
 }

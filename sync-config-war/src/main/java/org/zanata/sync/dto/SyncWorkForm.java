@@ -27,6 +27,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.sync.common.model.SyncOption;
 import org.zanata.sync.util.CronType;
+import org.zanata.sync.validation.CommaSeparatedRelativePaths;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -64,6 +65,10 @@ public class SyncWorkForm implements Serializable {
     private String srcRepoUrl;
     private String srcRepoBranch;
 
+    @Size(max = 255)
+    @CommaSeparatedRelativePaths
+    private String projectConfigs;
+
     @VisibleForTesting
     public SyncWorkForm(String name, String description,
             CronType syncToZanataCron,
@@ -71,7 +76,7 @@ public class SyncWorkForm implements Serializable {
             String zanataWebHookSecret,
             boolean syncToZanataEnabled,
             boolean syncToRepoEnabled, String srcRepoUrl,
-            String srcRepoBranch, Long srcRepoAccountId) {
+            String srcRepoBranch, Long srcRepoAccountId, String projectConfigs) {
         this.name = name;
         this.description = description;
         this.syncToZanataCron = syncToZanataCron;
@@ -83,6 +88,7 @@ public class SyncWorkForm implements Serializable {
         this.srcRepoUrl = srcRepoUrl;
         this.srcRepoBranch = srcRepoBranch;
         this.srcRepoAccountId = srcRepoAccountId;
+        this.projectConfigs = projectConfigs;
     }
 
     @SuppressWarnings("unused")
@@ -135,5 +141,9 @@ public class SyncWorkForm implements Serializable {
 
     public String getZanataWebHookSecret() {
         return zanataWebHookSecret;
+    }
+
+    public String getProjectConfigs() {
+        return projectConfigs;
     }
 }

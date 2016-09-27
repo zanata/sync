@@ -20,6 +20,8 @@
  */
 package org.zanata.sync.validation;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.Set;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.validation.ConstraintValidator;
@@ -29,6 +31,7 @@ import org.zanata.sync.App;
 import org.zanata.sync.service.impl.PluginsServiceImpl;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 
 import static org.zanata.sync.util.AutoCloseableDependentProvider.forBean;
@@ -36,23 +39,13 @@ import static org.zanata.sync.util.AutoCloseableDependentProvider.forBean;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-public class SupportedRepoValidator
-        implements ConstraintValidator<SupportedRepo, String> {
+public class CommaSeparatedRelativePathsValidator
+        implements ConstraintValidator<CommaSeparatedRelativePaths, String> {
 
-    @VisibleForTesting
-    protected static Set<String> supportedRepoTypes;
+    private static final String SEPARATOR = ",";
+    private static final String ZANATA_XML = "zanata.xml";
 
-    public void initialize(SupportedRepo constraint) {
-        if (supportedRepoTypes == null) {
-            try (AutoCloseableDependentProvider<PluginsServiceImpl.SupportedRepoTypes> provider =
-                    forBean(PluginsServiceImpl.SupportedRepoTypes.class,
-                            new AnnotationLiteral<App>() {
-                            })) {
-                supportedRepoTypes = provider.getBean().getTypes();
-            } catch (Exception e) {
-                throw Throwables.propagate(e);
-            }
-        }
+    public void initialize(CommaSeparatedRelativePaths constraint) {
     }
 
     public boolean isValid(String value, ConstraintValidatorContext context) {
@@ -60,14 +53,24 @@ public class SupportedRepoValidator
             return true;
         }
 
-        boolean isValid = supportedRepoTypes.contains(value);
-
-        if (!isValid) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    "{constraints.unsupported.repo.type}")
-                    .addConstraintViolation();
+        Iterable<String> values =
+                Splitter.on(SEPARATOR).trimResults().omitEmptyStrings()
+                        .split(value);
+        for (String v : values) {
+            if (v.startsWith("/")) {
+                context.buildConstraintViolationWithTemplate(
+                        context.getDefaultConstraintMessageTemplate())
+                        .addConstraintViolation();
+                return false;
+            }
+            File file = new File(v);
+            if (file.isAbsolute() || !file.getName().equals(ZANATA_XML)) {
+                context.buildConstraintViolationWithTemplate(
+                        context.getDefaultConstraintMessageTemplate())
+                        .addConstraintViolation();
+                return false;
+            }
         }
-        return isValid;
+        return true;
     }
 }

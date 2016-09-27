@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (
     zanataAccount       BIGINT       NOT NULL,
     srcRepoUrl          VARCHAR(255) NOT NULL,
     srcRepoBranch       VARCHAR(255) NOT NULL,
+    projectConfigs      VARCHAR(255),
     INDEX config_name_idx (name),
     INDEX config_repo_account_idx (repoAccount),
     INDEX config_zanata_account_idx (zanataAccount),

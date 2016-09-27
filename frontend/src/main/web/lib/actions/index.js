@@ -49,7 +49,8 @@ export function submitNewWork(payload) {
     syncToRepoEnabled: payload.syncToRepoEnabled,
     srcRepoUrl: payload.srcRepoUrl,
     srcRepoBranch: payload.srcRepoBranch,
-    srcRepoAccountId: payload.srcRepoAccountId
+    srcRepoAccountId: payload.srcRepoAccountId,
+    projectConfigs: payload.projectConfigs
   }
   if (payload.syncToZanataEnabled) {
     entity.syncToZanataCron = payload.syncToZanataCron

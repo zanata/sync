@@ -95,6 +95,8 @@ public class SyncWorkConfig {
     private String srcRepoUrl;
     private String srcRepoBranch;
 
+    private String projectConfigs;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate = new Date();
 
@@ -105,13 +107,14 @@ public class SyncWorkConfig {
     }
 
     // TODO may not need the id parameter
+    // TODO use a builder to replace this massive constructor
     public SyncWorkConfig(Long id, String name, String description,
             CronType syncToZanataCron, CronType syncToRepoCron,
             String zanataWebHookSecret, SyncOption syncToZanataOption,
             boolean syncToServerEnabled, boolean syncToRepoEnabled,
             String srcRepoUrl,
             String srcRepoBranch, ZanataAccount zanataAccount,
-            RepoAccount repoAccount) {
+            RepoAccount repoAccount, String projectConfigs) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -125,6 +128,7 @@ public class SyncWorkConfig {
         this.srcRepoBranch = srcRepoBranch;
         this.zanataAccount = zanataAccount;
         this.repoAccount = repoAccount;
+        this.projectConfigs = projectConfigs;
     }
 
     @Override
@@ -193,5 +197,9 @@ public class SyncWorkConfig {
 
     public String getZanataWebHookSecret() {
         return zanataWebHookSecret;
+    }
+
+    public String getProjectConfigs() {
+        return projectConfigs;
     }
 }

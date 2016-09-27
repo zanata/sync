@@ -47,7 +47,8 @@ export default React.createClass({
       srcRepoAccountId,
       srcRepoUrl: '',
       srcRepoBranch: '',
-      zanataWebHookSecret: ''
+      zanataWebHookSecret: '',
+      projectConfigs: ''
     }
   },
 
@@ -153,6 +154,12 @@ export default React.createClass({
             onChange={callbackFor('srcRepoBranch')}
             placeholder='master'
             inputValue={this.state.srcRepoBranch}/>
+
+          <TextInput name='projectConfigs' label='Zanata project config'
+            onChange={callbackFor('projectConfigs')}
+            placeholder='relative/path/to/zanata.xml'
+            inputValue={this.state.projectConfigs}
+          />
 
           <FieldSet legend={srcRepoSettingsLegend}>
             <Checkbox name='syncToZanataEnabled'

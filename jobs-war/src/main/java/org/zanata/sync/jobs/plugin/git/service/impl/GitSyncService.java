@@ -107,8 +107,9 @@ public class GitSyncService implements RepoSyncService {
                 .setBare(false)
                 .setCloneAllBranches(true)
                 .setDirectory(destPath).setURI(repoUrl);
+        Git git = clone.call();
         log.info("git clone finished: {} -> {}", repoUrl, destPath);
-        return clone.call();
+        return git;
 
     }
 
