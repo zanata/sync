@@ -77,6 +77,11 @@ Update your standalone.xml:
   NOTE: the first deployment will fail because of an issue with liquibase and
   postgres [1]. Just change the sync.war.faildeploy file to sync.war.dodeploy to
   let it redeploy again. It will be fine afterwards.
+- run ```rundev.sh -z``` to link zanata docker container to Zanata Sync.
+
+to know the Zanata container docker internal IP:
+- run ```docker exec -it sync-dev bash``` to get into the container
+- run ```env``` then note the ZANATA_PORT_8080_TCP_ADDR value
 
 [1] https://liquibase.jira.com/browse/CORE-2846
 
