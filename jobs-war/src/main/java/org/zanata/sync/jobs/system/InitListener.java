@@ -52,9 +52,6 @@ import com.google.common.base.Throwables;
 public class InitListener implements ServletContextListener {
     private static final Logger log =
             LoggerFactory.getLogger(InitListener.class);
-    @Inject
-    @ConfigWarUrl
-    private String configWarUrl;
 
     @Inject
     @JAXRSClientConnectionPoolSize
@@ -68,34 +65,12 @@ public class InitListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         // we should check all the system state here to make sure they are all set
         log.info("==== system config ====");
-        log.info("==== config war: {}", configWarUrl);
         log.info("==== JAXRS client connection pool size: {}", poolSize);
         log.info("==== has native git: {}", hasNativeGit);
 
-        configAppHealthCheck(configWarUrl);
         writeOutCustomKeyStore();
 
         log.info("==== system config ====");
-    }
-
-    private static void configAppHealthCheck(String configWarUrl) {
-        if (configWarUrl.startsWith("http://localhost")) {
-            log.info("==== skip config war health check for localhost ===");
-            return;
-        }
-        Client client = ResteasyClientBuilder.newClient();
-        try {
-            Response response =
-                    client.target(configWarUrl).path("api").path("job")
-                            .request(MediaType.APPLICATION_JSON_TYPE)
-                            .accept(MediaType.APPLICATION_JSON_TYPE)
-                            .head();
-            Preconditions.checkState(
-                    response.getStatus() == Response.Status.OK.getStatusCode(),
-                    configWarUrl + " is not running");
-        } finally {
-            client.close();
-        }
     }
 
     /**

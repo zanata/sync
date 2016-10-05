@@ -1,16 +1,22 @@
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.hamcrest.CoreMatchers;
@@ -23,6 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -123,5 +133,34 @@ public class GitSyncServiceTest {
                 .setSrcRepoUrl(remoteGitRepoRule.getRemoteUrl())
                 .build();
 
+    }
+
+    @Test
+    public void testIgnore() throws IOException, GitAPIException {
+        File directory = temporaryFolder.newFolder();
+
+        Git git = Git.init().setDirectory(directory).call();
+        Files.write(Paths.get(directory.getAbsolutePath(), "file1.txt"),
+                Lists.newArrayList("hello"), Charsets.UTF_8);
+        Files.write(Paths.get(directory.getAbsolutePath(), "file2.txt"),
+                Lists.newArrayList("world"), Charsets.UTF_8);
+        Status status = git.status().call();
+
+        assertThat(filesNeedsCommitting(status)).containsOnly("file1.txt", "file2.txt");
+
+        // only add file1
+        git.add().addFilepattern("file1.txt").call();
+        git.commit().setCommitter("junit", "junit@example.com").setMessage("add file1").call();
+
+        Status status2 = git.status().call();
+
+        assertThat(filesNeedsCommitting(status2)).containsOnly("file2.txt");
+    }
+
+    private static Set<String> filesNeedsCommitting(Status status) {
+        Set<String> files =
+                Sets.newHashSet(status.getUncommittedChanges());
+        files.addAll(status.getUntracked());
+        return files;
     }
 }

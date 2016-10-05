@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
@@ -50,39 +51,27 @@ public class CacheableRepoSyncService implements RepoSyncService {
     @RepoPlugin
     private GitSyncService delegate;
 
-    @Inject
-    private RepoCache repoCache;
-
     @Override
     public void cloneRepo(SyncJobDetail jobDetail, Path workingDir)
             throws RepoSyncException {
-//        log.info("--- decorating");
-        if (!repoCache
-                .getAndCopyToIfPresent(jobDetail.getSrcRepoUrl(), workingDir)) {
-            delegate.cloneRepo(jobDetail, workingDir);
-            repoCache.put(jobDetail.getSrcRepoUrl(), workingDir);
-        }
+
         try (Git git = Git.open(workingDir.toFile())) {
+            log.info("reuse previous repository");
             GitSyncService.doGitFetch(git);
             GitSyncService.checkOutBranch(git, getBranchOrDefault(jobDetail.getSrcRepoBranch()));
             GitSyncService.cleanUpCurrentBranch(git);
+        } catch (RepositoryNotFoundException rnfe) {
+            log.info("repository is not yet available. Try to clone it from remote");
+            delegate.cloneRepo(jobDetail, workingDir);
         } catch (IOException | GitAPIException e) {
             throw new RepoSyncException("failed clone repo:" + jobDetail, e);
         }
-        // this will cause stack overflow (the delegate will go into another decorator and causes infinite looping
-//        Callable<Path> loader = () -> {
-//            log.info("--- calling loader");
-//            delegate.cloneRepo(jobDetail, workingDir);
-//            return workingDir;
-//        };
-//        repoCache.get(jobDetail.getSrcRepoUrl(), workingDir, loader);
     }
 
     @Override
     public void syncTranslationToRepo(SyncJobDetail jobDetail, Path workingDir)
             throws RepoSyncException {
         delegate.syncTranslationToRepo(jobDetail, workingDir);
-        repoCache.put(jobDetail.getSrcRepoUrl(), workingDir);
     }
 
     @Override

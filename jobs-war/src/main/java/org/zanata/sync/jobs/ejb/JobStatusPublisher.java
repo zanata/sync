@@ -28,7 +28,6 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.jobs.system.ConfigWarUrl;
 import org.zanata.sync.jobs.system.RestClient;
 import org.zanata.sync.common.model.JobStatusType;
 
@@ -36,7 +35,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
 /**
  * This is used by the stateless EJB. So its lifecycle will be bound to the EJB
- * which I think it's pooled.
+ * which it's pooled.
  *
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
@@ -46,27 +45,25 @@ public class JobStatusPublisher {
             LoggerFactory.getLogger(JobStatusPublisher.class);
 
     @Inject
-    @ConfigWarUrl
-    private String configWarUrl;
-
-    @Inject
     @RestClient
     private Client client;
 
-    void putStatus(String jobId, JobStatusType statusType) {
-        log.debug("put job status {} -> {}", jobId, statusType);
+    void putStatus(String jobId, String initiatedFromHostURL,
+            JobStatusType statusType) {
         Response response = null;
         try {
-            response = client.target(configWarUrl).path("api").path("job")
-                    .path("status")
-                    .queryParam("id", jobId)
-                    .queryParam("status", statusType)
-                    .request(APPLICATION_JSON_TYPE)
-                    .accept(APPLICATION_JSON_TYPE)
-                    .put(Entity.json(null));
-            log.info("put job status {} -> {} done", jobId, statusType);
+            response =
+                    client.target(initiatedFromHostURL).path("api").path("job")
+                            .path("status")
+                            .queryParam("id", jobId)
+                            .queryParam("status", statusType)
+                            .request(APPLICATION_JSON_TYPE)
+                            .accept(APPLICATION_JSON_TYPE)
+                            .put(Entity.json(null));
+            log.info("put job status {}, {} -> {}", initiatedFromHostURL,
+                    jobId, statusType);
         } catch (Exception e) {
-            // TODO do we retry or do we just gave up?
+            // TODO do we retry or do we just give up?
             log.error("Error publishing job status", e);
         } finally {
             if (response != null) {

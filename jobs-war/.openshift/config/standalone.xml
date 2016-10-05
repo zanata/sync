@@ -42,7 +42,6 @@
   <system-properties>
     <property name="org.apache.coyote.http11.Http11Protocol.COMPRESSION"
       value="on" />
-    <property name="sync.config.war.url" value="${env.sync_config_war_url}" />
     <property name="javax.net.ssl.trustStore" value="${env.OPENSHIFT_DATA_DIR}cacerts" />
   </system-properties>
 

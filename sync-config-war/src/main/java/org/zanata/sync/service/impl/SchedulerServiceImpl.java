@@ -259,6 +259,7 @@ public class SchedulerServiceImpl implements SchedulerService {
             throws JobNotFoundException, SchedulerException {
         String firingId = runningJobs.getIfPresent(type.toJobKey(id));
         if (firingId != null) {
+            // FIXME we should fire ONCE when this finishes - Sean
             log.info("job is already running. firing id: {}", firingId);
             return false;
         }

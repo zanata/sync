@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -42,7 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.App;
 import org.zanata.sync.EncryptionKey;
+import org.zanata.sync.HostURL;
 import org.zanata.sync.events.ResourceReadyEvent;
+import org.zanata.sync.servlet.FormAuthenticationFilter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -145,5 +148,25 @@ public class ResourceProducer {
             }
         }
         return encryptionKey;
+    }
+
+    @Produces
+    @HostURL
+    protected String hostURL() {
+        String url = System.getProperty("host.url");
+        if (url == null) {
+            log.warn("Please set host.url system property for the host URL");
+            Optional<String> urlFromRequest =
+                    FormAuthenticationFilter.serverURLFromRequest();
+            if (urlFromRequest.isPresent()) {
+                return urlFromRequest.get();
+            } else {
+                String hardcoded = "http://localhost:8080/sync";
+                log.warn("using hard-coded url as host URL: {}", hardcoded);
+                return hardcoded;
+            }
+        } else {
+            return url;
+        }
     }
 }

@@ -21,6 +21,7 @@
 package org.zanata.sync.servlet;
 
 import java.io.IOException;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -51,6 +52,7 @@ public class FormAuthenticationFilter implements Filter {
 
     @Inject
     private AccountService accountService;
+    private static String serverURL;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -59,8 +61,12 @@ public class FormAuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
+
         if (request instanceof HttpServletRequest) {
             HttpServletRequest req = (HttpServletRequest) request;
+            if (serverURL == null) {
+                serverURL = getBaseUrl(req);
+            }
             if (!securityTokens.hasAccess() && req.getRemoteUser() != null) {
                 UserAccount account = new LocalAccount(req.getRemoteUser(),
                         Sets.newHashSet("syncUser"), true);
@@ -70,6 +76,20 @@ public class FormAuthenticationFilter implements Filter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private static String getBaseUrl(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        String serverPort = (request.getServerPort() == 80) ? "" : ":" + request.getServerPort();
+        String contextPath = request.getContextPath();
+        return String
+                .format("%s://%s%s%s", scheme, serverName, serverPort,
+                        contextPath);
+    }
+
+    public static Optional<String> serverURLFromRequest() {
+        return Optional.ofNullable(serverURL);
     }
 
     @Override

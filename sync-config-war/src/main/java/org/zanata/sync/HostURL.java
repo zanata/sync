@@ -18,7 +18,8 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.sync.jobs.system;
+package org.zanata.sync;
+
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -28,12 +29,11 @@ import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 /**
- * The url of sync-config-war.
+ * The URL for config war.
  */
 @Qualifier
-@Documented
-@Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD,
-        ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigWarUrl {
+@Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
+@Documented
+public @interface HostURL {
 }

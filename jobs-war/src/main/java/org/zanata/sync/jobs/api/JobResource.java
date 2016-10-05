@@ -35,6 +35,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.model.ErrorMessage;
 import org.zanata.sync.jobs.ejb.JobRunner;
+import com.google.common.base.Strings;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -111,6 +113,8 @@ public class JobResource {
      *
      * @param id
      *         - work identifier
+     * @param firingId
+     *         job firing id (unique for each execution)
      * @param jobDetail
      *         detail about a job.
      * @return - http code
@@ -118,17 +122,21 @@ public class JobResource {
     @Path("/2zanata/start/{id}")
     @POST
     public Response triggerJobToSyncToZanata(@PathParam(value = "id") String id,
+            @QueryParam("firingId") String firingId,
             SyncJobDetail jobDetail) {
         Set<ConstraintViolation<SyncJobDetail>> violations =
                 validator.validate(jobDetail);
         List<ErrorMessage> errors = violationToErrorMsg(violations);
+        if (Strings.isNullOrEmpty(firingId)) {
+            errors.add(new ErrorMessage("firingIdMissing", "missing firing Id"));
+        }
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }
 
         log.info(">>>>>> about to run 2zanata job for {}", id);
-        jobRunner.syncToZanata(id, jobDetail);
+        jobRunner.syncToZanata(id, firingId, jobDetail);
         // TODO return a URI to get access to the async job
         return Response.created(URI.create(id)).build();
     }
@@ -136,10 +144,10 @@ public class JobResource {
     private static List<ErrorMessage> violationToErrorMsg(
             Set<ConstraintViolation<SyncJobDetail>> violations) {
         return violations.stream()
-                        .map(violation -> new ErrorMessage(
-                                violation.getPropertyPath().toString(),
-                                violation.getMessage())).collect(
-                                Collectors.toList());
+                .map(violation -> new ErrorMessage(
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage())).collect(
+                        Collectors.toList());
     }
 
     /**
@@ -156,17 +164,21 @@ public class JobResource {
     @POST
     public Response triggerJobToSyncToSourceRepo(
             @PathParam(value = "id") String id,
+            @QueryParam("firingId") String firingId,
             SyncJobDetail jobDetail) {
         Set<ConstraintViolation<SyncJobDetail>> violations =
                 validator.validate(jobDetail);
         List<ErrorMessage> errors = violationToErrorMsg(violations);
+        if (Strings.isNullOrEmpty(firingId)) {
+            errors.add(new ErrorMessage("firingIdMissing", "missing firing Id"));
+        }
         if (!errors.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }
 
         log.info(">>>>>> about to run 2repo job for {}", id);
-        jobRunner.syncToSrcRepo(id, jobDetail);
+        jobRunner.syncToSrcRepo(id, firingId, jobDetail);
 
         // TODO create URI to access running async job
         return Response.created(URI.create(id)).build();

@@ -55,6 +55,8 @@ public class SyncJobDetail {
 
     private String projectConfigs;
 
+    private String initiatedFromHostURL;
+
     public String getSrcRepoUrl() {
         return srcRepoUrl;
     }
@@ -97,6 +99,10 @@ public class SyncJobDetail {
 
     public String getProjectConfigs() {
         return projectConfigs;
+    }
+
+    public String getInitiatedFromHostURL() {
+        return initiatedFromHostURL;
     }
 
     @Override
@@ -180,6 +186,11 @@ public class SyncJobDetail {
 
         public Builder setProjectConfigs(String projectConfigs) {
             syncJobDetail.projectConfigs = projectConfigs;
+            return this;
+        }
+
+        public Builder setInitiatedFromHostURL(String url) {
+            syncJobDetail.initiatedFromHostURL = url;
             return this;
         }
 

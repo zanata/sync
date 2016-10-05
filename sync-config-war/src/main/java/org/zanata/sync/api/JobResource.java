@@ -80,16 +80,6 @@ public class JobResource {
     private Event<JobProgressEvent> jobProgressEvent;
 
     /**
-     * Right now this is used as heart beat checker.
-     * @return 200 ok
-     */
-    @HEAD
-    @NoSecurityCheck
-    public Response head() {
-        return Response.ok().build();
-    }
-
-    /**
      * Get job status. Used by polling when websockets is not supported.
      *
      * @param id - work identifier

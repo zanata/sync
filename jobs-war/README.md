@@ -4,7 +4,6 @@
 - Add
   ```xml
   <property name="javax.net.ssl.trustStore" value="${env.OPENSHIFT_DATA_DIR}cacerts" />
-  <property name="sync.config.war.url" value="${env.sync_config_war_url}" />
   ```
   To openshift standalone.xml
 - copy your system default cacerts (/etc/pki/java/cacerts) file to a folder. e.g. ~/customKeyStore/cacerts

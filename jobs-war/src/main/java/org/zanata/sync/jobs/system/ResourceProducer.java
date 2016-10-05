@@ -55,7 +55,7 @@ import com.google.common.collect.ImmutableMap;
 public class ResourceProducer {
     private static final Logger log =
             LoggerFactory.getLogger(ResourceProducer.class);
-    private static final String CONFIG_WAR_URL_KEY = "sync.config.war.url";
+
     private static final String JAXRS_CLIENT_CONN_POOL_SIZE =
             "jaxrs.connection.pool.size";
 
@@ -66,15 +66,6 @@ public class ResourceProducer {
         return pattern.splitAsStream(System.getenv("PATH"))
                 .map(Paths::get)
                 .anyMatch(path -> Files.exists(path.resolve("git")));
-    }
-
-    @Produces
-    @ConfigWarUrl
-    protected String configWarUrl() {
-        // we have a default value for development.
-        // We also check its availability in InitListener
-        return System
-                .getProperty(CONFIG_WAR_URL_KEY, "http://localhost:8080/sync");
     }
 
     @Produces

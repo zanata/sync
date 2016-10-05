@@ -226,7 +226,10 @@ public class GitSyncService implements RepoSyncService {
                 log.info("uncommitted files in git repo: {}",
                         uncommittedChanges);
                 AddCommand addCommand = git.add();
-                addCommand.addFilepattern(".");
+                // ignore zanata cache folder
+                uncommittedChanges.stream()
+                        .filter(file -> !file.startsWith(".zanata-cache/"))
+                        .forEach(addCommand::addFilepattern);
                 addCommand.call();
 
                 log.info("commit changed files");
@@ -236,7 +239,7 @@ public class GitSyncService implements RepoSyncService {
                 commitCommand.setMessage(commitMessage(jobDetail.getZanataUsername()));
                 RevCommit revCommit = commitCommand.call();
 
-                log.info("push to remote repo");
+                log.info("push to remote the commit: {}", revCommit);
                 PushCommand pushCommand = git.push();
                 setUserIfProvided(pushCommand, user);
                 pushCommand.call();

@@ -79,6 +79,9 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
         pushOptions.setUsername(username);
         pushOptions.setKey(apiKey);
         pushOptions.setPushType(pushToZanataOption);
+        // TODO until https://zanata.atlassian.net/browse/ZNTA-1427 is fixed we can't trust etag cache
+        pullOptions.setUseCache(false);
+
         this.pushOptions = pushOptions;
         this.pullOptions = pullOptions;
 //        this.pushOptions.setLogHttp(true);
@@ -87,6 +90,7 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
             pullOptions.setLocales(localeId);
             pushOptions.setLocales(localeId);
         }
+
     }
 
     private static Set<String> getProjectConfigs(String projectConfigs) {

@@ -20,7 +20,6 @@
  */
 package org.zanata.sync.jobs;
 
-import java.util.Map;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
@@ -30,10 +29,10 @@ import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.sync.HostURL;
 import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
-import com.google.common.collect.Maps;
 
 /**
  *
@@ -49,13 +48,15 @@ public class RemoteJobExecutor {
             System.getProperty("jobs.server", "http://localhost:8080/jobs");
 
     private Client client;
+    private String hostURL;
 
     @Inject
-    public RemoteJobExecutor(Client client) {
+    public RemoteJobExecutor(Client client, @HostURL String hostURL) {
         this.client = client;
+        this.hostURL = hostURL;
     }
 
-    public void executeJob(String id, SyncWorkConfig workConfig,
+    public void executeJob(String fireInstanceId, SyncWorkConfig workConfig,
             JobType jobType, String localeId) {
         SyncJobDetail jobDetail = SyncJobDetail.Builder.builder()
                 .setSrcRepoType(workConfig.getRepoAccount().getRepoType())
@@ -69,6 +70,7 @@ public class RemoteJobExecutor {
                 .setSyncToZanataOption(workConfig.getSyncToZanataOption())
                 .setLocaleId(localeId)
                 .setProjectConfigs(workConfig.getProjectConfigs())
+                .setInitiatedFromHostURL(hostURL)
                 .build();
 
         log.debug("about to execute job remotely with: {}", jobDetail);
@@ -76,14 +78,18 @@ public class RemoteJobExecutor {
         switch (jobType) {
             case REPO_SYNC:
                 response = client.target(JOB_SERVER_URL)
-                        .path("api").path("job").path("2repo").path("start").path(id)
+                        .path("api").path("job").path("2repo").path("start")
+                        .path(workConfig.getId().toString())
+                        .queryParam("firingId", fireInstanceId)
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
                 break;
             case SERVER_SYNC:
                 response = client.target(JOB_SERVER_URL)
-                        .path("api").path("job").path("2zanata").path("start").path(id)
+                        .path("api").path("job").path("2zanata").path("start")
+                        .path(workConfig.getId().toString())
+                        .queryParam("firingId", fireInstanceId)
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .header("Content-Type", MediaType.APPLICATION_JSON)
                         .post(Entity.entity(jobDetail, MediaType.APPLICATION_JSON_TYPE));
