@@ -1,4 +1,4 @@
-FROM jboss/wildfly:10.0.0.Final
+FROM jboss/wildfly:10.1.0.Final
 MAINTAINER Patrick Huang <pahuang@redhat.com>
 
 EXPOSE 8080
