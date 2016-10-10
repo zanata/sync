@@ -6,9 +6,14 @@ import cx from 'classnames'
 import { isError, isSuccess, isRunning, toJobDescription } from '../constants/Enums'
 import { duration, datePropValidator, formatDate } from '../utils/DateTime'
 
+const syncWebhookURL = (apiUrl, id) => {
+  return `${location.protocol}//${location.host}${apiUrl}/api/work/${id}/translation/changed`
+}
+
 export default React.createClass({
   propTypes: {
     loadWorkDetail: PropTypes.func.isRequired,
+    apiUrl: PropTypes.string.isRequired,
     workDetail: PropTypes.shape({
       id: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
@@ -41,7 +46,7 @@ export default React.createClass({
   },
 
   render() {
-    const {workDetail} = this.props
+    const {workDetail, apiUrl} = this.props
 
     if (!workDetail || workDetail.id !== parseInt(this.props.routeParams.id)) {
       return <ProgressBar loading={true}/>
@@ -82,6 +87,9 @@ export default React.createClass({
 
     const deleteCallback = (e) => this.props.deleteWork()
 
+    const webhookURL = syncToRepoEnabled && syncToRepoCron === 'WEBHOOK' ?
+      (<span className='text-info'>Sync to repo webhook URL: {syncWebhookURL(apiUrl, workDetail.id)}</span>) : undefined
+
     return (
       <div className='container-fluid'>
         <div className='row'>
@@ -106,9 +114,10 @@ export default React.createClass({
                 <li className='list-group-item'>
                   <ul className="list-inline">
                     <li>Sync <strong className='text-info'>{syncToZanataOption}</strong> to Zanata {syncToZanataCron} <EnableOrDisableIcon enabled={syncToServerEnabled}/></li>
-                    <li>Sync to repo {syncToRepoCron} <EnableOrDisableIcon enabled={syncToRepoEnabled} /></li>
+                    <li>Sync to repo {syncToRepoCron} <EnableOrDisableIcon enabled={syncToRepoEnabled} /> {webhookURL}</li>
                   </ul>
                 </li>
+
               </ul>
             </div>
           </div>

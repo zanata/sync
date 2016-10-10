@@ -69,6 +69,7 @@ import org.zanata.sync.validation.SyncWorkFormValidator;
 import com.google.common.base.Strings;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
@@ -230,6 +231,10 @@ public class WorkResource {
         }
 
         SyncWorkConfig config = configOpt.get();
+        if (!config.isSyncToRepoEnabled()) {
+            log.warn("sync to repo job is not enabled. Ignore incoming webhook from {}", request.getRemoteAddr());
+            return Response.status(FORBIDDEN).build();
+        }
         String zanataWebHookSecret = config.getZanataWebHookSecret();
         Optional<String> webHookHash = getWebHookHashFromHeader();
 
