@@ -9,6 +9,9 @@ mkdir -p ${SYNC_DEPLOYMENT_DIR} && chcon -Rt svirt_sandbox_file_t "$SYNC_DEPLOYM
 CONFIG_WAR=$(find . -type f -name "*config*.war")
 JOBS_WAR=$(find . -type f -name "*jobs*.war")
 
+# default docker network to join
+DOCKER_NETWORK=docker-network
+
 set -x
 
 if [ -f ${CONFIG_WAR} ]
@@ -35,28 +38,36 @@ CACERTS_DIR=/etc/pki/ca-trust/extracted/
 echo "you need to import all needed CA certs into your host machine's security store. Check jobs-war/README.md"
 echo "$CACERTS_DIR will be mounted to the docker container"
 
-LINK_ZANATA=""
-while getopts ":zH" opt; do
+while getopts ":n:h" opt; do
   case ${opt} in
-    z)
-      echo ">> link zanata docker container <<"
-      LINK_ZANATA=" --link zanata:zanata "
+    n)
+      echo ">> use docker network $OPTARG <<"
+      DOCKER_NETWORK=$OPTARG
       ;;
-    H)
+    h)
       echo "========   HELP   ========="
-      echo "-z                 : will link zanata docker container"
-      echo "-H                 : display help"
+      echo "-n <docker network>: will connect container to given docker network"
+      echo "-h                 : display help"
       exit
       ;;
     \?)
-      echo "Invalid option: -${OPTARG}. Use -H for help" >&2
+      echo "Invalid option: -${OPTARG}. Use -h for help" >&2
       exit 1
       ;;
   esac
 done
 
+# check if the docker network is already created
+if docker network ls | grep -w ${DOCKER_NETWORK}
+then
+    echo "will use docker network $DOCKER_NETWORK"
+else
+    echo "creating docker network $DOCKER_NETWORK"
+    docker network create ${DOCKER_NETWORK}
+fi
+
 docker run --rm -p 8080:8080 --name sync-dev \
-    --link postgres-db:db $LINK_ZANATA \
+    --net=${DOCKER_NETWORK} \
     -v ${SYNC_DEPLOYMENT_DIR}:${JBOSS_DEPLOYMENT_VOLUME} \
     -v ${CACERTS_DIR}:${CACERTS_DIR} \
     zanata/sync

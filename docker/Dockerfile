@@ -3,7 +3,8 @@ MAINTAINER Patrick Huang <pahuang@redhat.com>
 
 EXPOSE 8080
 
-ENV POSTGRES_MODULE_DIR=/opt/jboss/wildfly/modules/org/postgresql/jdbc/main CUSTOMIZATION_DIR=/opt/jboss/wildfly/customization/
+ENV POSTGRES_MODULE_DIR=/opt/jboss/wildfly/modules/org/postgresql/jdbc/main CUSTOMIZATION_DIR=/opt/jboss/wildfly/customization/ \
+    DB_HOSTNAME=syncdb DB_USERNAME=postgres DB_PASSWORD=postgres DB_NAME=sync_local
 
 # Wildfly modules
 RUN curl --remote-name --location --silent https://dl.bintray.com/sflanigan/generic/wildfly-module-hibernate-main-4.2.20.Final.zip \

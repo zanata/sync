@@ -14,7 +14,7 @@ batch
 # the env variables are coming from rundb.sh (then used as linked docker container)
 # also workaround for adding $ into the string value http://stackoverflow.com/a/29824058/345718
 /subsystem=datasources/jdbc-driver=postgresql:add(driver-name="postgresql",driver-module-name="org.postgresql.jdbc")
-data-source add --name=syncDS --jndi-name=java:jboss/datasources/syncDS --driver-name=postgresql --connection-url=jdbc:postgresql://${env.DB_PORT_5432_TCP_ADDR:}:5432/${env.DB_ENV_DB_NAME:} --user-name=${env.DB_ENV_POSTGRES_USER:postgres} --password=${env.DB_ENV_PGPASSWORD:postgres}
+data-source add --name=syncDS --jndi-name=java:jboss/datasources/syncDS --driver-name=postgresql --connection-url=jdbc:postgresql://${env.DB_HOSTNAME:syncdb}:5432/${env.DB_NAME:sync_local} --user-name=${env.DB_USER:postgres} --password=${env.DB_PASSWORD:postgres}
 
 
 run-batch
