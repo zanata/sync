@@ -43,6 +43,8 @@
     <property name="org.apache.coyote.http11.Http11Protocol.COMPRESSION"
       value="on" />
     <property name="javax.net.ssl.trustStore" value="${env.OPENSHIFT_DATA_DIR}cacerts" />
+    <property name="repo.cache.dir" value="${env.repo_cache_dir:}"/>
+    <property name="system.notification.email" value="${env.system_notification_email:}"/>
   </system-properties>
 
   <management>

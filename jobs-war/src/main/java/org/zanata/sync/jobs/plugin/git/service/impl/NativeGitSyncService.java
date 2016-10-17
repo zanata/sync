@@ -20,10 +20,6 @@
  */
 package org.zanata.sync.jobs.plugin.git.service.impl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -34,15 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.exception.RepoSyncException;
-import org.zanata.sync.jobs.common.model.Credentials;
 import org.zanata.sync.jobs.common.model.UsernamePasswordCredential;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
 import org.zanata.sync.plugin.git.GitPlugin;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+
+import static org.zanata.sync.jobs.utils.ProcessUtils.runNativeCommand;
 
 /**
  * This will try to use the native git executable on PATH.
@@ -84,45 +78,6 @@ public class NativeGitSyncService implements RepoSyncService {
             log.info("check out branch: {}", targetBranch);
             runNativeCommand(workingDir, "git", "checkout", targetBranch);
         }
-    }
-
-    private static List<String> runNativeCommand(Path workingDir, String... commands) {
-        ProcessBuilder processBuilder =
-                new ProcessBuilder(commands)
-                        .directory(workingDir.toFile())
-                        .redirectErrorStream(true);
-        ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
-        try {
-            Process process = processBuilder.start();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(),
-                            Charsets.UTF_8))) {
-                String line = reader.readLine();
-                while (line != null) {
-                    resultBuilder.add(line);
-                    line = reader.readLine();
-                }
-                int exitValue = process.waitFor();
-                if (exitValue != 0) {
-                    throw new RepoSyncException("exit code is " + exitValue);
-                }
-            } catch (IOException e) {
-                log.error("error running native git", e);
-                throw new RepoSyncException(e);
-            } catch (InterruptedException e) {
-                log.error("interrupted while waiting for the exit code");
-                throw new RepoSyncException(e);
-            } finally {
-                process.destroyForcibly();
-            }
-        } catch (Exception e) {
-            log.error("error running native command", e);
-            throw new RepoSyncException(e);
-        }
-        ImmutableList<String> output = resultBuilder.build();
-        log.debug("{} output: \n{}", commands[0],
-                Joiner.on("\t" + System.lineSeparator()).join(output));
-        return output;
     }
 
     private static String urlEncode(String value) {

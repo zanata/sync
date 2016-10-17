@@ -25,11 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.inject.Inject;
+import javax.mail.Address;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -61,12 +63,25 @@ public class InitListener implements ServletContextListener {
     @HasNativeGit
     private boolean hasNativeGit;
 
+    @Inject
+    @RepoCacheDir
+    private Path repoCacheRootDir;
+
+    @Inject
+    private Address systemNotificationEmail;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         // we should check all the system state here to make sure they are all set
         log.info("==== system config ====");
-        log.info("==== JAXRS client connection pool size: {}", poolSize);
+        log.info("==== JAXRS client connection pool size ({}): {}",
+                ResourceProducer.JAXRS_CLIENT_CONN_POOL_SIZE, poolSize);
         log.info("==== has native git: {}", hasNativeGit);
+        log.info("==== repo cache dir ({}): {}", ResourceProducer.REPO_CACHE_DIR,
+                repoCacheRootDir);
+        log.info("==== system notification email ({}): {}",
+                ResourceProducer.SYSTEM_NOTIFICATION_EMAIL,
+                systemNotificationEmail);
 
         writeOutCustomKeyStore();
 

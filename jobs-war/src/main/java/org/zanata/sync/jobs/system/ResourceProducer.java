@@ -21,6 +21,7 @@
 package org.zanata.sync.jobs.system;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
+import javax.mail.Address;
+import javax.mail.internet.InternetAddress;
 import javax.ws.rs.client.Client;
 
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -40,6 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.jobs.plugin.git.service.RepoSyncService;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -56,16 +61,24 @@ public class ResourceProducer {
     private static final Logger log =
             LoggerFactory.getLogger(ResourceProducer.class);
 
-    private static final String JAXRS_CLIENT_CONN_POOL_SIZE =
+    public static final String JAXRS_CLIENT_CONN_POOL_SIZE =
             "jaxrs.connection.pool.size";
+    public static final String SYSTEM_NOTIFICATION_EMAIL =
+            "system.notification.email";
+    public static final String REPO_CACHE_DIR = "repo.cache.dir";
+    public static final String TRY_NATIVE_GIT ="try_native_git";
 
     private boolean hasNativeGit = isGitExecutableOnPath();
 
     private static boolean isGitExecutableOnPath() {
-        Pattern pattern = Pattern.compile(Pattern.quote(File.pathSeparator));
-        return pattern.splitAsStream(System.getenv("PATH"))
-                .map(Paths::get)
-                .anyMatch(path -> Files.exists(path.resolve("git")));
+        String tryNativeGit = System.getenv(TRY_NATIVE_GIT);
+        if (Boolean.parseBoolean(tryNativeGit)) {
+            Pattern pattern = Pattern.compile(Pattern.quote(File.pathSeparator));
+            return pattern.splitAsStream(System.getenv("PATH"))
+                    .map(Paths::get)
+                    .anyMatch(path -> Files.exists(path.resolve("git")));
+        }
+        return false;
     }
 
     @Produces
@@ -101,9 +114,26 @@ public class ResourceProducer {
     @Produces
     @RepoCacheDir
     protected Path cacheDir() {
-        String cacheDir = System.getProperty("repo.cache.dir",
-                Paths.get(System.getProperty("java.io.tmpdir"), "repo-cache")
-                        .toString());
+        Path defaultPath =
+                Paths.get(System.getProperty("java.io.tmpdir"), "repo-cache");
+        String cacheDir = System.getProperty(REPO_CACHE_DIR);
+        if (Strings.isNullOrEmpty(cacheDir)) {
+            return defaultPath;
+        }
         return Paths.get(cacheDir);
+    }
+
+    @Produces
+    protected Address systemNotificationEmailAddress() {
+        String email = System.getProperty(SYSTEM_NOTIFICATION_EMAIL);
+        if (!Strings.isNullOrEmpty(email)) {
+            try {
+                return new InternetAddress(email, "Zanata Sync System");
+            } catch (UnsupportedEncodingException e) {
+                throw Throwables.propagate(e);
+            }
+        }
+        throw new IllegalStateException(
+                SYSTEM_NOTIFICATION_EMAIL + " system property is not set");
     }
 }
