@@ -25,7 +25,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -115,15 +114,19 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
     @Override
     public void pushToZanata(Path repoBase) throws ZanataSyncException {
         if (projectConfigs.isEmpty()) {
-            File projectConfig = findProjectConfigOrThrow(repoBase);
-            PushPullOptionsUtil
-                    .applyProjectConfig(getPushOptions(), projectConfig);
-            checkURL(getPushOptions().getUrl(), zanataUrl);
-            pushService.pushToZanata(getPushOptions());
+            Set<File> projectConfigs = findProjectConfigsOrThrow(repoBase);
+            for (File config : projectConfigs) {
+                PushPullOptionsUtil
+                        .applyProjectConfig(getPushOptions(), config);
+                log.info("{} - {}", getPushOptions());
+                checkURL(getPushOptions().getUrl(), zanataUrl);
+                pushService.pushToZanata(getPushOptions());
+            }
         } else {
             for (String projectConfig : projectConfigs) {
                 Path absPath = Paths.get(repoBase.toString(), projectConfig);
                 PushPullOptionsUtil.applyProjectConfig(getPushOptions(), absPath.toFile());
+                checkURL(getPushOptions().getUrl(), zanataUrl);
                 pushService.pushToZanata(getPushOptions());
             }
         }
@@ -141,31 +144,35 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
         }
     }
 
-    // TODO ZNTA-1247 support multiple projects in one repo
-    private File findProjectConfigOrThrow(Path repoBase) {
-        Optional<File> projectConfig =
-                PushPullOptionsUtil.findProjectConfig(repoBase.toFile());
+    private Set<File> findProjectConfigsOrThrow(Path repoBase) {
+        Set<File> projectConfigs =
+                PushPullOptionsUtil.findProjectConfigs(repoBase.toFile());
 
-        if (!projectConfig.isPresent()) {
+        log.info("found {} in {}", projectConfigs, repoBase);
+        if (projectConfigs.isEmpty()) {
             throw new ZanataSyncException(
                     "can not find project config (zanata.xml) in the repo");
         }
-        return projectConfig.get();
+        return projectConfigs;
     }
 
     @Override
     public void pullFromZanata(Path repoBase) throws ZanataSyncException {
+
         if (projectConfigs.isEmpty()) {
-            File projectConfig =
-                    findProjectConfigOrThrow(repoBase);
-            PushPullOptionsUtil
-                    .applyProjectConfig(getPullOptions(), projectConfig);
-            checkURL(getPullOptions().getUrl(), zanataUrl);
-            pullService.pullFromZanata(getPullOptions());
+            Set<File> projectConfigs =
+                    findProjectConfigsOrThrow(repoBase);
+            for (File config : projectConfigs) {
+                PushPullOptionsUtil
+                        .applyProjectConfig(getPullOptions(), config);
+                checkURL(getPullOptions().getUrl(), zanataUrl);
+                pullService.pullFromZanata(getPullOptions());
+            }
         } else {
             for (String projectConfig : projectConfigs) {
                 Path absPath = Paths.get(repoBase.toString(), projectConfig);
                 PushPullOptionsUtil.applyProjectConfig(getPullOptions(), absPath.toFile());
+                checkURL(getPullOptions().getUrl(), zanataUrl);
                 pullService.pullFromZanata(getPullOptions());
             }
         }

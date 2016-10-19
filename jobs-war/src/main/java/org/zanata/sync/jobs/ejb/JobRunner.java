@@ -27,6 +27,8 @@ import java.util.concurrent.Future;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -64,6 +66,7 @@ public class JobRunner {
     private LockablePath lockablePath;
 
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<Void> syncToSrcRepo(String id,
             String firingId, SyncJobDetail jobDetail) {
         log.debug("running sync to repo job for id: {}", id);
@@ -94,6 +97,7 @@ public class JobRunner {
         return new AsyncResult<>(null);
     }
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<Void> syncToZanata(String id, String firingId,
             SyncJobDetail jobDetail) {
         log.debug("running sync to zanata job for id: {}", id);

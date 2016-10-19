@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.JAXBException;
 
@@ -37,7 +39,7 @@ import org.zanata.sync.jobs.common.exception.ZanataSyncException;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public final class PushPullOptionsUtil {
-
+    // TODO make this configurable?
     public static final int MAX_DEPTH = 10;
 
     /**
@@ -56,18 +58,23 @@ public final class PushPullOptionsUtil {
             File projectConfig) {
         try {
             options.setProjectConfig(projectConfig);
-            // unset previous src and trans dir so that we can reload it from project config
+            // unset previous values so that we can reload them from project config
             options.setSrcDir(null);
             options.setTransDir(null);
+            options.setProj(null);
+            options.setProjectVersion(null);
+            options.setProjectType(null);
 
             OptionsUtil.applyConfigFiles(options);
 
             File baseDir = projectConfig.getParentFile();
             // we need to adjust src-dir and trans-dir to be relative to zanata base dir
             options.setSrcDir(
-                    new File(baseDir, options.getSrcDir().getPath()));
+                    new File(baseDir, options.getSrcDir() != null ?
+                            options.getSrcDir().getPath() : "."));
             options.setTransDir(
-                    new File(baseDir, options.getTransDir().getPath()));
+                    new File(baseDir, options.getTransDir() != null ?
+                            options.getTransDir().getPath() : "."));
             //disable commandhook
             if (!options.getCommandHooks().isEmpty()) {
                 throw new ZanataSyncException(
@@ -79,15 +86,19 @@ public final class PushPullOptionsUtil {
         return options;
     }
 
-    public static Optional<File> findProjectConfig(File repoBase) {
+    /**
+     * @param repoBase
+     *         base path of a source repo.
+     * @return absolute paths for all the project configs found under repoBase
+     */
+    public static Set<File> findProjectConfigs(File repoBase) {
         try {
             Stream<Path> pathStream = Files.find(repoBase.toPath(), MAX_DEPTH,
                     (path, basicFileAttributes) ->
                             basicFileAttributes.isRegularFile() &&
                                     path.toFile().getName()
                                             .equals("zanata.xml"));
-            Optional<Path> projectConfig = pathStream.findFirst();
-            return projectConfig.flatMap(path -> Optional.ofNullable(path.toFile()));
+            return pathStream.map(Path::toFile).collect(Collectors.toSet());
         } catch (IOException e) {
             throw new ZanataSyncException("Failed finding project config", e);
         }
