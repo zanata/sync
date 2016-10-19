@@ -35,15 +35,11 @@ import javax.mail.Address;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Preconditions;
+import org.zanata.sync.jobs.ejb.DiskUsageChecker;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 
@@ -70,6 +66,9 @@ public class InitListener implements ServletContextListener {
     @Inject
     private Address systemNotificationEmail;
 
+    @Inject
+    private DiskUsageChecker diskUsageChecker;
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         // we should check all the system state here to make sure they are all set
@@ -86,6 +85,9 @@ public class InitListener implements ServletContextListener {
         writeOutCustomKeyStore();
 
         log.info("==== system config ====");
+
+        // this will bring up disk usage checker and let it start the schedule
+        diskUsageChecker.start();
     }
 
     /**

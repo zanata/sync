@@ -20,18 +20,27 @@
  */
 package org.zanata.sync.jobs.utils;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.LogOutputStream;
+import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.ShutdownHookProcessDestroyer;
+import org.apache.tools.ant.taskdefs.Execute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.sync.jobs.common.exception.RepoSyncException;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -40,90 +49,63 @@ import com.google.common.collect.ImmutableList;
 public class ProcessUtils {
     private static final Logger log =
             LoggerFactory.getLogger(ProcessUtils.class);
+    private static final ShutdownHookProcessDestroyer PROCESS_DESTROYER =
+            new ShutdownHookProcessDestroyer();
 
-    public static List<String> runNativeCommand(Path workingDir, String... commands) {
-        ProcessBuilder processBuilder =
-                new ProcessBuilder(commands)
-                        .directory(workingDir.toFile())
-                        .redirectErrorStream(true);
-        ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
-        try {
-            Process process = processBuilder.start();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(),
-                            Charsets.UTF_8))) {
-                String line = reader.readLine();
-                while (line != null) {
-                    resultBuilder.add(line);
-                    line = reader.readLine();
-                }
-                int exitValue = process.waitFor();
-                if (exitValue != 0) {
-                    throw new RepoSyncException("exit code is " + exitValue);
-                }
-            } catch (IOException e) {
-                log.error("error running native git", e);
-                throw new RepoSyncException(e);
-            } catch (InterruptedException e) {
-                log.error("interrupted while waiting for the exit code");
-                throw new RepoSyncException(e);
-            } finally {
-                process.destroyForcibly();
-            }
-        } catch (Exception e) {
-            log.error("error running native command", e);
-            throw new RepoSyncException(e);
-        }
-        ImmutableList<String> output = resultBuilder.build();
-        log.debug("{} output: \n{}", commands[0],
-                Joiner.on("\t" + System.lineSeparator()).join(output));
-        return output;
+    public static List<String> runNativeCommand(Path workingDir,
+            String... commands) {
+        return runNativeCommand(workingDir, ExecuteWatchdog.INFINITE_TIMEOUT,
+                commands);
     }
 
-    public static List<String> runNativeCommand(Path workingDir, long timeout,
-            TimeUnit timeUnit,
-            String... commands) {
-        ProcessBuilder processBuilder =
-                new ProcessBuilder(commands)
-                        .directory(workingDir.toFile())
-                        .redirectErrorStream(true);
-        ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
-        try {
-            Process process = processBuilder.start();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(),
-                            Charsets.UTF_8))) {
-                String line = reader.readLine();
-                while (line != null) {
-                    resultBuilder.add(line);
-                    line = reader.readLine();
-                }
-                boolean exited = process.waitFor(timeout, timeUnit);
-                if (exited) {
-                    int exitValue = process.exitValue();
-                    if (exitValue != 0) {
-                        throw new RepoSyncException("exit code is " + exitValue);
-                    }
-                } else {
-                    log.error("timeout checking process exit code");
-                    throw new RepoSyncException("timeout checking process exit code");
-                }
-            } catch (IOException e) {
-                log.error("error running native git", e);
-                throw new RepoSyncException(e);
-            } catch (InterruptedException e) {
-                log.error("interrupted while waiting for the exit code");
-                throw new RepoSyncException(e);
-            } finally {
-                process.destroyForcibly();
-            }
-        } catch (Exception e) {
-            log.error("error running native command", e);
-            throw new RepoSyncException(e);
+    public static List<String> runNativeCommand(Path workingDir,
+            long timeoutInMilli, String... commands) {
+        Preconditions.checkArgument(commands != null && commands.length > 0,
+                "You must provide commands to run");
+
+        CommandLine commandLine = CommandLine.parse(commands[0]);
+        ImmutableList<String> args =
+                ImmutableList.copyOf(commands).subList(1, commands.length);
+        for (String arg : args) {
+            commandLine.addArgument(arg);
         }
-        ImmutableList<String> output = resultBuilder.build();
-        log.debug("{} output: \n{}", commands[0],
-                Joiner.on("\t" + System.lineSeparator()).join(output));
-        return output;
+
+        Executor executor = new DefaultExecutor();
+
+        ImmutableList.Builder<String> output = ImmutableList.builder();
+        executor.setStreamHandler(new PumpStreamHandler(new LogOutputStream() {
+            @Override
+            protected void processLine(String line, int logLevel) {
+                log.info(line);
+                output.add(line);
+            }
+        }));
+        ExecuteWatchdog watchDog =
+                new ExecuteWatchdog(timeoutInMilli);
+        executor.setWatchdog(watchDog);
+        executor.setWorkingDirectory(workingDir.toFile());
+        executor.setProcessDestroyer(PROCESS_DESTROYER);
+
+        try {
+            int exitCode = executor.execute(commandLine);
+            if (Execute.isFailure(exitCode) && watchDog.killedProcess()) {
+                // it was killed on purpose by the watchdog
+                log.error(
+                        "process {} taking too long to run and killed by watchdog",
+                        commandLine);
+            }
+        } catch (IOException e) {
+            log.error("error running:{}", commandLine);
+            throw Throwables.propagate(e);
+        }
+
+        return output.build();
+    }
+
+    public static boolean isExecutableOnPath(String execName) {
+        return Stream.of(System.getenv("PATH").split(Pattern.quote(
+                File.pathSeparator)))
+                .map(Paths::get)
+                .anyMatch(path -> Files.exists(path.resolve(execName)));
     }
 }

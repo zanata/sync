@@ -25,9 +25,14 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
+import javax.enterprise.event.Observes;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -54,12 +59,33 @@ public class DiskUsageChecker {
     @Resource(lookup = "java:jboss/mail/Default")
     private Session session;
 
-    @Schedule(minute = "0", hour = "*")
+    @Resource
+    TimerService timerService;
+
+    @PostConstruct
+    public void setUp() {
+        if (ProcessUtils.isExecutableOnPath("quota")) {
+            timerService.createTimer(0, TimeUnit.MINUTES.toMillis(1),
+                    "Created new disk usage checker timer");
+        } else {
+            log.warn("quota is not on the system PATH. Will not check disk usage");
+        }
+    }
+
+    public void start() {
+        // so that this EJB can be instantiated and the programmatic scheduler can start
+    }
+
+    @Timeout
+    public void onTimeout(Timer timer) {
+        checkDiskUsage();
+    }
+
     public void checkDiskUsage() {
         // linux quota with no wrap option
         List<String> output = ProcessUtils
                 .runNativeCommand(Paths.get(System.getProperty("user.home")),
-                        10, TimeUnit.MINUTES,
+                        TimeUnit.MINUTES.toMillis(1),
                         "quota", "-w");
 
         /*
@@ -112,7 +138,8 @@ Disk quotas for user 579eb79d5110e2628b0000cc (uid 3356):
                             "Zanata Sync System") });
             mimeMessage.addRecipients(Message.RecipientType.TO,
                     "pahuang@redhat.com");
-            mimeMessage.setSubject("Zanata Sync jobs war disk usage is too high");
+            mimeMessage
+                    .setSubject("Zanata Sync jobs war disk usage is too high");
             mimeMessage.setText(String.format(
                     "Disk Usage: %d, Disk limit: %d; File Usage: %d, File Limit: %d",
                     diskUsage, diskLimit, files, filesLimit));
