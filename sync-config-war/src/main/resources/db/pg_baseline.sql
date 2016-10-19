@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS RepoAccount (
     repoType      VARCHAR(255) NOT NULL,
     secret        VARCHAR(255),
     username      VARCHAR(255),
-    zanataAccount BIGINT       NOT NULL REFERENCES ZanataAccount (id),
-    UNIQUE (repoHostname, username)
+    zanataAccount BIGINT       NOT NULL REFERENCES ZanataAccount (id)
 );
 
 CREATE TABLE IF NOT EXISTS Sync_Work_Config_table (

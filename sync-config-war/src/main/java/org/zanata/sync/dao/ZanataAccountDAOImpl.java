@@ -43,19 +43,6 @@ public class ZanataAccountDAOImpl implements ZanataAccountDAO {
         entityManager.persist(account);
     }
 
-    @Nullable
-    @Override
-    public ZanataAccount getByLocalUsername(String localUsername) {
-        List<ZanataAccount> resultList = entityManager.createNamedQuery(
-                ZanataAccount.FIND_BY_LOCAL_USERNAME_QUERY,
-                ZanataAccount.class)
-                .setParameter("username", localUsername)
-                .setFirstResult(0)
-                .setMaxResults(2)
-                .getResultList();
-        return returnUniqueResult(resultList, localUsername);
-    }
-
     private static ZanataAccount returnUniqueResult(
             List<ZanataAccount> resultList, String... searchCriteria) {
         if (resultList.size() == 1) {

@@ -70,4 +70,4 @@ docker run --rm -p 8080:8080 --name sync-dev \
     --net=${DOCKER_NETWORK} \
     -v ${SYNC_DEPLOYMENT_DIR}:${JBOSS_DEPLOYMENT_VOLUME} \
     -v ${CACERTS_DIR}:${CACERTS_DIR} \
-    zanata/sync
+    zanata/sync --debug

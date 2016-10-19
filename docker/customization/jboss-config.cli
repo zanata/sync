@@ -9,6 +9,7 @@ batch
 
 # /system-property=foo:add(value=bar)
 /system-property=secretStore:add(value="/opt/jboss/wildfly/customization/secretStore")
+/system-property="system.notification.email":add(value="${env.system_notification_email:nowhere@exmaple.com}")
 
 # ==== add datasource ====
 # the env variables are coming from rundb.sh (then used as linked docker container)

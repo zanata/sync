@@ -18,35 +18,6 @@ export function getZanataAccount() {
   }
 }
 
-// ======= save zanata account to current user
-export const SAVE_ZANATA_ACCOUNT_REQUEST = 'SAVE_ZANATA_ACCOUNT_REQUEST'
-export const SAVE_ZANATA_ACCOUNT_SUCCESS = 'SAVE_ZANATA_ACCOUNT_SUCCESS'
-export const SAVE_ZANATA_ACCOUNT_FAILURE = 'SAVE_ZANATA_ACCOUNT_FAILURE'
-export function saveZanataAccount(zanataAccount) {
-  const entity = {
-    username: zanataAccount.zanataUsername,
-    zanataServer: zanataAccount.zanataServer,
-    apiKey: zanataAccount.zanataSecret
-  }
-  return (dispatch, getState) => {
-    dispatch({
-      [CALL_API]: {
-        endpoint: `${getState().configs.apiUrl}/api/account/zanata`,
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-        body: JSON.stringify(entity),
-        types: [SAVE_ZANATA_ACCOUNT_REQUEST, {
-          type: SAVE_ZANATA_ACCOUNT_SUCCESS,
-          meta: {
-            notification: 'Zanata Account Saved'
-          }
-        }, SAVE_ZANATA_ACCOUNT_FAILURE]
-      }
-    })
-  }
-}
-
 // ========= save repo account to current user
 export const SAVE_REPO_ACCOUNT_REQUEST = 'SAVE_REPO_ACCOUNT_REQUEST'
 export const SAVE_REPO_ACCOUNT_SUCCESS = 'SAVE_REPO_ACCOUNT_SUCCESS'

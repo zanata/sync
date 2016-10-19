@@ -29,3 +29,5 @@ VOLUME /opt/jboss/wildfly/standalone/deployments/
 
 # for override default java security store
 VOLUME /etc/pki/ca-trust/extracted/
+
+ENTRYPOINT ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]

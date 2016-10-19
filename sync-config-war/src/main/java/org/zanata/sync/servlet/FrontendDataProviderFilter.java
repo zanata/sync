@@ -23,6 +23,7 @@ package org.zanata.sync.servlet;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -34,6 +35,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.sync.common.annotation.RepoPlugin;
 import org.zanata.sync.common.plugin.Plugin;
 import org.zanata.sync.dto.UserAccount;
@@ -58,8 +61,11 @@ import com.google.common.collect.ImmutableMap;
  */
 @WebFilter(filterName = "frontendDataProviderFilter")
 public class FrontendDataProviderFilter implements Filter {
+    private static final Logger log =
+            LoggerFactory.getLogger(FrontendDataProviderFilter.class);
 
-    private static Boolean devMode;
+    private static String serverURL;
+
     @Inject
     private PluginsService pluginsService;
 
@@ -87,7 +93,7 @@ public class FrontendDataProviderFilter implements Filter {
         String supportedZanataServer = System.getProperty("zanata.server.urls");
         if (Strings.isNullOrEmpty(supportedZanataServer)) {
             supportedZanataServer =
-                    "http://localhost:8080/zanata,http://localhost:8180/zanata";
+                    "http://localhost:8080,http://localhost:8180";
         }
         return ImmutableList
                 .copyOf(Splitter.on(",").omitEmptyStrings().trimResults()
@@ -102,17 +108,21 @@ public class FrontendDataProviderFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
+
+        if (serverURL == null) {
+            serverURL = getBaseUrl((HttpServletRequest) servletRequest);
+        }
+
         List<String> zanataUrls = getZanataUrls();
         String appRoot =
                 UrlUtil.appRootAbsoluteUrl((HttpServletRequest) servletRequest);
-        boolean isInDevMode = isInDevMode(servletRequest);
 
         servletRequest.setAttribute("srcRepoPlugins", repoTypes);
         servletRequest.setAttribute("zanataOAuthUrls",
                 objectMapper.toJSON(getZanataOAuthUrls(appRoot, zanataUrls)));
         servletRequest.setAttribute("cronOptions",
                 objectMapper
-                        .toJSON(CronType.toMapWithDisplayAsKey(isInDevMode)));
+                        .toJSON(CronType.toMapWithDisplayAsKey()));
 
         UserAccount account = securityTokens.getAccount();
         String accountAsJson = objectMapper.toJSON(account);
@@ -124,13 +134,6 @@ public class FrontendDataProviderFilter implements Filter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private static boolean isInDevMode(ServletRequest request) {
-        if (devMode == null) {
-            devMode = request.getServerName().equals("localhost");
-        }
-        return devMode;
-    }
-
     private Map<String, String> getZanataOAuthUrls(String appRoot,
             List<String> zanataUrls) {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
@@ -139,6 +142,20 @@ public class FrontendDataProviderFilter implements Filter {
         }
 
         return builder.build();
+    }
+
+    private static String getBaseUrl(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        String serverPort = (request.getServerPort() == 80) ? "" : ":" + request.getServerPort();
+        String contextPath = request.getContextPath();
+        return String
+                .format("%s://%s%s%s", scheme, serverName, serverPort,
+                        contextPath);
+    }
+
+    public static Optional<String> serverURLFromRequest() {
+        return Optional.ofNullable(serverURL);
     }
 
     @Override

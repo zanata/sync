@@ -39,18 +39,6 @@ public interface AccountService {
     @TransactionAttribute
     void saveAuthenticatedAccount();
 
-    /**
-     * Update zanata account associated to a local account (only the Zanata
-     * account relevant fields). If current authenticated account is an OAuth
-     * account, this will throw IllegalStateException.
-     *
-     * @param zanataUserAccount
-     *         dto
-     * @return updated ZanataAccount entity
-     */
-    @TransactionAttribute
-    ZanataAccount updateZanataAccount(ZanataUserAccount zanataUserAccount);
-
     ZanataAccount getZanataAccountForCurrentUser();
 
     @TransactionAttribute

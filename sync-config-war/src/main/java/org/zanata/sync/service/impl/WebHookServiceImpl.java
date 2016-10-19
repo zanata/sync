@@ -63,9 +63,9 @@ public class WebHookServiceImpl implements WebHookService {
             ZanataWebHookEvent event) {
         // validate stuff
         String zanataUsernameInConfig = config.getZanataAccount().getUsername();
-        if (zanataUsernameInConfig.equals(event.getUsername())) {
+        if (!zanataUsernameInConfig.equals(event.getUsername())) {
             log.warn(
-                    "the zanata username in config [{}] is not the same as the event trigger [{}]",
+                    "the zanata username in config [{}] is not the same as the event trigger [{}], aborting webhook event",
                     zanataUsernameInConfig, event.getUsername());
             return;
         }

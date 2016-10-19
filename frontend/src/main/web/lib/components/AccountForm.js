@@ -5,6 +5,7 @@ import FieldSet from './form/FieldSet'
 import FormButtons from './form/FormButtons'
 import {redirectToSignIn} from '../utils/route'
 import RepoAccountLineItem from './RepoAccountLineItem'
+import ToggleReveal from './ToggleReveal'
 
 
 export default React.createClass({
@@ -12,7 +13,6 @@ export default React.createClass({
     user: PropTypes.shape({
       username: PropTypes.string.isRequired
     }),
-    onSaveZanataAccount: PropTypes.func.isRequired,
     zanataAccount: PropTypes.shape({
       zanataServer: PropTypes.string,
       username: PropTypes.string,
@@ -25,35 +25,18 @@ export default React.createClass({
         secret: PropTypes.string
       }))
     }),
-    savingZanataAccount: PropTypes.bool.isRequired,
     savingRepoAccount: PropTypes.bool.isRequired,
     onSaveRepoAccount: PropTypes.func.isRequired,
     srcRepoTypes: PropTypes.arrayOf(PropTypes.string).isRequired
   },
 
   getInitialState() {
-    const {zanataServer, username, apiKey} = this.props.zanataAccount
     return {
-      zanataUsername: username || '',
-      zanataSecret: apiKey || '',
-      zanataServer: zanataServer || '',
-
       repoId: -1,
       repoType: this.props.srcRepoTypes[0],
       repoHostname: '',
       repoUsername: '',
       repoSecret: ''
-    }
-  },
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.zanataAccount) {
-      const {zanataServer, username, apiKey} = nextProps.zanataAccount
-      this.setState({
-        zanataUsername: username,
-        zanataServer,
-        zanataSecret: apiKey
-      })
     }
   },
 
@@ -65,14 +48,6 @@ export default React.createClass({
 
   _callbackFor(field) {
     return this._handleChange.bind(this, field)
-  },
-
-  _handleResetZanata() {
-    this.setState({
-      zanataUsername: '',
-      zanataSecret: '',
-      zanataServer: ''
-    })
   },
 
   _selectRepoAccount(account) {
@@ -105,9 +80,7 @@ export default React.createClass({
   },
 
   render() {
-    const {savingZanataAccount, savingRepoAccount, zanataAccount} = this.props
-
-    const saveZanataAccountCallback = e => this.props.onSaveZanataAccount(this.state)
+    const {savingRepoAccount, zanataAccount} = this.props
 
     // repo accounts
     const repoAccountItems = zanataAccount.repoAccounts.map(acc => {
@@ -133,19 +106,13 @@ export default React.createClass({
       <div className="form-horizontal">
         <FieldSet legend="Associated Zanata Account">
           <TextInput name='zanataServer' label='Server URL'
-            onChange={this._callbackFor('zanataServer')}
-            placeholder='http://translate.zanata.org'
-            inputValue={this.state.zanataServer}/>
+            placeholder='http://translate.zanata.org' disabled
+            inputValue={zanataAccount.zanataServer}/>
           <TextInput name='zanataUsername' label='Username'
-            onChange={this._callbackFor('zanataUsername')}
-            placeholder='username'
-            inputValue={this.state.zanataUsername}/>
+            placeholder='username' disabled
+            inputValue={zanataAccount.username}/>
           <TextInput name='zanataSecret' label='Secret'
-            onChange={this._callbackFor('zanataSecret')}
-            inputValue={this.state.zanataSecret} isSecret
-          />
-          <FormButtons onSave={saveZanataAccountCallback} cancelBtnText='Reset'
-            saving={savingZanataAccount} onCancel={this._handleResetZanata}
+            inputValue={zanataAccount.apiKey} isSecret disabled
           />
         </FieldSet>
 

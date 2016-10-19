@@ -45,7 +45,7 @@ import org.zanata.sync.App;
 import org.zanata.sync.EncryptionKey;
 import org.zanata.sync.HostURL;
 import org.zanata.sync.events.ResourceReadyEvent;
-import org.zanata.sync.servlet.FormAuthenticationFilter;
+import org.zanata.sync.servlet.FrontendDataProviderFilter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -157,7 +157,7 @@ public class ResourceProducer {
         if (url == null) {
             log.warn("Please set host.url system property for the host URL");
             Optional<String> urlFromRequest =
-                    FormAuthenticationFilter.serverURLFromRequest();
+                    FrontendDataProviderFilter.serverURLFromRequest();
             if (urlFromRequest.isPresent()) {
                 return urlFromRequest.get();
             } else {

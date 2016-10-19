@@ -61,19 +61,6 @@ public class AccountResource {
         return Response.ok(dto).build();
     }
 
-    @PUT
-    @Path("/zanata")
-    public Response saveZanataAccount(ZanataUserAccount zanataUserAccount) {
-        Map<String, String> errors = dtoValidator.validate(zanataUserAccount);
-        if (errors.size() > 0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(errors)
-                    .build();
-        }
-        ZanataAccount entity =
-                accountService.updateZanataAccount(zanataUserAccount);
-        return Response.ok(ZanataUserAccount.fromEntity(entity)).build();
-    }
-
     @POST
     @Path("/repo")
     public Response saveRepoAccount(RepoAccountDto repoAccount) {

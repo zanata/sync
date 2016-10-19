@@ -31,8 +31,7 @@ const App = React.createClass({
     selectedConfig: PropTypes.object,
     onCloseDeleteConfirmation: PropTypes.func.isRequired,
     onConfirmDeleteConfig: PropTypes.func.isRequired,
-    getZanataAccount: PropTypes.func.isRequired,
-    zanataAccount: PropTypes.object
+    getZanataAccount: PropTypes.func.isRequired
   },
 
   componentWillReceiveProps(nextProps) {
@@ -43,7 +42,9 @@ const App = React.createClass({
   },
 
   componentWillMount() {
-    this.props.getZanataAccount()
+    if (this.props.user) {
+      this.props.getZanataAccount()
+    }
   },
 
   render() {

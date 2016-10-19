@@ -9,7 +9,8 @@ export default React.createClass({
     label: PropTypes.string,
     placeholder: PropTypes.string,
     lines: PropTypes.number,
-    isSecret: PropTypes.bool
+    isSecret: PropTypes.bool,
+    disabled: PropTypes.bool
   },
 
   render() {
@@ -27,6 +28,7 @@ export default React.createClass({
           name={name}
           onChange={onChangeCallback}
           value={this.props.inputValue}
+          disabled={this.props.disabled}
         />
       )
     } else {
@@ -37,6 +39,7 @@ export default React.createClass({
           onChange={onChangeCallback}
           value={this.props.inputValue}
           placeholder={this.props.placeholder}
+          disabled={this.props.disabled}
         />
       )
     }

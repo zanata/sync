@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.dao.ZanataAccountDAO;
-import org.zanata.sync.dto.LocalAccount;
 import org.zanata.sync.dto.RepoAccountDto;
 import org.zanata.sync.dto.UserAccount;
 import org.zanata.sync.dto.ZanataUserAccount;
@@ -56,24 +55,14 @@ public class AccountServiceEJB implements AccountService {
     public void saveAuthenticatedAccount() {
         UserAccount account = securityTokens.getAccount();
         ZanataAccount entity;
-        if (account instanceof ZanataUserAccount) {
-            ZanataUserAccount zanataAccount = (ZanataUserAccount) account;
-            log.debug("about to save a zanata user account: {}", zanataAccount);
-            entity = zanataAccountDAO
-                    .getByUsernameAndServer(zanataAccount.getUsername(),
-                            zanataAccount.getZanataServer());
-            if (entity == null) {
-                entity = new ZanataAccount(zanataAccount.getUsername(),
-                        zanataAccount.getZanataServer(),
-                        zanataAccount.getApiKey());
-            }
-        } else {
-            log.debug("about to save a local user account: {}", account);
-            entity =
-                    zanataAccountDAO.getByLocalUsername(account.getUsername());
-            if (entity == null) {
-                entity = new ZanataAccount(account.getUsername());
-            }
+        ZanataUserAccount zanataAccount = (ZanataUserAccount) account;
+        log.debug("about to save a zanata user account: {}", zanataAccount);
+        entity = zanataAccountDAO.getByUsernameAndServer(zanataAccount.getUsername(),
+                        zanataAccount.getZanataServer());
+        if (entity == null) {
+            entity = new ZanataAccount(zanataAccount.getUsername(),
+                    zanataAccount.getZanataServer(),
+                    zanataAccount.getApiKey());
         }
 
         if (entity.getId() != null) {
@@ -85,35 +74,12 @@ public class AccountServiceEJB implements AccountService {
     }
 
     @Override
-    @TransactionAttribute
-    public ZanataAccount updateZanataAccount(ZanataUserAccount zanataUserAccount) {
-        UserAccount account = securityTokens.getAccount();
-        ZanataAccount entity;
-        if (account instanceof LocalAccount) {
-            LocalAccount localAccount = (LocalAccount) account;
-            entity = zanataAccountDAO.getByLocalUsername(localAccount.getUsername());
-            Preconditions.checkState(entity != null, "Can not find local account username in the system.");
-            entity.updateZanataAccount(zanataUserAccount);
-            return entity;
-        } else {
-            // we don't support update Zanata Account from OAuth login
-            throw new IllegalStateException("Can not update Zanata Account when logged in using OAuth");
-        }
-    }
-
-    @Override
     public ZanataAccount getZanataAccountForCurrentUser() {
         UserAccount account = securityTokens.getAccount();
         ZanataAccount result;
-        if (account instanceof ZanataUserAccount) {
-            result = zanataAccountDAO
-                    .getByUsernameAndServer(account.getUsername(),
-                            ((ZanataUserAccount) account).getZanataServer());
-        } else {
-            result = zanataAccountDAO
-                    .getByLocalUsername(account.getUsername());
-
-        }
+        result = zanataAccountDAO
+                .getByUsernameAndServer(account.getUsername(),
+                        ((ZanataUserAccount) account).getZanataServer());
         Preconditions.checkState(result != null, "Can not get zanata account for current user");
         return result;
     }

@@ -121,6 +121,13 @@ public class AuthorizationCodeFilter implements Filter {
             throw new IllegalStateException(
                     "You are not authorized to one Zanata server");
         }
+
+        // TODO this is a hack to get it working in docker environment. find a better way.
+        if ("/opt/jboss".equals(System.getenv("HOME"))) {
+            // this is in docker environment
+            zanataUrl = "http://zanata:8080";
+        }
+
         OAuthClient oAuthClient = null;
         try {
             // TODO pahuang we only need to get access token and refresh token once (then we should persist the refresh token)

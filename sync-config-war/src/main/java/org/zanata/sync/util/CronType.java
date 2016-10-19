@@ -34,9 +34,7 @@ public enum CronType {
     TWO_HOUR("Every two hours", "0 0 0/2 * * ?"),
     SIX_HOUR("Every six hours (6am, 12am, 6pm, 12pm)", "0 0 0/6 * * ?"),
     TWELVE_HOUR("Every twelve hours (12:00am/pm)", "0 0 0,12 * * ?"),
-    ONE_DAY("Every day (12:00am)", "0 0 0 * * ?"),
-    //this is for testing purposes
-    THIRTY_SECONDS("30 seconds", "0/30 * * * * ?");
+    ONE_DAY("Every day (12:00am)", "0 0 0 * * ?");
 
     private final String display;
     private final String expression;
@@ -72,19 +70,11 @@ public enum CronType {
         throw new IllegalArgumentException(display);
     }
 
-    /**
-     * 30 seconds option is only added to the map if it's in dev mode.
-     * @param isInDevMode true or false
-     */
-    public static Map<String, CronType> toMapWithDisplayAsKey(
-            boolean isInDevMode) {
+    public static Map<String, CronType> toMapWithDisplayAsKey() {
         ImmutableMap.Builder<String, CronType> builder = ImmutableMap.builder();
         for (CronType cronType : values()) {
-            if (cronType != THIRTY_SECONDS || isInDevMode) {
-                builder.put(cronType.getDisplay(), cronType);
-            }
+            builder.put(cronType.getDisplay(), cronType);
         }
-
         return builder.build();
     }
 }

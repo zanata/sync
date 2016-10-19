@@ -82,7 +82,7 @@ public class UrlUtil {
             OAuthClientRequest request = OAuthClientRequest
                     .authorizationLocation(zanataAuthUrl)
                     .setClientId("zanata_sync")
-                    .setRedirectURI(concatUrlPath(appRoot, "/app?z=" + zanataServerUrl))
+                    .setRedirectURI(concatUrlPath(appRoot, "?z=" + zanataServerUrl))
                     .buildQueryMessage();
             log.debug("OAuth will redirect to {}", request.getLocationUri());
             return request.getLocationUri();

@@ -31,7 +31,5 @@ public interface ZanataAccountDAO {
 
     void persist(ZanataAccount account);
 
-    @Nullable ZanataAccount getByLocalUsername(String localUsername);
-
     @Nullable ZanataAccount getByUsernameAndServer(String username, String server);
 }
