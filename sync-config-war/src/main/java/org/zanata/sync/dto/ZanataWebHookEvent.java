@@ -27,44 +27,51 @@ import com.google.common.base.MoreObjects;
  * payload:
  * <pre>
  *     {
- *        "projectSlug": "gettext-project",
- *        "versionSlug": "master",
- *        "localeId": "zh-CN",
- *        "type": "TranslationChangedEvent"
+ *        "zanataServer": "https://translate.zanata.org"
+ *        "project": "gettext-project",
+ *        "version": "master",
+ *        "locale": "zh-CN",
+ *        "type": "ManualEvent"
  *     }
  * </pre>
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZanataWebHookEvent {
+    private String zanataServer;
     private String username;
-    private String projectSlug;
-    private String versionSlug;
-    private String localeId;
+    private String project;
+    private String version;
+    private String locale;
 
     public String getUsername() {
         return username;
     }
 
-    public String getProjectSlug() {
-        return projectSlug;
+    public String getProject() {
+        return project;
     }
 
-    public String getVersionSlug() {
-        return versionSlug;
+    public String getVersion() {
+        return version;
     }
 
-    public String getLocaleId() {
-        return localeId;
+    public String getLocale() {
+        return locale;
+    }
+
+    public String getZanataServer() {
+        return zanataServer;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("zanataServer", zanataServer)
                 .add("username", username)
-                .add("projectSlug", projectSlug)
-                .add("version", versionSlug)
-                .add("localeId", localeId)
+                .add("project", project)
+                .add("version", version)
+                .add("locale", locale)
                 .toString();
     }
 }

@@ -35,6 +35,7 @@ import org.zanata.sync.jobs.RemoteJobExecutor;
 import org.zanata.sync.common.model.JobStatusType;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
+import org.zanata.sync.model.ZanataAccount;
 import org.zanata.sync.service.WebHookService;
 import org.zanata.sync.util.AutoCloseableDependentProvider;
 
@@ -62,12 +63,19 @@ public class WebHookServiceImpl implements WebHookService {
     public void processZanataWebHook(SyncWorkConfig config,
             ZanataWebHookEvent event) {
         // validate stuff
-        String zanataUsernameInConfig = config.getZanataAccount().getUsername();
-        if (!zanataUsernameInConfig.equals(event.getUsername())) {
+        ZanataAccount zanataAccount = config.getZanataAccount();
+        if (!webhookSourceMatchesZanataAccount(event, zanataAccount)) {
             log.warn(
-                    "the zanata username in config [{}] is not the same as the event trigger [{}], aborting webhook event",
-                    zanataUsernameInConfig, event.getUsername());
+                    "the zanata server in config [{}] is not the same as the event source [{}], aborting webhook event",
+                    zanataAccount.getServer(),
+                    event.getZanataServer());
             return;
+        }
+
+        if (!zanataAccount.getUsername().equals(event.getUsername())) {
+            log.warn(
+                    "webhook is triggered by {} but the sync config is created by {}",
+                    event.getUsername(), zanataAccount.getUsername());
         }
 
         Date startTime = new Date();
@@ -87,7 +95,7 @@ public class WebHookServiceImpl implements WebHookService {
                 forBean(RemoteJobExecutor.class)) {
             RemoteJobExecutor jobExecutor = provider.getBean();
             try {
-                jobExecutor.executeJob(firingId, config, JobType.REPO_SYNC, event.getLocaleId());
+                jobExecutor.executeJob(firingId, config, JobType.REPO_SYNC, event.getLocale());
 
                 JobProgressEvent progressEvent = JobProgressEvent.running(
                         firingId, configId, null);
@@ -107,11 +115,16 @@ public class WebHookServiceImpl implements WebHookService {
         }
     }
 
+    private boolean webhookSourceMatchesZanataAccount(ZanataWebHookEvent event,
+            ZanataAccount zanataAccount) {
+        return zanataAccount.getServer().equals(event.getZanataServer());
+    }
+
     private static String eventToFireId(ZanataWebHookEvent event,
             long timestamp) {
         String eventInfo =
                 String.format("%d-%s-%s-%s", timestamp, event.getUsername(),
-                        event.getProjectSlug(), event.getLocaleId());
+                        event.getProject(), event.getLocale());
         if (eventInfo.length() > MAX_LENGTH) {
             log.info("{} generated fireId is too long and will be truncated",
                     event);
