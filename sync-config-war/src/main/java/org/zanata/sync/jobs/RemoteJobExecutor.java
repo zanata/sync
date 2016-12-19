@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.sync.HostURL;
 import org.zanata.sync.common.model.SyncJobDetail;
+import org.zanata.sync.dto.ZanataWebHookEvent;
 import org.zanata.sync.model.JobType;
 import org.zanata.sync.model.SyncWorkConfig;
 
@@ -57,7 +58,7 @@ public class RemoteJobExecutor {
     }
 
     public void executeJob(String fireInstanceId, SyncWorkConfig workConfig,
-            JobType jobType, String localeId) {
+            JobType jobType, ZanataWebHookEvent webHookEvent) {
         SyncJobDetail jobDetail = SyncJobDetail.Builder.builder()
                 .setSrcRepoType(workConfig.getRepoAccount().getRepoType())
                 .setSrcRepoUrl(workConfig.getSrcRepoUrl())
@@ -68,7 +69,8 @@ public class RemoteJobExecutor {
                 .setZanataUsername(workConfig.getZanataAccount().getUsername())
                 .setZanataSecret(workConfig.getZanataAccount().getSecret())
                 .setSyncToZanataOption(workConfig.getSyncToZanataOption())
-                .setLocaleId(localeId)
+                .setLocaleId(webHookEvent.getLocale())
+                .setProject(webHookEvent.getProject())
                 .setProjectConfigs(workConfig.getProjectConfigs())
                 .setInitiatedFromHostURL(hostURL)
                 .build();

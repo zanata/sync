@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -85,9 +86,16 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
         this.pullOptions = pullOptions;
 //        this.pushOptions.setLogHttp(true);
 //        this.pullOptions.setLogHttp(true);
+        // if localeId is given, only handle this locale
         if (!Strings.isNullOrEmpty(localeId)) {
             pullOptions.setLocales(localeId);
             pushOptions.setLocales(localeId);
+        }
+        // if project id is given, only handle this project
+        String projectId = jobDetail.getProject();
+        if (!Strings.isNullOrEmpty(projectId)) {
+            pullOptions.setProj(projectId);
+            pushOptions.setProj(projectId);
         }
 
     }
@@ -113,22 +121,32 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
 
     @Override
     public void pushToZanata(Path repoBase) throws ZanataSyncException {
+        String project = getPushOptions().getProj();
         if (projectConfigs.isEmpty()) {
             Set<File> projectConfigs = findProjectConfigsOrThrow(repoBase);
             for (File config : projectConfigs) {
                 PushPullOptionsUtil
                         .applyProjectConfig(getPushOptions(), config);
                 log.info("{} - {}", getPushOptions());
-                checkURL(getPushOptions().getUrl(), zanataUrl);
-                pushService.pushToZanata(getPushOptions());
+                pushIfProjectIdMatchesConfig(project, config);
             }
         } else {
             for (String projectConfig : projectConfigs) {
                 Path absPath = Paths.get(repoBase.toString(), projectConfig);
                 PushPullOptionsUtil.applyProjectConfig(getPushOptions(), absPath.toFile());
-                checkURL(getPushOptions().getUrl(), zanataUrl);
-                pushService.pushToZanata(getPushOptions());
+                pushIfProjectIdMatchesConfig(project, absPath.toFile());
             }
+        }
+    }
+
+    private void pushIfProjectIdMatchesConfig(String project, File config) {
+        if (Strings.isNullOrEmpty(project) || Objects.equals(getPushOptions().getProj(), project)) {
+            checkURL(getPushOptions().getUrl(), zanataUrl);
+            pushService.pushToZanata(getPushOptions());
+        } else if (!Strings.isNullOrEmpty(project)) {
+            log.warn(
+                    "project id is provided as {}. Skip {} which has project set to {}",
+                    config, getPushOptions().getProj());
         }
     }
 
@@ -158,23 +176,32 @@ public class ZanataSyncServiceImpl implements ZanataSyncService {
 
     @Override
     public void pullFromZanata(Path repoBase) throws ZanataSyncException {
-
+        String project = getPullOptions().getProj();
         if (projectConfigs.isEmpty()) {
             Set<File> projectConfigs =
                     findProjectConfigsOrThrow(repoBase);
             for (File config : projectConfigs) {
                 PushPullOptionsUtil
                         .applyProjectConfig(getPullOptions(), config);
-                checkURL(getPullOptions().getUrl(), zanataUrl);
-                pullService.pullFromZanata(getPullOptions());
+                pullIfProjectIdMatchesConfig(project, config);
             }
         } else {
             for (String projectConfig : projectConfigs) {
                 Path absPath = Paths.get(repoBase.toString(), projectConfig);
                 PushPullOptionsUtil.applyProjectConfig(getPullOptions(), absPath.toFile());
-                checkURL(getPullOptions().getUrl(), zanataUrl);
-                pullService.pullFromZanata(getPullOptions());
+                pullIfProjectIdMatchesConfig(project, absPath.toFile());
             }
+        }
+    }
+
+    private void pullIfProjectIdMatchesConfig(String project, File config) {
+        if (Strings.isNullOrEmpty(project) || Objects.equals(getPushOptions().getProj(), project)) {
+            checkURL(getPushOptions().getUrl(), zanataUrl);
+            pullService.pullFromZanata(getPullOptions());
+        } else if (!Strings.isNullOrEmpty(project)) {
+            log.warn(
+                    "project id is provided as {}. Skip {} which has project set to {}",
+                    config, getPushOptions().getProj());
         }
     }
 }

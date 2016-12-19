@@ -20,7 +20,7 @@
 
     <!-- bundled 2.3.x in EAP6 -->
     <resteasy.version>3.0.12.Final</resteasy.version>
-    <zanata-client-commands.version>3.8.1</zanata-client-commands.version>
+    <zanata-client-commands.version>4.0.0-rc-2</zanata-client-commands.version>
     <!-- cargo settings -->
     <cargo.host>localhost</cargo.host>
     <cargo.port.offset>0</cargo.port.offset>
@@ -32,6 +32,10 @@
     <cargo.jboss.management-http.port>10190</cargo.jboss.management-http.port>
     <cargo.jboss.management-native.port>10199</cargo.jboss.management-native.port>
     <context.path>jobs</context.path>
+    <cargo.debug.jvm.args>
+      -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8787
+      -Xnoagent -Djava.compiler=NONE
+    </cargo.debug.jvm.args>
   </properties>
   <dependencies>
     <!--
@@ -267,6 +271,10 @@
             <output>${project.build.directory}/container.log</output>
             <append>false</append>
             <log>${project.build.directory}/cargo.log</log>
+
+            <systemProperties>
+              <system.notification.email>noreply@example.com</system.notification.email>
+            </systemProperties>
           </container>
 
           <configuration>
@@ -305,6 +313,13 @@
             <goals>
               <goal>start</goal>
             </goals>
+            <configuration>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>${cargo.debug.jvm.args}</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
           </execution>
           <execution>
             <id>cargo-stop</id>

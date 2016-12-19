@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<collection xmlns:ns2="http://zanata.org/namespace/api/"
+  xmlns:ns3="http://zanata.org/namespace/api/gettext/">
+  <ns2:resource-meta content-type="application/x-gettext" xml:lang="en-US"
+    revision="1" type="FILE">
+    <name>messages</name>
+  </ns2:resource-meta>
+</collection>

@@ -1,10 +1,22 @@
 package org.zanata.sync.jobs;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.model.Cookie;
 import org.mockserver.model.Delay;
 import org.mockserver.model.Header;
 import org.mockserver.model.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.mockserver.matchers.Times.exactly;
@@ -18,6 +30,8 @@ import static org.mockserver.model.StringBody.exact;
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 public class MockZanataServer {
+    private static final Logger log =
+            LoggerFactory.getLogger(MockZanataServer.class);
     private final MockServerClient mockServerClient;
 
     public MockZanataServer(MockServerClient mockServerClient) {
@@ -58,8 +72,7 @@ public class MockZanataServer {
                                         new Header("Content-Type",
                                                 "application/vnd.zanata.version+xml")
                                 )
-                                .withBody(
-                                        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:versionInfo xmlns:ns2=\"http://zanata.org/namespace/api/\"><versionNo>4.0.0-SNAPSHOT</versionNo><buildTimeStamp>unknown</buildTimeStamp><ns2:scmDescribe>unknown</ns2:scmDescribe></ns2:versionInfo>")
+                                .withBody(readFile("zanata-output/version.xml"))
                 );
     }
 
@@ -76,10 +89,9 @@ public class MockZanataServer {
                                 .withStatusCode(200)
                                 .withHeaders(
                                         new Header("Content-Type",
-                                                "application/json")
+                                                "application/xml")
                                 )
-                                .withBody(
-                                        "[{\"name\":\"messages\",\"contentType\":\"text/plain\",\"lang\":\"en-US\",\"type\":\"FILE\",\"revision\":1}]")
+                                .withBody(readFile("zanata-output/documentNames.xml"))
                 );
     }
 
@@ -98,9 +110,9 @@ public class MockZanataServer {
                         response()
                                 .withStatusCode(200)
                                 .withHeaders(
-                                        new Header("Content-Type", "application/json")
+                                        new Header("Content-Type", "application/xml")
                                 )
-                                .withBody("{\"extensions\":[],\"textFlowTargets\":[{\"resId\":\"greeting\",\"state\":\"Approved\",\"translator\":{\"email\":\"user@example.com\",\"name\":\"User\"},\"content\":\"hello, world\",\"extensions\":[],\"revision\":1,\"textFlowRevision\":1}]}")
+                                .withBody(readFile("zanata-output/pullTranslations.xml"))
                 );
     }
 
@@ -138,5 +150,21 @@ public class MockZanataServer {
                                 .withBody(
                                         "{ message: 'incorrect username and password combination' }")
                 );
+    }
+
+    static String readFile(String file) {
+        URL resource = Thread.currentThread().getContextClassLoader()
+                .getResource(file);
+        if (resource == null) {
+            log.error("can not find {}", file);
+            throw new IllegalStateException("can not find " + file);
+        }
+        try {
+            List<String> lines =
+                    Files.readAllLines(Paths.get(resource.getPath()));
+            return Joiner.on("\n").skipNulls().join(lines);
+        } catch (IOException e) {
+            throw new RuntimeException("failed reading file:" + file);
+        }
     }
 }

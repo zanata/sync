@@ -95,7 +95,7 @@ public class WebHookServiceImpl implements WebHookService {
                 forBean(RemoteJobExecutor.class)) {
             RemoteJobExecutor jobExecutor = provider.getBean();
             try {
-                jobExecutor.executeJob(firingId, config, JobType.REPO_SYNC, event.getLocale());
+                jobExecutor.executeJob(firingId, config, JobType.REPO_SYNC, event);
 
                 JobProgressEvent progressEvent = JobProgressEvent.running(
                         firingId, configId, null);

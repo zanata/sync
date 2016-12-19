@@ -24,6 +24,7 @@ import java.nio.file.Path;
 
 import org.zanata.client.commands.pull.PullOptions;
 import org.zanata.client.commands.push.PushOptions;
+import org.zanata.sync.common.model.SyncJobDetail;
 import org.zanata.sync.jobs.common.exception.ZanataSyncException;
 
 /**

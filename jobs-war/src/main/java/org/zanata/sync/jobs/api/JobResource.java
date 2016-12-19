@@ -173,6 +173,7 @@ public class JobResource {
             errors.add(new ErrorMessage("firingIdMissing", "missing firing Id"));
         }
         if (!errors.isEmpty()) {
+            log.warn("invalid request: {}", errors);
             return Response.status(Response.Status.BAD_REQUEST).entity(errors)
                     .build();
         }

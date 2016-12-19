@@ -1,5 +1,6 @@
 package org.zanata.sync.jobs;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -76,8 +77,12 @@ public class SyncToRepoITCase {
         Client client = ClientBuilder.newClient();
 
         SyncJobDetail payload = createPayload();
+        // to make sure we have new id for each test run
+        long id = new Date().getTime();
         Response response =
-                client.target("http://localhost:8280/jobs/api/job/2repo/start/id1")
+                client.target("http://localhost:8280/jobs/api/job/2repo/start/" +
+                        id)
+                        .queryParam("firingId", "id1a")
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .post(Entity.json(payload));
 

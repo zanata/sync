@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:translations xmlns:ns2="http://zanata.org/namespace/api/"
+  xmlns:ns3="http://zanata.org/namespace/api/gettext/">
+  <extensions />
+  <targets>
+    <ns2:text-flow-target res-id="a5fa5746370b608090b994a97b49e98b" revision="4"
+      state="Approved" resourceRevision="1">
+      <ns2:person email="admin@noreply.org" name="Administrator" />
+      <content>网络</content>
+      <extensions />
+    </ns2:text-flow-target>
+    <ns2:text-flow-target res-id="4835ee09110b6d84c9e0b043927056da" revision="1"
+      state="Approved" resourceRevision="1">
+      <ns2:person email="admin@noreply.org" name="Administrator" />
+      <content>To disable Network Manager</content>
+      <extensions />
+    </ns2:text-flow-target>
+    <ns2:text-flow-target res-id="0dfff1746620b9ef8b41da13eccd5ff9" revision="2"
+      state="Approved" resourceRevision="1">
+      <ns2:person email="admin@noreply.org" name="Administrator" />
+      <content>Use the YaST network module</content>
+      <extensions />
+    </ns2:text-flow-target>
+  </targets>
+</ns2:translations>
